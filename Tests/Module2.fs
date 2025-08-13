@@ -315,7 +315,7 @@ module Module2 =
         let resultStr = ResizeArray.min [|"a"; "Lists";  "Commonly" ; "List"   |].asRarr
         if resultStr <> "Commonly" then Assert.Fail()
 
-        // empty array -- argumentexception
+        // empty array -- argument exception
 
         // null array
         let nullArr = null:ResizeArray<string>
@@ -1539,4 +1539,7 @@ module Module2 =
         Assert.AreEqual([|1;2;3;4;5;6;7;8;9;10|].asRarr, arr.[1 .. ])
         Assert.AreEqual([|0;1;2;3;4;5;6;7;8;9|].asRarr, arr.[ .. 9])
         Assert.AreEqual([|8;9;10|].asRarr, arr.[^2 .. ^0])
+
+
+
   ]

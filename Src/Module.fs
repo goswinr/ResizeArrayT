@@ -388,15 +388,17 @@ module ResizeArray =
         elif condition resizeArray.[0] then
             resizeArray.Clone()
         else
-            let rec findBackIdx i =
-                if i = -1 then
-                    fail resizeArray "rotateUpTill: no item in the list meets the condition"
-                elif condition resizeArray.[i] then
-                    i
-                else
-                    findBackIdx (i - 1)
+            let mutable j = resizeArray.Count - 1
+            let mutable fi = -1
+            while j >= 0 && fi = -1 do
+                if condition resizeArray.[j] then
+                    fi <- j
+                j <- j - 1
 
-            let fi = findBackIdx (resizeArray.Count - 1)
+            if fi = -1 then
+                fail resizeArray "rotateUpTill: no item in the list meets the condition"
+
+
             let r = ResizeArray(resizeArray.Count)
             for i = fi to resizeArray.Count - 1 do
                 r.Add <| resizeArray.[i]
@@ -417,15 +419,15 @@ module ResizeArray =
         elif condition resizeArray.[resizeArray.Count - 1] then
             resizeArray.Clone()
         else
-            let rec findBackIdx i =
-                if i = -1 then
-                    fail resizeArray "rotateUpTillLast: no item in the list meets the condition"
-                elif condition resizeArray.[i] then
-                    i
-                else
-                    findBackIdx (i - 1)
+            let mutable j = resizeArray.Count - 1
+            let mutable fi = -1
+            while j >= 0 && fi = -1 do
+                if condition resizeArray.[j] then
+                    fi <- j
+                j <- j - 1
 
-            let fi = findBackIdx (resizeArray.Count - 1)
+            if fi = -1 then
+                fail resizeArray "rotateUpTillLast: no item in the list meets the condition"
             let r = ResizeArray(resizeArray.Count)
             for i = fi + 1 to resizeArray.Count - 1 do
                 r.Add <| resizeArray.[i]
@@ -448,15 +450,18 @@ module ResizeArray =
             resizeArray.Clone()
         else
             let k = resizeArray.Count
-            let rec findIdx i =
-                if i = k then
-                    fail resizeArray "rotateDownTill: no item in the list meets the condition"
-                elif condition resizeArray.[i] then
-                    i
-                else
-                    findIdx (i + 1)
+            let mutable fi = -1
+            let mutable j = 0
+            while j < k && fi = -1 do
+                j <- j + 1
+                let elm = resizeArray.[j]
+                if condition elm then
+                    fi <- j
+                    j <- k // to break the loop
 
-            let fi = findIdx (0)
+            if fi = -1 then
+                fail resizeArray "rotateDownTill: no item in the list meets the condition"
+
             let r = ResizeArray(resizeArray.Count)
             for i = fi to resizeArray.Count - 1 do
                 r.Add <| resizeArray.[i]
@@ -478,15 +483,17 @@ module ResizeArray =
             resizeArray.Clone()
         else
             let k = resizeArray.Count
-            let rec findIdx i =
-                if i = k then
-                    fail resizeArray "rotateDownTillLast: no item in the list meets the condition"
-                elif condition resizeArray.[i] then
-                    i
-                else
-                    findIdx (i + 1)
+            let mutable fi = -1
+            let mutable j = 0
+            while j < k && fi = -1 do
+                j <- j + 1
+                let elm = resizeArray.[j]
+                if condition elm then
+                    fi <- j
+                    j <- k // to break the loop
 
-            let fi = findIdx (0)
+            if fi = -1 then
+                fail resizeArray "rotateDownTillLast: no item in the list meets the condition"
             let r = ResizeArray(resizeArray.Count)
             for i = fi + 1 to resizeArray.Count - 1 do
                 r.Add <| resizeArray.[i]
@@ -498,61 +505,64 @@ module ResizeArray =
     /// Compares each element in both lists for equality.
     /// However nested ResizeArrays inside a ResizeArray are only compared for referential equality.
     /// (Like the default behavior of Collections.Generic.List)
-    /// Raises ArgumentNullException if either list is null.
+    /// Does not raise ArgumentNullException if either list is null.
     /// When used in Fable (JavaScript) the ResizeArrays are always compared for full structural equality
     /// see https://github.com/fable-compiler/Fable/issues/3718
     /// Use ResizeArray.equals2 or ResizeArray.equal3 for comparing nested ResizeArrays too.
-    let inline equals (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'T>) : bool =
-        if isNull resizeArray1 then nullExn "equals"
-        resizeArray1.IsEqualTo(resizeArray2)
+    let equals (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'T>) : bool =
+        isEqualTo resizeArray1 resizeArray2 // returns true if both are null
 
     /// Structural equality comparison of ResizeArrays nested in ResizeArrays in .NET.
     /// Compares each element in each nested list for equality.
     /// So that two levels deep nested 'T are still compared for equality in .NET.
-    /// Raises ArgumentNullException if either list is null.
+    /// Does not raise ArgumentNullException if either list is null.
     /// When used in Fable (JavaScript) the ResizeArrays are always compared for full structural equality
     /// see https://github.com/fable-compiler/Fable/issues/3718
-    let equals2 (resizeArrays1: ResizeArray<ResizeArray<'T>>) (resizeArrays2: ResizeArray<ResizeArray<'T>>)=
-        if isNull resizeArrays1 then nullExn "equals2 first"
-        if isNull resizeArrays2 then nullExn "equals2 second"
-        if Object.ReferenceEquals (resizeArrays1, resizeArrays2) then
+    let equals2 (resizeArrays1: ResizeArray<ResizeArray<'T>>) (resizeArrays2: ResizeArray<ResizeArray<'T>>) =
+        if Object.ReferenceEquals (resizeArrays1, resizeArrays2) then // returns true if both are null
             true
+        elif isNull resizeArrays1 || isNull resizeArrays2 then
+            false
         elif resizeArrays1.Count <> resizeArrays2.Count then
             false
         else
-            let rec eq i =
-                if i < resizeArrays1.Count then
-                    if equals resizeArrays1.[i] resizeArrays2.[i] then
-                        eq (i + 1)
-                    else
-                        false
-                else
-                    true
-            eq 0
+            let mutable i = 0
+            let mutable isEqual = true
+            let k = resizeArrays1.Count
+            while i < k do
+                let r1 = resizeArrays1.[i]
+                let r2 = resizeArrays2.[i]
+                i <- i + 1
+                if not <| equals r1 r2 then
+                    isEqual <- false
+                    i <- k // break the loop
+            isEqual
 
     /// Structural equality comparison of ResizeArrays nested in ResizeArrays nested in ResizeArrays in .NET.
     /// Compares each element in each twice nested list for equality.
     /// So that three levels deep nested 'T are still compared for equality.
-    /// Raises ArgumentNullException if either list is null.
+    /// Does not raise ArgumentNullException if either list is null.
     /// When used in Fable (JavaScript) the ResizeArrays are always compared for full structural equality
     /// see https://github.com/fable-compiler/Fable/issues/3718
     let equals3 (resizeArrays1: ResizeArray<ResizeArray<ResizeArray<'T>>>) (resizeArrays2: ResizeArray<ResizeArray<ResizeArray<'T>>>) =
-        if isNull resizeArrays1 then nullExn "equals3 first"
-        if isNull resizeArrays2 then nullExn "equals3 second"
-        if Object.ReferenceEquals (resizeArrays1, resizeArrays2) then
+        if Object.ReferenceEquals (resizeArrays1, resizeArrays2) then // returns true if both are null
             true
+        elif isNull resizeArrays1 || isNull resizeArrays2 then
+            false
         elif resizeArrays1.Count <> resizeArrays2.Count then
             false
         else
-            let rec eq i =
-                if i < resizeArrays1.Count then
-                    if equals2 resizeArrays1.[i] resizeArrays2.[i] then
-                        eq (i + 1)
-                    else
-                        false
-                else
-                    true
-            eq 0
+            let mutable i = 0
+            let mutable isEqual = true
+            let k = resizeArrays1.Count
+            while i < k do
+                let r1 = resizeArrays1.[i]
+                let r2 = resizeArrays2.[i]
+                i <- i + 1
+                if not <|  equals2 r1 r2 then
+                    isEqual <- false
+                    i <- k // break the loop
+            isEqual
 
 
     /// Returns true if the given ResizeArray has just one item.
@@ -1147,19 +1157,24 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The index of the first element that satisfies the predicate, or None if not found.</returns>
     let inline tryFindIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : option<int> =
-        if isNull resizeArray then nullExn "tryFindIndexi"
-        let rec loop i =
-            if i = resizeArray.Count then None
-            elif predicate i resizeArray.[i] then Some i
-            else loop (i + 1)
-        loop 0
+        if isNull resizeArray then nullExn "tryFindIndexi" // TODO or return None ?
+        let mutable i = 0
+        let mutable result = None
+        let k = resizeArray.Count
+        while i < k  do
+            let elm = resizeArray.[i]
+            i <- i + 1
+            if predicate i elm then
+                result <- Some i
+                i <- k // break the loop
+        result
 
     /// <summary>Returns the index of the first element in the ResizeArray that satisfies the given indexed predicate.</summary>
     /// <param name="predicate">The function to test each indexed element against.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The index of the first element that satisfies the predicate, or an exception.</returns>
     /// <exception cref="System.KeyNotFoundException">Thrown when no element satisfies the predicate.</exception>
-    let findIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) =
+    let findIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : int=
         if isNull resizeArray then nullExn "findIndexi"
         match tryFindIndexi predicate resizeArray with
         | Some i -> i
@@ -1628,15 +1643,22 @@ module ResizeArray =
     /// <returns><c>true</c> if any result from <c>predicate</c> is <c>true</c>.</returns>
     /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     let exists2 (predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
-        if isNull resizeArray1 then nullExn "exists2 first"
+        if isNull resizeArray1 then nullExn "exists2 first" // TODO Or return false?
         if isNull resizeArray2 then nullExn "exists2 second"
         let len1 = resizeArray1.Count
         if len1 <> resizeArray2.Count then
             fail resizeArray1 $"exists2: count of resizeArray1 {len1} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(predicate)
-        let rec loop i =
-            i < len1 && (f.Invoke(resizeArray1.[i], resizeArray2.[i]) || loop (i + 1))
-        loop 0
+        let f = OptimizedClosures.FSharpFunc<_,_,_>.Adapt predicate
+        let mutable i = 0
+        let mutable found = false
+        while i < len1  do
+            let e1 = resizeArray1.[i]
+            let e2 = resizeArray2.[i]
+            i <- i + 1
+            if f.Invoke(e1, e2) then
+                found <- true
+                i <- len1 // break out of the loop
+        found
 
     /// <summary>Fills a range of elements of the ResizeArray with the given value. Extends the ResizeArray if needed</summary>
     /// <param name="target">The target ResizeArray.</param>
@@ -1655,7 +1677,7 @@ module ResizeArray =
         let tLasti = target.Count - 1
         for j = startIndex to startIndex + count - 1 do
             if j > tLasti then
-                target.Add(value)
+                target.Add value
             else
                 target.[j] <- value
 
@@ -1691,14 +1713,18 @@ module ResizeArray =
     /// <returns>The last element for which <c>predicate</c> returns true.</returns>
     let findBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "findBack"
-        let rec loop i =
-            if i < 0 then
-                failKey resizeArray "findBack did not find for given predicate in"
-            elif predicate resizeArray.[i] then
-                resizeArray.[i]
-            else
-                loop (i - 1)
-        loop (resizeArray.Count - 1)
+        let mutable i = resizeArray.Count - 1
+        let mutable result = Unchecked.defaultof<'T>
+        while i >= 0  do
+            let elm = resizeArray.[i]
+            i <- i - 1
+            if predicate elm then
+                result <- elm
+                i <- -2 // break out of the loop
+        if i = -2 then
+            result
+        else
+            failKey resizeArray "findBack did not find for given predicate in"
 
 
     /// <summary>Returns the index of the first element in the ResizeArray that satisfies the given predicate.
@@ -1725,14 +1751,17 @@ module ResizeArray =
     /// <returns>The index of the last element in the ResizeArray that satisfies the given predicate.</returns>
     let findIndexBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "findIndexBack"
-        let rec go n =
-            if n < 0 then
-                failKey resizeArray "findIndexBack did not find for given predicate in"
-            elif predicate resizeArray.[n] then
-                n
+        let mutable i = resizeArray.Count - 1
+        let mutable found = false
+        while i >= 0 && not found do
+            if predicate resizeArray.[i] then
+                found <- true
             else
-                go (n - 1)
-        go (resizeArray.Count - 1)
+                i <- i - 1
+        if found then
+            i
+        else
+            failKey resizeArray "findIndexBack did not find for given predicate in"
 
 
     /// <summary>Applies a function to each element of the collection, threading an accumulator argument
@@ -1824,9 +1853,13 @@ module ResizeArray =
         if isNull resizeArray then nullExn "forall"
         #if FABLE_COMPILER
         let len = resizeArray.Count
-        let rec loop i =
-            i >= len || ((predicate resizeArray.[i]) && loop (i + 1))
-        loop 0
+        let mutable i = 0
+        let mutable result = true
+        while i < len && result do
+            if not (predicate resizeArray.[i]) then
+                result <- false
+            i <- i + 1
+        result
         #else
         resizeArray.TrueForAll(System.Predicate predicate)
         #endif
@@ -1850,9 +1883,13 @@ module ResizeArray =
         if len1 <> resizeArray2.Count then
             fail resizeArray1 $"forall2: count of resizeArray1 {len1} does not match resizeArray2 {resizeArray2.Count}."
         let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(predicate)
-        let rec loop i =
-            i >= len1 || (f.Invoke(resizeArray1.[i], resizeArray2.[i]) && loop (i + 1))
-        loop 0
+        let mutable i = 0
+        let mutable result = true
+        while i < len1 && result do
+            if not (f.Invoke(resizeArray1.[i], resizeArray2.[i])) then
+                result <- false
+            i <- i + 1
+        result
 
 
     /// <summary>Builds a new ResizeArray that contains the given sub-range specified by starting index and length.</summary>
@@ -2356,13 +2393,10 @@ module ResizeArray =
     /// <returns>The ResizeArray of elements from the list.</returns>
     let ofList (list: list<'T>) =
         let res = ResizeArray<_>()
-        let rec add =
-            function
-            | [] -> ()
-            | e :: l ->
-                res.Add(e)
-                add l
-        add list
+        let mutable l = list
+        while not l.IsEmpty do
+            res.Add l.Head
+            l <- l.Tail
         res
 
     /// <summary>Builds a new ResizeArray from the given enumerable object. </summary>
@@ -2438,14 +2472,14 @@ module ResizeArray =
     /// <returns>The first result.</returns>
     let pick (chooser: 'T -> 'U option) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "pick"
-        let rec loop i =
-            if i = resizeArray.Count then
-                failKey resizeArray $"pick: Key not found in {resizeArray.Count} elements"
-            else
-                match chooser resizeArray.[i] with
-                | Some res -> res
-                | None -> loop (i + 1)
-        loop 0
+        let mutable i = 0
+        let mutable result = None
+        while i < resizeArray.Count && result.IsNone do
+            result <-  chooser resizeArray.[i]
+            i <- i + 1
+        match result with
+        | Some res -> res
+        | None -> failKey resizeArray $"pick: Key not found in {resizeArray.Count} elements"
 
     /// <summary>Starting from last element going backwards. Applies the given function to successive elements, returning the first
     /// result where function returns <c>Some(x)</c> for some <c>x</c>. If the function
@@ -2457,14 +2491,14 @@ module ResizeArray =
     /// <returns>The first result. From the end of the ResizeArray.</returns>
     let pickBack (chooser: 'T -> 'U option) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "pickBack"
-        let rec loop i =
-            if i = -1 then
-                failKey resizeArray $"pickBack: Key not found in {resizeArray.Count} elements"
-            else
-                match chooser resizeArray.[i] with
-                | Some res -> res
-                | None -> loop (i - 1)
-        loop (resizeArray.Count - 1)
+        let mutable i = resizeArray.Count - 1
+        let mutable result = None
+        while i >= 0 && result.IsNone do
+            result <- chooser resizeArray.[i]
+            i <- i - 1
+        match result with
+        | Some res -> res
+        | None -> failKey resizeArray $"pickBack: Key not found in {resizeArray.Count} elements"
 
     /// <summary>Applies a function to each element of the ResizeArray, threading an accumulator argument
     /// through the computation. If the input function is <c>f</c> and the elements are <c>i0...iN</c>
@@ -2935,11 +2969,15 @@ module ResizeArray =
     /// <returns>The last element that satisfies the predicate, or <c>None</c>.</returns>
     let tryFindBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : option<'T> =
         if isNull resizeArray then nullExn "tryFindBack"
-        let rec loop i =
-            if i < 0 then None
-            elif predicate resizeArray.[i] then Some resizeArray.[i]
-            else loop (i - 1)
-        loop ((resizeArray.Count - 1))
+        let mutable i = resizeArray.Count - 1
+        let mutable result = None
+        while i >= 0  do
+            let element = resizeArray.[i]
+            i <- i - 1
+            if predicate element then
+                result <- Some element
+                i <- -1 // break the loop
+        result
 
 
     /// <summary>Returns the index of the first element in the ResizeArray
@@ -2962,11 +3000,13 @@ module ResizeArray =
     /// <returns>The index of the last element that satisfies the predicate, or <c>None</c>.</returns>
     let tryFindIndexBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : option<int> =
         if isNull resizeArray then nullExn "tryFindIndexBack"
-        let rec loop i =
-            if i < 0 then None
-            elif predicate resizeArray.[i] then Some i
-            else loop (i - 1)
-        loop ((resizeArray.Count - 1))
+        let mutable i = resizeArray.Count - 1
+        let mutable result = None
+        while i >= 0  && result.IsNone do
+            if predicate resizeArray.[i] then
+                result <- Some i
+            i <- i - 1
+        result
 
 
     /// <summary>Returns the first element of the ResizeArray, or
@@ -3011,14 +3051,29 @@ module ResizeArray =
     /// <returns>The first transformed element that is <c>Some(x)</c>.</returns>
     let tryPick chooser (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "tryPick"
-        let rec loop i =
-            if i >= resizeArray.Count then
-                None
-            else
-                match chooser resizeArray.[i] with
-                | None -> loop (i + 1)
-                | res -> res
-        loop 0
+        let mutable i = 0
+        let mutable result = None
+        while i < resizeArray.Count && result.IsNone do
+            result <- chooser resizeArray.[i]
+            i <- i + 1
+        result
+
+
+    /// <summary>Applies the given function to successive elements from the end of the list, returning the first
+    /// result where function returns <c>Some(x)</c> for some <c>x</c>. If the function
+    /// never returns <c>Some(x)</c> then <c>None</c> is returned.</summary>
+    /// <param name="chooser">The function to transform the ResizeArray elements into options.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The first transformed element searched from the end of the list that is <c>Some(x)</c>.</returns>
+    let tryPickBack chooser (resizeArray: ResizeArray<'T>) =
+        if isNull resizeArray then nullExn "tryPickBack"
+        let mutable i = resizeArray.Count - 1
+        let mutable result = None
+        while i >= 0 && result.IsNone do
+            result <- chooser resizeArray.[i]
+            i <- i - 1
+        result
+
 
 
     /// <summary>Returns a ResizeArray that contains the elements generated by the given computation.
@@ -3027,15 +3082,16 @@ module ResizeArray =
     /// element of the ResizeArray and the next state value.</param>
     /// <param name="state">The initial state value.</param>
     /// <returns>The result ResizeArray.</returns>
-    let unfold<'T, 'State> (generator: 'State -> ('T * 'State) option) (state: 'State) =
+    let unfold<'T, 'State> (generator: 'State -> ('T * 'State) option) (state: 'State) :ResizeArray<'T>=
         let res = ResizeArray()
-        let rec loop state =
-            match generator state with
-            | None -> ()
-            | Some(x, s') ->
-                res.Add(x)
-                loop s'
-        loop state
+        let mutable currentState = state
+        let mutable continueLoop = true
+        while continueLoop do
+            match generator currentState with
+            | None -> continueLoop <- false
+            | Some(x, nextState) ->
+            res.Add(x)
+            currentState <- nextState
         res
 
 

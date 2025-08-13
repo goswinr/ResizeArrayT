@@ -12,6 +12,28 @@ open UtilResizeArray
 [<AutoOpen>]
 module AutoOpenResizeArrayExtensions =
 
+
+    let internal isEqualTo (this: ResizeArray<'T>) (other: ResizeArray<'T>) =
+        if Object.ReferenceEquals(this, other) then // true if both are null
+            true // both are the same instance
+        elif isNull this || isNull other then
+            false // one is null, the other not
+        elif this.Count <> other.Count then
+            false // different count
+        else
+            let comparer = EqualityComparer<'T>.Default // for  structural equality to be implemented on this class without putting the <'T when 'T : equality> constraint on 'T?
+            let mutable i = 0
+            let mutable isEqual = true
+            let k = this.Count
+            while i < k do
+                let r1 = this.[i]
+                let r2 = other.[i]
+                i <- i + 1
+                if not <| comparer.Equals(r1, r2)  then
+                    isEqual <- false
+                    i <- k // break the loop
+            isEqual
+
     type List<'T> with
 
 
@@ -190,25 +212,9 @@ module AutoOpenResizeArrayExtensions =
         /// When used in Fable (JavaScript) the nested ResizeArrays are compared for structural equality
         /// as per the Fable implementation of Javascript Arrays.
         /// (Like the default behavior of Collections.Generic.List)
-        /// Raises ArgumentNullException if either list is null.
+        /// Does not Raises ArgumentNullException if either or both list are null.
         member this.IsEqualTo(other: ResizeArray<'T>) =
-            if isNull other then
-                nullExn "IsEqualTo other"
-            elif Object.ReferenceEquals(this, other) then
-                true
-            elif this.Count <> other.Count then
-                false
-            else
-                let comparer = EqualityComparer<'T>.Default // for  structural equality to be implemented on this class without putting the <'T when 'T : equality> constraint on 'T?
-                let rec eq i =
-                    if i < this.Count then
-                        if comparer.Equals(this.[i], other.[i]) then
-                            eq (i + 1)
-                        else
-                            false
-                    else
-                        true
-                eq 0
+            isEqualTo this other
 
 
         /// Insert an item at the beginning of the list = index 0,
