@@ -1129,7 +1129,7 @@ module Module =
 
 
 
-    testCase "ResizeArray.Pick() " <| fun _ ->
+    testCase "ResizeArray.Pick()2 " <| fun _ ->
         // integer array
         let intArr = [| 1..10  |].asRarr
         let funcInt x =
