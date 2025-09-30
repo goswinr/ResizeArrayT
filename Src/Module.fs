@@ -3206,6 +3206,84 @@ module ResizeArray =
         res
 
 
+    /// <summary>Like .zip, but when one of the two input lists is exhausted, the getDefaultVal function is used for the rest of the output.</summary>
+    /// <param name="getGefaultVal">A function that takes the current index and the current value of the longer list and returns a default value for the shorter list.</param>
+    /// <param name="resizeArray1">The first input ResizeArray.</param>
+    /// <param name="resizeArray2">The second input ResizeArray.</param>
+    /// <returns>The ResizeArray of tupled elements.</returns>
+    let zipDefault (getGefaultVal: int -> 'T -> 'T) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'T>)  =
+        if isNull resizeArray1 then nullExn "zipDefault first"
+        if isNull resizeArray2 then nullExn "zipDefault second"
+        // first is longer
+        if resizeArray1.Count > resizeArray2.Count  then
+            let res = ResizeArray(resizeArray1.Count)
+            for i = 0 to resizeArray2.LastIndex do
+                res.Add(resizeArray1.[i] ,resizeArray2.[i])
+            for i = resizeArray2.Count to resizeArray1.LastIndex do
+                let x = resizeArray1.[i]
+                res.Add(x, getGefaultVal i x)
+            res
+        // second is longer
+        elif resizeArray2.Count > resizeArray1.Count then
+            let res = ResizeArray(resizeArray2.Count)
+            for i = 0 to resizeArray1.LastIndex do
+                res.Add(resizeArray1.[i] ,resizeArray2.[i])
+            for i = resizeArray1.Count to resizeArray2.LastIndex do
+                let x = resizeArray2.[i]
+                res.Add(getGefaultVal i x, x)
+            res
+        // equal length
+        else
+            let res = ResizeArray(resizeArray1.Count)
+            for i = 0 to resizeArray1.LastIndex do
+                res.Add(resizeArray1.[i] ,resizeArray2.[i])
+            res
+
+
+
+    /// Treats the ResizeArray as a loop.
+    /// For each element, it gets the Prev-This and the This-Next combination using the combineAdjacent function.
+    /// Finally creates a new type using itself and the Prev-This and the This-Next combination for each element
+    /// The first element uses the last element as previous, and the last element uses the first element as next.
+    /// On each element it caches the This-Next combination and uses it for the next element as Prev-This.
+    let mapPrevNext(combineAdjacent: 'T -> 'T -> 'U) (mergePrevAndNextCombineResults: 'T -> 'U -> 'U -> 'V) (xs:ResizeArray<'T>) : ResizeArray<'V> =
+        let res = ResizeArray<'V>(xs.Count)
+        if xs.Count = 0 then
+            res
+        else
+            let mutable prev = xs.[xs.Count-1]
+            let mutable this = xs.[0]
+            let mutable firstCombined = combineAdjacent prev this
+            for i = 1 to xs.Count-1 do
+                let next = xs.[i]
+                let nextCombined = combineAdjacent this next
+                res.Add(mergePrevAndNextCombineResults this firstCombined nextCombined)
+                prev <- this
+                this <- next
+                firstCombined <- nextCombined
+            // close the loop
+            let nextCombined = combineAdjacent this xs.[0]
+            res.Add(mergePrevAndNextCombineResults this firstCombined nextCombined)
+            res
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     #if FABLE_COMPILER
     // Fable doesn't support System.Threading.Tasks.Parallel.For
     // the Parallel operations on ResizeArray are just sequential in Fable JavaScript

@@ -14,6 +14,7 @@
     <Compile Include="Module.fs" />
     <Compile Include="Module2.fs" />
     <Compile Include="Extensions.fs" />
+    <Compile Include="Module3.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 </Project>
