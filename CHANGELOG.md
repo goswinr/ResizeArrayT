@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.25.0] - 2025-09-30
+
+## [0.25.0] - 2025-10-11
+### Changed
+- BREAKING CHANGE: reversed order of arguments in ResizeArray.set and ResizeArray.get.
 ### Added
 - add mapPrevNext function
 - add zipDefault function

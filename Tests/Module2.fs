@@ -602,19 +602,19 @@ module Module2 =
     testCase "ResizeArray.Set" <| fun _ ->
         // integer array
         let intArr = [|10;9;8;7 |].asRarr
-        ResizeArray.set intArr  3 600
+        ResizeArray.set 3 600 intArr
         if intArr <!> [|10;9;8;600 |].asRarr then Assert.Fail()
 
         // string array
         let strArr = [|"Lists"; "are";  "commonly" ; "list"  |].asRarr
-        ResizeArray.set strArr 2 "always"
+        ResizeArray.set 2 "always" strArr
         if strArr <!> [|"Lists"; "are";  "always" ; "list"  |].asRarr     then Assert.Fail()
 
         // empty array -- outofbundaryexception
 
         // null array
         let nullArr = null:ResizeArray<string>
-        throwsNull (fun () -> ResizeArray.set nullArr 0 "null"   |> ignore)
+        throwsNull (fun () -> ResizeArray.set 0 "null"  nullArr )
 
         ()
 

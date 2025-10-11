@@ -504,7 +504,7 @@ module Module =
         let strSrc = [| "a";"b";"c";"d";"e";"j" |].asRarr
         let strDes = ResizeArray.create 10 "w"
         ResizeArray.blit strSrc 1 strDes 2 3
-        if strDes.[3] <> "c" || ResizeArray.get strDes 4 = "w" then Assert.Fail()
+        if strDes.[3] <> "c" || ResizeArray.get 4 strDes = "w" then Assert.Fail()
 
         // null array
         let nullArr = null:string ResizeArray
@@ -1340,22 +1340,22 @@ module Module =
     testCase "ResizeArray.Get() " <| fun _ ->
         // integer array
         let intArr = [| 3;4;7;8;10  |].asRarr
-        let resultInt = ResizeArray.get intArr 3
+        let resultInt = ResizeArray.get 3 intArr
         if resultInt <> 8 then Assert.Fail()
 
         // string array
         let strArr = [|"Lists"; "are";  "commonly" ; "list"  |].asRarr
 
-        let resultStr = ResizeArray.get strArr 2
+        let resultStr = ResizeArray.get 2 strArr
         if resultStr <> "commonly" then Assert.Fail()
 
         // empty array
         let emptyArr:int ResizeArray = [|  |].asRarr
-        throwsIdx (fun () -> ResizeArray.get emptyArr -1 |> ignore)
+        throwsIdx (fun () -> ResizeArray.get -1 emptyArr |> ignore)
 
         // null array
         let nullArr = null:string ResizeArray
-        throwsNull (fun () -> ResizeArray.get nullArr 0 |> ignore)
+        throwsNull (fun () -> ResizeArray.get 0 nullArr |> ignore)
 
 
 
