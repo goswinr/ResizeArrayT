@@ -1,10 +1,15 @@
 module Tests.Module3
 
+#if FABLE_COMPILER
+open Fable.Mocha
+#else
 open Expecto
+#endif
+
 open ResizeArrayT
 
-[<Tests>]
-let tests =
+// [<Tests>]
+let tests = // : Test in Expect , TestCase in Mocha
     testList "Module3 Tests" [
         // Add your tests here
         test "zipDefault combines arrays with default values" {
@@ -18,7 +23,7 @@ let tests =
         }
 
         test "zipDefault with empty second array" {
-            let getDefaultVal index longerValue = longerValue * 2
+            let getDefaultVal _index longerValue = longerValue * 2
             let arr1 = ResizeArray [1; 2; 3]
             let arr2 = ResizeArray([])
 
@@ -28,7 +33,7 @@ let tests =
         }
 
         test "zipDefault with empty first array" {
-            let getDefaultVal index longerValue = longerValue
+            let getDefaultVal _index longerValue = longerValue
             let arr1 = ResizeArray []
             let arr2 = ResizeArray [4; 5; 6]
 

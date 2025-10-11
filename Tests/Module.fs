@@ -10,7 +10,6 @@ open Expecto
 open System
 open System.Collections.Generic
 
-
 type Assert =
 
     static member AreEqual(expected : ResizeArray<'T>, actual : ResizeArray<'T>, message : string) =
@@ -2061,11 +2060,11 @@ module Module =
     testCase "ResizeArray.equals2" <| fun _ ->
         let a1 = [|1;2;3|].asRarr
         let a2 = [|1;2;3|].asRarr
-        let a3 = [|1;2;4|].asRarr
+        // let a3 = [|1;2;4|].asRarr
 
         let aa1 = [|a1;a1|].asRarr
         let aa2 = [|a1;a2|].asRarr
-        let aa3 = [|a1;a3|].asRarr
+        // let aa3 = [|a1;a3|].asRarr
         let aa4 = [|a1;a1;a2|].asRarr
         let aa4n = [|a1;a1;null|].asRarr
         let aa5 = [|a1;null|].asRarr
