@@ -29,26 +29,21 @@
     <Configuration>Release</Configuration>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
+  <PropertyGroup>
     <PackageTags>fsharp;ResizeArray;fable;fable-library</PackageTags>
 
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageIcon>logo128.png</PackageIcon>
-
-
-    <DebugType>portable</DebugType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
-
+    <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat>     -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageIcon>logo128.png</PackageIcon>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <DebugType>embedded</DebugType>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <RepositoryUrl>https://github.com/goswinr/ResizeArrayT</RepositoryUrl>
     <FsDocsLicenseLink>https://github.com/goswinr/ResizeArrayT/blob/main//LICENSE.md</FsDocsLicenseLink>
     <FsDocsReleaseNotesLink>https://github.com/goswinr/ResizeArrayT/blob/main/CHANGELOG.md</FsDocsReleaseNotesLink>
