@@ -2,6 +2,17 @@
   "include": ["ts/Src/*.ts"],
   "exclude": ["node_modules", "fable_modules"],
   "compilerOptions": {
+
+    // Generate d.ts files
+    // "declarationDir": "./_ts", // where to put the _ts files
+    "declaration": true,
+
+    // This compiler run should
+    // only output d.ts files
+    "emitDeclarationOnly": true,
+    "allowImportingTsExtensions": true, // seems needed from fable5-alpha17, needs emitDeclarationOnly=true
+
+
     /* Visit https://aka.ms/tsconfig to read more about this file */
 
     /* Projects */
