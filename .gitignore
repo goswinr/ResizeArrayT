@@ -5,6 +5,7 @@ fable_modules/
 node_modules/
 js/
 ts/
+Tests/dist/
 # *.js
 # *.ts
 

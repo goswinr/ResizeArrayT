@@ -6,11 +6,13 @@
     <IsTestProject>true</IsTestProject> <!-- to exclude from fsdocs -->
     <DisableImplicitFSharpCoreReference>true</DisableImplicitFSharpCoreReference> <!-- so that dependabot can check it https://github.com/dependabot/dependabot-core/issues/10883 -->
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Fable.Mocha" Version="2.17.0" />
     <PackageReference Include="Expecto" Version="10.2.3" />
     <PackageReference Include="FSharp.Core" Version="10.0.100" /><!-- `Include` syntax for dependabot -->
     <ProjectReference Include="../Src/ResizeArrayT.fsproj" />
+
     <Compile Include="Module.fs" />
     <Compile Include="Module2.fs" />
     <Compile Include="Extensions.fs" />
