@@ -83,8 +83,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [0.16.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/goswinr/ResizeArrayT/releases/tag/v0.15.0
 
-<!--
-use to get tag dates:
-git log --tags --simplify-by-decoration --pretty="format:%ci %d"
--->
-
