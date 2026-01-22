@@ -24,12 +24,12 @@ I was always annoyed that an `IndexOutOfRangeException` does not include the act
 This library fixes that in the `resizeArray.Get`, `resizeArray.Set`, `resizeArray.Slice` and similar instance methods for item access.<br>
 I made a similar a similar library for `array<'T>`: https://github.com/goswinr/ArrayT/ .
 
-### Why ?
+## Why ?
 Yes, F#'s array and list modules can do these kind of operations on collections too.<br>
 But ResizeArray, being mutable, still offers the best performance for collections that can expand & shrink and need random access via an index.<br>
 In fact FSharp.Core uses [a very similar module internally](https://github.com/dotnet/fsharp/blob/main/src/Compiler/Utilities/ResizeArray.fs).
 
-### It Includes:
+## It Includes:
 
 - A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`] reimplemented (https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html).<br>
  Including the sub module for Parallel computing.
@@ -43,7 +43,7 @@ With nicer IndexOutOfRangeExceptions that include the bad index and the actual s
 
 - All Tests from the from `FSharp.Core`'s `Array` module ported and adapted to run in both javascript and dotnet.
 
-### Namespace
+## Namespace
 The main namespace is `ResizeArrayT`.<br>
 It was renamed from `ResizeArray` to `ResizeArrayT` in release 0.23. When used in scripting this helps avoid name collisions with the <br>
 module inside of the same name. [Reference Issue].(https://github.com/dotnet/fsharp/issues/17124)<br>
@@ -52,7 +52,7 @@ Older versions of the library will still work with the old namespace `ResizeArra
 And can be found on nuget.org with the name [ResizeArray](https://www.nuget.org/packages/ResizeArray/).<br>
 
 
-### Usage
+## Usage
 Just open the namespace
 
 ```fsharp
@@ -79,12 +79,17 @@ let hundred = oddNumbers.Last // Extension member to access the last item in the
 
 ```
 
-### Full API Documentation
+## Use of AI and LLMs
+All core function are are written by hand to ensure performance and correctness.<br>
+However, AI tools have been used for code review, typo and grammar checking in documentation<br>
+and to generate not all but many of the tests.
+
+## Full API Documentation
 
 [goswinr.github.io/ResizeArrayT](https://goswinr.github.io/ResizeArrayT/reference/ResizeArrayT.html)
 
 
-### Tests
+## Tests
 All Tests run in both javascript and dotnet.
 Successful Fable compilation to typescript is verified too.
 Go to the tests folder:
@@ -105,9 +110,9 @@ for JS testing with Fable.Mocha and TS verification:
 npm test
 ```
 
-### License
+## License
 [MIT](https://github.com/goswinr/ResizeArrayT/blob/main/LICENSE.md)
 
-### Changelog
+## Changelog
 see [CHANGELOG.md](https://github.com/goswinr/ResizeArrayT/blob/main/CHANGELOG.md)
 
