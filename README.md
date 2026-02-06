@@ -46,7 +46,7 @@ With nicer IndexOutOfRangeExceptions that include the bad index and the actual s
 ## Namespace
 The main namespace is `ResizeArrayT`.<br>
 It was renamed from `ResizeArray` to `ResizeArrayT` in release 0.23. When used in scripting this helps avoid name collisions with the <br>
-module inside of the same name. [Reference Issue].(https://github.com/dotnet/fsharp/issues/17124)<br>
+module inside of the same name. [Reference Issue](https://github.com/dotnet/fsharp/issues/17124)<br>
 
 Older versions of the library will still work with the old namespace `ResizeArray`.<br>
 And can be found on nuget.org with the name [ResizeArray](https://www.nuget.org/packages/ResizeArray/).<br>
