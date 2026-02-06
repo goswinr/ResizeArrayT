@@ -31,7 +31,7 @@ In fact FSharp.Core uses [a very similar module internally](https://github.com/d
 
 ## It Includes:
 
-- A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`] reimplemented (https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html).<br>
+- A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html) reimplemented.<br>
  Including the sub module for Parallel computing.
 
 - A Computational Expressions `resizeArray` that can be used like existing ones for `seq`.
