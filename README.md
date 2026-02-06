@@ -31,7 +31,7 @@ In fact FSharp.Core uses [a very similar module internally](https://github.com/d
 
 ## It Includes:
 
-- A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`] reimplemented (https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html).<br>
+- A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html) reimplemented.<br>
  Including the sub module for Parallel computing.
 
 - A Computational Expressions `resizeArray` that can be used like existing ones for `seq`.
@@ -46,7 +46,7 @@ With nicer IndexOutOfRangeExceptions that include the bad index and the actual s
 ## Namespace
 The main namespace is `ResizeArrayT`.<br>
 It was renamed from `ResizeArray` to `ResizeArrayT` in release 0.23. When used in scripting this helps avoid name collisions with the <br>
-module inside of the same name. [Reference Issue].(https://github.com/dotnet/fsharp/issues/17124)<br>
+module inside of the same name. [Reference Issue](https://github.com/dotnet/fsharp/issues/17124)<br>
 
 Older versions of the library will still work with the old namespace `ResizeArray`.<br>
 And can be found on nuget.org with the name [ResizeArray](https://www.nuget.org/packages/ResizeArray/).<br>
@@ -77,6 +77,174 @@ let oddNumbers = evenNumbers |> ResizeArray.map (fun x -> x + 1) // ResizeArray 
 
 let hundred = oddNumbers.Last // Extension member to access the last item in the list
 
+```
+
+### Computational Expression
+
+The `resizeArray { ... }` builder supports `for`, `while`, `yield`, `yield!`, `try/with`, `try/finally`, and `use`:
+
+```fsharp
+// Yield individual items and sequences
+let mixed =
+    resizeArray {
+        1
+        2
+        yield! [3; 4; 5]   // yield from any seq
+        for i in 6..10 do
+            i
+    }
+
+// Filter inside the builder
+let primes =
+    resizeArray {
+        for n = 2 to 50 do
+            let mutable isPrime = true
+            for d = 2 to int (sqrt (float n)) do
+                if n % d = 0 then isPrime <- false
+            if isPrime then n
+    }
+```
+
+### Extension Members
+
+Access items with descriptive error messages that include the bad index and the collection size:
+
+```fsharp
+let items = ResizeArray([| "a"; "b"; "c"; "d"; "e" |])
+
+items.First        // "a"
+items.Second       // "b"
+items.Last         // "e"
+items.SecondLast   // "d"
+items.LastIndex    // 4
+
+// Negative indexing (Python-style: -1 is last item)
+items.GetNeg(-1)   // "e"
+items.GetNeg(-2)   // "d"
+
+// Looped indexing (wraps around)
+items.GetLooped(7) // "c"  (index 7 wraps to index 2)
+
+// Status checks
+items.IsEmpty      // false
+items.IsNotEmpty   // true
+items.HasItems     // true
+items.IsSingleton  // false
+```
+
+### Slicing
+
+F# slicing notation is fully supported, including indexing from the end with `^`:
+
+```fsharp
+let nums = ResizeArray([| 10; 20; 30; 40; 50 |])
+
+nums.[1..3]        // ResizeArray [20; 30; 40]
+nums.[..2]         // ResizeArray [10; 20; 30]
+nums.[2..]         // ResizeArray [30; 40; 50]
+nums.[1..^1]       // ResizeArray [20; 30; 40]  (from index 1 to second-last)
+nums.[^0]          // 50  (last item)
+```
+
+### Pop, Clone, and InsertAtStart
+
+```fsharp
+let xs = ResizeArray([| 1; 2; 3; 4; 5 |])
+
+let last = xs.Pop()            // returns 5, xs is now [1; 2; 3; 4]
+let second = xs.Pop(1)         // returns 2, xs is now [1; 3; 4]
+
+xs.InsertAtStart(0)            // xs is now [0; 1; 3; 4]
+
+let copy = xs.Clone()          // shallow copy
+```
+
+### ResizeArray Module
+
+All functions from `FSharp.Core`'s `Array` module are available, plus many extras:
+
+```fsharp
+// Standard functional operations
+let doubled = items |> ResizeArray.map (fun x -> x * 2)
+let evens   = items |> ResizeArray.filter (fun x -> x % 2 = 0)
+let total   = items |> ResizeArray.sum
+
+// Positional access
+let first     = items |> ResizeArray.first
+let last      = items |> ResizeArray.last
+let secLast   = items |> ResizeArray.secondLast
+
+// Grouping and counting
+let grouped  = items |> ResizeArray.groupBy (fun x -> x % 3)
+let counts   = items |> ResizeArray.countBy (fun x -> x % 3)
+
+// Finding duplicates
+let dupes    = items |> ResizeArray.duplicates
+let dupesBy  = items |> ResizeArray.duplicatesBy (fun x -> x % 10)
+
+// Partitioning into multiple groups
+let trueOnes, falseOnes = items |> ResizeArray.partition (fun x -> x > 3)
+
+let small, medium, large =
+    items |> ResizeArray.partition3
+        (fun x -> x < 10)
+        (fun x -> x < 50)
+
+// Windowed iteration (useful for geometry/polyline processing)
+items |> ResizeArray.windowed2 |> Seq.iter (fun (a, b) -> printfn "%A -> %A" a b)
+items |> ResizeArray.prevThisNext |> Seq.iter (fun (prev, this', next) -> printfn "%A %A %A" prev this' next)
+```
+
+### Construction and Conversion
+
+```fsharp
+let empty  = ResizeArray.empty<int>
+let single = ResizeArray.singleton 42
+let filled = ResizeArray.create 10 0         // 10 zeros
+let inited = ResizeArray.init 5 (fun i -> i * i) // [0; 1; 4; 9; 16]
+
+// From other collections
+let fromList  = ResizeArray.ofList [1; 2; 3]
+let fromArray = ResizeArray.ofArray [|1; 2; 3|]
+let fromSeq   = ResizeArray.ofSeq (seq { 1..10 })
+
+// To other collections
+let asArray = items |> ResizeArray.toArray
+let asList  = items |> ResizeArray.toList
+let asSeq   = items |> ResizeArray.toSeq
+```
+
+### Error Messages
+
+When an index is out of range, you get a descriptive exception including the bad index and the collection content:
+
+```
+System.IndexOutOfRangeException:
+ResizeArray.Get: Can't get index 5 from:
+ResizeArray<String> with 3 items:
+  0: "a"
+  1: "b"
+  2: "c"
+```
+
+### Operators
+
+Open the `Operators` module to combine collections with `++` and `+++`:
+
+```fsharp
+open ResizeArrayT.Operators
+
+let combined = xs ++ ys         // from two ICollection<'T>, preallocates capacity
+let combined' = xs +++ ys       // from two seq<'T>
+```
+
+### Parallel
+
+A sub module for parallel operations (on .NET only):
+
+```fsharp
+let results = items |> ResizeArray.Parallel.map (fun x -> expensiveComputation x)
+let chosen  = items |> ResizeArray.Parallel.choose (fun x -> tryProcess x)
 ```
 
 ## Use of AI and LLMs
