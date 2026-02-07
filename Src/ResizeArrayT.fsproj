@@ -59,7 +59,7 @@
     <PackageReference Update="FSharp.Core" Version="6.0.7" />    <!-- 6.0 for InlineIfLambda , otherwise the minimum FSharp.Core version would be forced by the SDK used for building it. this would be needlessly too high-->
 
     <PackageReference Include="Fable.Core" Version="4.5.0" Condition="$(DefineConstants.Contains('FABLE_COMPILER'))" />    <!-- Fable.Core is used to emit more optimized JS than the Fable compiler -->
-    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.1" PrivateAssets="all"  />
+    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.3" PrivateAssets="all"  />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.102" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
 
   </ItemGroup>
