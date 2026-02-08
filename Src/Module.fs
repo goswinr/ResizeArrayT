@@ -10,6 +10,7 @@ open System.Collections.Generic
 
 #nowarn "44" //for opening the hidden but not Obsolete UtilResizeArray module
 open UtilResizeArray
+#warnon "44"
 
 /// This module has only one conversion function. Array.asResizeArray
 module Array =
@@ -173,13 +174,13 @@ module ResizeArray =
     /// Alternative: with F# slicing notation (e.g. a.[1..3])
     /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
     /// </remarks>
-    let sliceLooped(startIdx:int) (endIdx:int ) (xs: ResizeArray<'T>): ResizeArray<'T> =
+    let sliceLooped (startIdx:int) (endIdx:int ) (xs: ResizeArray<'T>): ResizeArray<'T> =
         if xs.Count = 0 then
             ResizeArray<'T>()
         else
             let count = xs.Count
-            let st = UtilResizeArray.negIdxLooped startIdx count
-            let en = UtilResizeArray.negIdxLooped endIdx count
+            let st = negIdxLooped startIdx count
+            let en = negIdxLooped endIdx count
             let len = en - st + 1
             if len < 0 then
                 ResizeArray<'T>()
@@ -357,9 +358,14 @@ module ResizeArray =
     let inline singleton value : ResizeArray<'T> =
         // allow null values so that ResizeArray.singleton [] is valid
         // allow null values so that ResizeArray.singleton None is valid
-        let res = ResizeArray(1)
-        res.Add value
-        res
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            // https://fable.io/docs/javascript/features.html#emitjsexpr
+            Fable.Core.JsInterop.emitJsExpr (value) "[$0]"
+        #else
+            let res = ResizeArray(1)
+            res.Add value
+            res
+        #endif
 
     /// <summary>Considers List circular and move elements up for positive integers or down for negative integers.
     /// e.g.: rotate +1 [ a, b, c, d] = [ d, a, b, c]
@@ -397,7 +403,6 @@ module ResizeArray =
 
             if fi = -1 then
                 fail resizeArray "rotateUpTill: no item in the list meets the condition"
-
 
             let r = ResizeArray(resizeArray.Count)
             for i = fi to resizeArray.Count - 1 do
@@ -1099,7 +1104,7 @@ module ResizeArray =
             else allFalse.Add el
         p1True, p2True, p3True, p4True, allFalse
 
-        /// Applies a function to List
+    /// Applies a function to List
     /// If resulting List meets the resultPredicate it is returned, otherwise the original input is returned.
     let inline applyIfResult (resultPredicate: ResizeArray<'T> -> bool) (transform: ResizeArray<'T> -> ResizeArray<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "applyIfResult"

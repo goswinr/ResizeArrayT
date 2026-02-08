@@ -6,6 +6,7 @@ open System.Collections.Generic
 
 #nowarn "44" //for opening the hidden but not Obsolete UtilResizeArray module
 open UtilResizeArray
+#warnon "44" //
 
 /// Extension methods for ResizeArray<'T>.
 /// This module is automatically opened when the namespace ResizeArrayT is opened.
@@ -371,8 +372,8 @@ module AutoOpenResizeArrayExtensions =
                 ResizeArray<'T>()
             else
                 let count = xs.Count
-                let st = UtilResizeArray.negIdxLooped startIdx count
-                let en = UtilResizeArray.negIdxLooped endIdx count
+                let st = negIdxLooped startIdx count
+                let en = negIdxLooped endIdx count
                 let len = en - st + 1
                 if len < 0 then
                     ResizeArray<'T>()
