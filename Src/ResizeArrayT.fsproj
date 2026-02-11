@@ -2,8 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-     <!-- <TargetFrameworks>net472;net6.0</TargetFrameworks> -->
-    <TargetFramework>netstandard2.0</TargetFramework>  <!-- not the plural TargetFrameworks. fails with  https://fsprojects.github.io/FSharp.Formatting/apidocs.html -->
+    <TargetFrameworks>net6.0;net472</TargetFrameworks> <!-- FsDoc will use the first target framework: https://fsprojects.github.io/FSharp.Formatting/apidocs.html#Selected-projects -->
     <LangVersion>preview</LangVersion>
     <NeutralLanguage>en</NeutralLanguage>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages> <!--to only have the English resources-->
