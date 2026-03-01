@@ -15,17 +15,20 @@ open UtilResizeArray
 /// This module has only one conversion function. Array.asResizeArray
 module Array =
 
-    /// Builds a new ResizeArray from the given Array.
-    /// In Fable-JavaScript the ResizeArray is just casted to an Array without allocating a new ResizeArray.
-    let inline asResizeArray (arr: 'T[]) : ResizeArray<'T> =
+    /// <summary>an optimized alternative to the <code>toResizeArray</code> function for use in Fable (JavaScript).
+    /// F# Array and ResizeArray are both represented as JavaScript arrays in Fable.
+    /// So this function does not allocate a new ResizeArray but just casts the Array to a ResizeArray.
+    /// In .NET runtime a new ResizeArray is still allocated and the elements are copied.</summary>
+    /// <remarks>Numeric arrays are optimized as TypedArrays in Fable, so this function only works on reference types.</remarks>
+    /// <param name="arr">The input Array.</param>
+    /// <returns>A ResizeArray containing the same elements.</returns>
+    let inline asResizeArray(arr: 'T[]) : ResizeArray<'T> when 'T : not struct =
         #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            if isNull arr then nullExn "asResizeArray"
             unbox<ResizeArray<'T>> arr
         #else
-            if isNull arr then nullExn ": Array.asResizeArray"
-            let l = ResizeArray(arr.Length)
-            for i = 0 to arr.Length - 1 do
-                l.Add arr.[i]
-            l
+            if isNull arr then nullExn "asResizeArray"
+            ResizeArray<'T> arr
         #endif
 
 /// The main module for functions on ResizeArray.
@@ -196,7 +199,7 @@ module ResizeArray =
     // (A negative index can also be done with '^' prefix. E.g. ^0 for the last item, when F# Language preview features are enabled.)
     let slice startIdx endIdx (arr: ResizeArray<'T>) : ResizeArray<'T> =
             if isNull arr then nullExn "slice"
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             let count = arr.Count
             let st  = if startIdx< 0 then count + startIdx        else startIdx
             let len = if endIdx  < 0 then count + endIdx - st + 1 else endIdx - st + 1
@@ -358,14 +361,10 @@ module ResizeArray =
     let inline singleton value : ResizeArray<'T> =
         // allow null values so that ResizeArray.singleton [] is valid
         // allow null values so that ResizeArray.singleton None is valid
-        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-            // https://fable.io/docs/javascript/features.html#emitjsexpr
-            Fable.Core.JsInterop.emitJsExpr (value) "[$0]"
-        #else
-            let res = ResizeArray(1)
-            res.Add value
-            res
-        #endif
+        let res = ResizeArray(1)
+        res.Add value
+        res
+
 
     /// <summary>Considers List circular and move elements up for positive integers or down for negative integers.
     /// e.g.: rotate +1 [ a, b, c, d] = [ d, a, b, c]
@@ -938,16 +937,24 @@ module ResizeArray =
         if isNull resizeArray then nullExn "toArray"
         resizeArray.ToArray()
 
-    /// Return a fixed-length Array containing the elements of the input ResizeArray as a copy.
-    /// When this function is used in Fable (JavaScript) the ResizeArray is just casted to an Array.
-    /// In .NET a new Array is still allocated and the elements are copied.
-    let inline asArray (resizeArray: ResizeArray<'T>) : 'T[] =
-        if isNull resizeArray then nullExn "asArray"
+
+
+    /// <summary>An optimized alternative to the <code>toArray</code> function for use in Fable (JavaScript).
+    /// F# Array and ResizeArray are both represented as JavaScript arrays in Fable.
+    /// So this function does not allocate a new array but just casts the ResizeArray to an Array.
+    /// In .NET runtime a new Array is still allocated and the elements are copied.</summary>
+    /// <remarks>Numeric arrays are optimized as TypedArrays in Fable, so this function only works on reference types.</remarks>
+    /// <param name="arr">The input ResizeArray.</param>
+    /// <returns>A fixed-length array.</returns>
+    let inline asArray (arr: ResizeArray<'T>) : 'T[] when 'T : not struct =
         #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-        unbox<'T[]> resizeArray
+            if isNull arr then nullExn "asArray"
+            unbox<'T[]> arr
         #else
-        resizeArray.ToArray()
+            if isNull arr then nullExn "asArray"
+            arr.ToArray()
         #endif
+
 
     /// <summary>
     /// Splits the collection into two collections, containing the elements for which the
@@ -1505,16 +1512,17 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
     let countBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : ResizeArray<'Key * int> =
-        if isNull resizeArray then nullExn "countBy"
-        #if FABLE_COMPILER
-        countByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
-        #else
-        if typeof<'Key>.IsValueType then
-            // We avoid wrapping a StructBox, because under 64 JIT we get some "hard" tail-calls which affect performance
-            countByImpl HashIdentity.Structural<'Key> projection id resizeArray
-        else
-            // Wrap a StructBox around all keys in case the key type is itself a type using null as a representation
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            if isNull resizeArray then nullExn "countBy"
             countByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
+        #else
+            if isNull resizeArray then nullExn "countBy"
+            if typeof<'Key>.IsValueType then
+                // We avoid wrapping a StructBox, because under 64 JIT we get some "hard" tail-calls which affect performance
+                countByImpl HashIdentity.Structural<'Key> projection id resizeArray
+            else
+                // Wrap a StructBox around all keys in case the key type is itself a type using null as a representation
+                countByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
         #endif
 
 
@@ -1855,18 +1863,19 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns><c>true</c> if all of the ResizeArray elements satisfy the predicate.</returns>
     let forall (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : bool =
-        if isNull resizeArray then nullExn "forall"
-        #if FABLE_COMPILER
-        let len = resizeArray.Count
-        let mutable i = 0
-        let mutable result = true
-        while i < len && result do
-            if not (predicate resizeArray.[i]) then
-                result <- false
-            i <- i + 1
-        result
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            if isNull resizeArray then nullExn "forall"
+            let len = resizeArray.Count
+            let mutable i = 0
+            let mutable result = true
+            while i < len && result do
+                if not (predicate resizeArray.[i]) then
+                    result <- false
+                i <- i + 1
+            result
         #else
-        resizeArray.TrueForAll(System.Predicate predicate)
+            if isNull resizeArray then nullExn "forall"
+            resizeArray.TrueForAll(System.Predicate predicate)
         #endif
 
 
@@ -1944,16 +1953,17 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
     let groupBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : ResizeArray<'Key * ResizeArray<'T>> =
-        if isNull resizeArray then nullExn "groupBy"
-        #if FABLE_COMPILER
-        groupByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
-        #else
-        if typeof<'Key>.IsValueType then
-            // We avoid wrapping a StructBox, because under 64 JIT we get some "hard" tail-calls which affect performance
-            groupByImpl HashIdentity.Structural<'Key> projection id resizeArray
-        else
-            // Wrap a StructBox around all keys in case the key type is itself a type using null as a representation
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            if isNull resizeArray then nullExn "groupBy"
             groupByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
+        #else
+            if isNull resizeArray then nullExn "groupBy"
+            if typeof<'Key>.IsValueType then
+                // We avoid wrapping a StructBox, because under 64 JIT we get some "hard" tail-calls which affect performance
+                groupByImpl HashIdentity.Structural<'Key> projection id resizeArray
+            else
+                // Wrap a StructBox around all keys in case the key type is itself a type using null as a representation
+                groupByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
         #endif
 
     /// <summary>Applies a key-generating function to each element of a ResizeArray and yields a Dict of
@@ -1975,7 +1985,6 @@ module ResizeArray =
                 dict.[k] <- r
                 r.Add v
         dict
-
 
 
     /// <summary>Returns the first element of the ResizeArray.</summary>
@@ -2147,12 +2156,13 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray of transformed elements.</returns>
     let inline map (mapping: 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'U> =
-        if isNull resizeArray then nullExn "map"
         #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-        // https://fable.io/docs/javascript/features.html#emitjsexpr
-        Fable.Core.JsInterop.emitJsExpr (resizeArray, mapping) "$0.map($1)"
+            if isNull resizeArray then nullExn "map"
+            // https://fable.io/docs/javascript/features.html#emitjsexpr
+            Fable.Core.JsInterop.emitJsExpr (resizeArray, mapping) "$0.map($1)" // this works only because a ResizeArray is never a TypedArray in JS
         #else
-        resizeArray.ConvertAll (System.Converter mapping) // would work in Fable too
+            if isNull resizeArray then nullExn "map"
+            resizeArray.ConvertAll (System.Converter mapping) // would work in Fable too
         #endif
 
     /// <summary>Builds a new Array whose elements are the results of applying the given function

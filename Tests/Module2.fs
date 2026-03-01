@@ -2,7 +2,7 @@ namespace Tests
 
 open ResizeArrayT
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
 open Fable.Mocha
 #else
 open Expecto
@@ -1169,7 +1169,7 @@ module Module2 =
                 |> (fun actual -> Assert.True(ResizeArray.equals2 config.ExpectedArray  actual))
             with
             | e when Option.isNone config.Exception -> raise e
-            #if FABLE_COMPILER
+            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             | _ -> ()
             #else
             | e when e.GetType() = (Option.get config.Exception) -> ()
@@ -1226,7 +1226,7 @@ module Module2 =
         } |> testWindowed
 
         // expectedArrays indexed by arraySize,windowSize
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
         #else
         let expectedArrays = Array2D.zeroCreate 6 6
         expectedArrays.[1,1] <- [| [|1 |].asRarr  |].asRarr

@@ -1,7 +1,7 @@
 namespace Tests
 open ResizeArrayT
 
-#if FABLE_COMPILER
+#if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
 open Fable.Mocha
 #else
 open Expecto
@@ -63,7 +63,7 @@ module Exceptions =
     /// Check that the lambda throws an exception of the given type. Otherwise
     /// calls Assert.Fail()
     let CheckThrowsExn<'a when 'a :> exn> (f : unit -> unit) =
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             Expect.throws f "CheckThrowsExn"
         #else
             try
@@ -76,7 +76,7 @@ module Exceptions =
 
     let private CheckThrowsExn2<'a when 'a :> exn> _s (f : unit -> unit) =
 
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             Expect.throws f "CheckThrowsExn2"
         #else
 
@@ -565,7 +565,7 @@ module Module =
     testCase "ResizeArray.Choose() " <| fun _ ->
         ChooseTester ResizeArray.choose ResizeArray.choose
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Choose() " <| fun _ ->
         ChooseTester ResizeArray.Parallel.choose ResizeArray.Parallel.choose
@@ -615,7 +615,7 @@ module Module =
         ResizeArray.collect f [|1;2;3 |].asRarr |> ignore
         Assert.AreEqual(3,stamp.Value)
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Collect" <| fun _ ->
         CollectTester ResizeArray.Parallel.collect ResizeArray.Parallel.collect
@@ -1474,7 +1474,7 @@ module Module =
         ResizeArray.init 10 f |> ignore
         Assert.AreEqual (10, stamp.Value)
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Init" <| fun _ ->
         InitTester ResizeArray.Parallel.init ResizeArray.Parallel.init
@@ -1685,7 +1685,7 @@ module Module =
         ResizeArray.map f [| 1..100  |].asRarr |> ignore
         Assert.AreEqual(100,stamp.Value)
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Map" <| fun _ ->
         MapTester ResizeArray.Parallel.map ResizeArray.Parallel.map
@@ -1728,7 +1728,7 @@ module Module =
 
 
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Mapi" <| fun _ ->
         MapiTester ResizeArray.Parallel.mapi ResizeArray.Parallel.mapi
@@ -1841,7 +1841,7 @@ module Module =
         Assert.AreEqual([| []  |].asRarr, ResizeArray.singleton [])
         Assert.True([| [|  |].asRarr  |].asRarr =+= ResizeArray.singleton [|  |].asRarr)
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     #else
     testCase "ResizeArray.Parallel.Partition" <| fun _ ->
         PartitionTester ResizeArray.Parallel.partition ResizeArray.Parallel.partition

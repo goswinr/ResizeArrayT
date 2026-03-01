@@ -4,7 +4,7 @@ module Extensions =
     open ResizeArrayT
 
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
     open Fable.Mocha
     #else
     open Expecto
@@ -53,7 +53,7 @@ module Extensions =
 
             let c = resizeArray {resizeArray {resizeArray {5;6}}}
             let d = resizeArray {resizeArray {resizeArray {5;6}}}
-            #if FABLE_COMPILER
+            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             // because of https://github.com/fable-compiler/Fable/issues/3718
             Expect.isTrue (ResizeArray.equals c d) "equals does check inner array in Fable"
             #else

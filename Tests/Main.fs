@@ -5,7 +5,7 @@ open Tests.Module3 // Add reference to Module3 tests
 
 module Main =
 
-    #if FABLE_COMPILER
+    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
 
     open Fable.Mocha
     Mocha.runTests Tests.Extensions.tests |> ignore

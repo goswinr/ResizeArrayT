@@ -398,7 +398,7 @@ module AutoOpenResizeArrayExtensions =
 
         /// A string representation of the ResizeArray including the count of entries and the first 5 entries.
         /// When used in Fable this member is inlined for reflection to work.
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
         member inline arr.AsString : string =  // inline needed for Fable reflection
         #else
         member arr.AsString  :string =  // on .NET inline fails because it's using internal DefaultDictUtil
@@ -410,7 +410,7 @@ module AutoOpenResizeArrayExtensions =
         /// A string representation of the ResizeArray including the count of entries
         /// and the specified amount of entries.
         /// When used in Fable this member is inlined for reflection to work.
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
         member inline arr.ToString (entriesToPrint:int)  : string =  // inline needed for Fable reflection
         #else
         member arr.ToString (entriesToPrint:int)  : string  = // on .NET inline fails because it's using internal DefaultDictUtil

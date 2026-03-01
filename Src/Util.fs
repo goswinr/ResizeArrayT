@@ -71,7 +71,7 @@ module UtilResizeArray =
 
 
     let inline typeOfName<'T>() =
-        #if FABLE_COMPILER
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             "'T"
         #else
             typeof<'T>.Name
@@ -163,7 +163,7 @@ module UtilResizeArray =
 
         override this.ToString() =
             let t =
-            #if FABLE_COMPILER
+            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
                 "'T"
             #else
                 (typeof<'T>).Name
