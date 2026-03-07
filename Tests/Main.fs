@@ -12,6 +12,7 @@ module Main =
     Mocha.runTests Tests.Module.tests |> ignore
     Mocha.runTests Tests.Module2.tests |> ignore
     Mocha.runTests Tests.Module3.tests |> ignore // Add Module3 tests
+    Mocha.runTests Tests.FableCompat.tests |> ignore
 
     #else
 
@@ -25,6 +26,8 @@ module Main =
         runTestsWithCLIArgs [] [||] Tests.Module2.tests
         |||
         runTestsWithCLIArgs [] [||] Tests.Module3.tests // Add Module3 tests
+        |||
+        runTestsWithCLIArgs [] [||] Tests.FableCompat.tests
 
 
     #endif

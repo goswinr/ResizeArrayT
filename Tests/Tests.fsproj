@@ -17,6 +17,7 @@
     <Compile Include="Module2.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="Module3.fs" />
+    <Compile Include="FableCompat.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 </Project>
