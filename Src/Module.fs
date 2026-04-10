@@ -3285,6 +3285,13 @@ module ResizeArray =
             res.Add(mergePrevAndNextCombineResults this firstCombined nextCombined)
             res
 
+    /// Returns a tuple of the first element of the ResizeArray and a new ResizeArray containing the remaining elements.
+    /// Throws an exception if the input ResizeArray is empty.
+    let inline headAndTail (resizeArray: ResizeArray<'T>) : 'T * ResizeArray<'T> =
+        if isNull resizeArray then nullExn "headAndTail"
+        if resizeArray.Count = 0 then
+            fail resizeArray "headAndTail: input ResizeArray is empty"
+        resizeArray.[0], resizeArray.GetRange(1, resizeArray.Count - 1)
 
 
 
