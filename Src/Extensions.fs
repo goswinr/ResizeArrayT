@@ -166,6 +166,7 @@ module AutoOpenResizeArrayExtensions =
         /// Gets an item in the ResizeArray by index.
         /// Allows for negative index too ( -1 is last item,  like Python)
         /// (From the release of F# 5 on a negative index can also be done with '^' prefix. E.g. ^0 for the last item)
+        /// Throws a descriptive Exception if the index is out of range. or if the ResizeArray is empty.
         member inline xs.GetNeg index =
             let len = xs.Count
             let ii = if index < 0 then len + index else index
@@ -175,6 +176,7 @@ module AutoOpenResizeArrayExtensions =
         /// Sets an item in the ResizeArray by index.
         /// Allows for negative index too ( -1 is last item,  like Python)
         /// (from the release of F# 5 on a negative index can also be done with '^' prefix. E.g. ^0 for the last item)
+        /// Throws a descriptive Exception if the index is out of range. or if the ResizeArray is empty.
         member inline xs.SetNeg index value =
             let len = xs.Count
             let ii = if index < 0 then len + index else index
@@ -183,6 +185,7 @@ module AutoOpenResizeArrayExtensions =
 
         /// Any index will return a value.
         /// ResizeArray is treated as an endless loop in positive and negative direction
+        /// Fails if the ResizeArray is empty.
         member inline xs.GetLooped index =
             let len = xs.Count
             if len = 0 then badGetExn index xs "GetLooped"
@@ -192,6 +195,7 @@ module AutoOpenResizeArrayExtensions =
 
         /// Any index will set a value.
         /// ResizeArray is treated as an endless loop in positive and negative direction
+        /// Fails if the ResizeArray is empty.
         member inline xs.SetLooped index value =
             let len = xs.Count
             if len = 0 then badSetExn index xs "SetLooped" value
@@ -224,12 +228,16 @@ module AutoOpenResizeArrayExtensions =
             xs.Insert(0, x)
 
         /// Get and remove last item from ResizeArray
-        member inline xs.Pop() =
-            if xs.Count = 0 then fail xs "Pop() failed on empty."
-            let i = xs.Count - 1
-            let v = xs.[i]
-            xs.RemoveAt(i)
-            v
+        member inline xs.Pop() : 'T =
+                if xs.Count = 0 then fail xs "Pop() failed on empty."
+            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+                Fable.Core.JsInterop.emitJsExpr xs "$0.pop()"
+            #else
+                let lastIndex = xs.Count - 1
+                let value = xs.[lastIndex]
+                xs.RemoveAt(lastIndex)
+                value
+            #endif
 
         /// Get and remove item at index from ResizeArray
         member inline xs.Pop(index: int) =

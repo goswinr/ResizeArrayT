@@ -611,6 +611,7 @@ module ResizeArray =
             resizeArray.[i] <- resizeArray.[j]
             resizeArray.[j] <- ti
 
+    //#region MinMax
 
     /// internal, only for finding MinMax values
     [<RequireQualifiedAccess>]
@@ -892,6 +893,9 @@ module ResizeArray =
     [<Obsolete("use max3IndicesBy instead.")>]
     let inline max3IndBy f xs = max3IndicesBy f xs
 
+    //#endregion
+    //#region ResizeArray
+
     /// Return the length or count of the collection.
     /// Same as ResizeArray.length
     let inline count (resizeArray: ResizeArray<'T>) : int =
@@ -955,6 +959,8 @@ module ResizeArray =
             arr.ToArray()
         #endif
 
+    //#endregion
+    //#region Partitioning
 
     /// <summary>
     /// Splits the collection into two collections, containing the elements for which the
@@ -3266,6 +3272,7 @@ module ResizeArray =
     /// The first element uses the last element as previous, and the last element uses the first element as next.
     /// On each element it caches the This-Next combination and uses it for the next element as Prev-This.
     let mapPrevNext(combineAdjacent: 'T -> 'T -> 'U) (mergePrevAndNextCombineResults: 'T -> 'U -> 'U -> 'V) (xs:ResizeArray<'T>) : ResizeArray<'V> =
+        if isNull xs then nullExn "mapPrevNext"
         let res = ResizeArray<'V>(xs.Count)
         if xs.Count = 0 then
             res
@@ -3290,11 +3297,40 @@ module ResizeArray =
     let inline headAndTail (resizeArray: ResizeArray<'T>) : 'T * ResizeArray<'T> =
         if isNull resizeArray then nullExn "headAndTail"
         if resizeArray.Count = 0 then
-            fail resizeArray "headAndTail: input ResizeArray is empty"
+            fail resizeArray "headAndTail: input is empty"
         resizeArray.[0], resizeArray.GetRange(1, resizeArray.Count - 1)
 
+    /// In Fable, this is more efficient than ResizeArray.Clear() ,
+    /// It emits .length = 0 , not .splice(0)
+    /// In .NET, it just calls ResizeArray.Clear()
+    let inline clear (arr: ResizeArray<'T>) : unit =
+            if isNull arr then nullExn "clear"
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            Fable.Core.JsInterop.emitJsStatement arr "$0.length = 0"
+        #else
+            arr.Clear()
+        #endif
 
 
+    /// In Fable, this is more efficient than ResizeArray.RemoveAt(arr.Count - 1) ,
+    /// It emits .pop().
+    /// In .NET, it just calls ResizeArray.RemoveAt(arr.Count - 1) and returns the removed element.
+    /// Fails if the input ResizeArray is empty.
+    let inline pop (arr: ResizeArray<'T>) : 'T =
+            if isNull arr then nullExn "pop"
+            if arr.Count = 0 then fail arr "pop: input is empty"
+        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            Fable.Core.JsInterop.emitJsExpr arr "$0.pop()"
+        #else
+            let lastIndex = arr.Count - 1
+            let value = arr.[lastIndex]
+            arr.RemoveAt(lastIndex)
+            value
+        #endif
+
+
+    //#endregion
+    //#region Parallel operations
 
 
     //                                █████            ████              ███████████                                ████  ████           ████
