@@ -76,17 +76,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
-[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/v0.26.0...HEAD
-[0.26.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.25.0...v0.26.0
-[0.25.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.24.0...v0.25.0
-[0.24.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.23.0...v0.24.0
-[0.23.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.22.0...v0.23.0
-[0.22.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.21.0...v0.22.0
-[0.21.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.20.0...v0.21.0
-[0.20.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.19.0...v0.20.0
-[0.19.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.18.0...v0.19.0
-[0.18.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.17.0...v0.18.0
-[0.17.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.16.0...v0.17.0
-[0.16.0]: https://github.com/goswinr/ResizeArrayT/compare/v0.15.0...v0.16.0
-[0.15.0]: https://github.com/goswinr/ResizeArrayT/releases/tag/v0.15.0
+[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.26.0...HEAD
+[0.26.0]: https://github.com/goswinr/ResizeArrayT/compare/0.25.0...0.26.0
+[0.25.0]: https://github.com/goswinr/ResizeArrayT/compare/0.24.0...0.25.0
+[0.24.0]: https://github.com/goswinr/ResizeArrayT/compare/0.23.0...0.24.0
+[0.23.0]: https://github.com/goswinr/ResizeArrayT/compare/0.22.0...0.23.0
+[0.22.0]: https://github.com/goswinr/ResizeArrayT/compare/0.21.0...0.22.0
+[0.21.0]: https://github.com/goswinr/ResizeArrayT/compare/0.20.0...0.21.0
+[0.20.0]: https://github.com/goswinr/ResizeArrayT/compare/0.19.0...0.20.0
+[0.19.0]: https://github.com/goswinr/ResizeArrayT/compare/0.18.0...0.19.0
+[0.18.0]: https://github.com/goswinr/ResizeArrayT/compare/0.17.0...0.18.0
+[0.17.0]: https://github.com/goswinr/ResizeArrayT/compare/0.16.0...0.17.0
+[0.16.0]: https://github.com/goswinr/ResizeArrayT/compare/0.15.0...0.16.0
+[0.15.0]: https://github.com/goswinr/ResizeArrayT/releases/tag/0.15.0
 

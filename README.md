@@ -254,7 +254,7 @@ and to generate not all but many of the tests.
 
 ## Full API Documentation
 
-[goswinr.github.io/ResizeArrayT](https://goswinr.github.io/ResizeArrayT/reference/ResizeArrayT.html)
+[goswinr.github.io/ResizeArrayT](https://goswinr.github.io/ResizeArrayT/reference/resizearrayt.html)
 
 
 ## Tests
