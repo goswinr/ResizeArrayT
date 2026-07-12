@@ -279,6 +279,23 @@ module Extensions =
             let slice = xs[1..3]
             Expect.isTrue (slice.IsEqualTo (ResizeArray<int>([2; 3; 4]))) "Expected GetSlice to get a slice from the ResizeArray"
 
+        testCase "SliceIdx uses an inclusive end index" <| fun _ ->
+            let xs = ResizeArray<int>([0..4])
+            Expect.isTrue ((xs.SliceIdx(0, 0)).IsEqualTo(ResizeArray<int>([0]))) "Expected the first item"
+            Expect.isTrue ((xs.SliceIdx(1, 3)).IsEqualTo(ResizeArray<int>([1; 2; 3]))) "Expected indices 1 through 3"
+            Expect.isTrue ((xs.SliceIdx(2, 4)).IsEqualTo(ResizeArray<int>([2; 3; 4]))) "Expected indices 2 through 4"
+            Expect.isTrue ((xs.SliceIdx(0, 4)).IsEqualTo(ResizeArray<int>([0..4]))) "Expected the full range"
+            Expect.isTrue ((xs.SliceIdx(4, 4)).IsEqualTo(ResizeArray<int>([4]))) "Expected the final item"
+
+        testCase "SliceIdx rejects invalid ranges" <| fun _ ->
+            let xs = ResizeArray<int>([0..4])
+            Expect.throws (fun () -> xs.SliceIdx(-1, 2) |> ignore) "Expected a negative start index to fail"
+            Expect.throws (fun () -> xs.SliceIdx(0, -1) |> ignore) "Expected a negative end index to fail"
+            Expect.throws (fun () -> xs.SliceIdx(5, 5) |> ignore) "Expected a start index at Count to fail"
+            Expect.throws (fun () -> xs.SliceIdx(0, 5) |> ignore) "Expected an end index past Count to fail"
+            Expect.throws (fun () -> xs.SliceIdx(3, 2) |> ignore) "Expected start greater than end to fail"
+            Expect.throws (fun () -> ResizeArray<int>().SliceIdx(0, 0) |> ignore) "Expected slicing an empty ResizeArray to fail"
+
         //---- xs.SetSlice ----
         testCase "SetSlice sets a slice in the ResizeArray" <| fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])

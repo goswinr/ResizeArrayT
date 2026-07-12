@@ -5,7 +5,9 @@ open System.Collections.Generic
 
 
 #nowarn "44" //for opening the hidden but not Obsolete UtilResizeArray module
+#nowarn "10001"
 open UtilResizeArray
+#warnon "10001"
 #warnon "44" //
 
 /// Extension methods for ResizeArray<'T>.
@@ -40,27 +42,32 @@ module AutoOpenResizeArrayExtensions =
 
         /// Use for Debugging index get/set operations.
         /// Just replace 'myList.[3]' with 'myList.DebugIdx.[3]'
-        /// Throws a nice descriptive Exception if the index is out of range
+        /// Throws a descriptive exception if the index is out of range,
         /// including the bad index and the ResizeArray content.
         member xs.DebugIdx =
             new DebugIndexer<'T>(xs)
 
-        /// Gets an item at index, same as this.[index] or this.Idx(index)
-        /// Throws a descriptive Exception if the index is out of range.
-        /// (Use this.GetNeg(i) member if you want to use negative indices too)
+        /// <summary>Gets the element at the specified index. Same as this.[index] or this.Idx(index).
+        /// Use this.GetNeg(index) if you want to use negative indices too.</summary>
+        /// <param name="index">The zero-based index of the element to get.</param>
+        /// <returns>The element at the specified index.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is negative or the ResizeArray does not contain enough elements.</exception>
         member inline xs.Get index =
             if index < 0 || index >= xs.Count then badGetExn index xs "Get"
             xs.[index]
 
         /// Gets an item at index, same as this.[index] or this.Get(index)
-        /// Throws a descriptive Exception if the index is out of range.
+        /// Throws a descriptive exception if the index is out of range.
         /// (Use this.GetNeg(i) member if you want to use negative indices too)
         member inline xs.Idx index =
             if index < 0 || index >= xs.Count then badGetExn index xs "Idx"
             xs.[index]
 
-        /// Sets an item at index
-        /// (Use this.SetNeg(i) member if you want to use negative indices too)
+        /// <summary>Sets the element at the specified index.
+        /// Use this.SetNeg(index, value) if you want to use negative indices too.</summary>
+        /// <param name="index">The zero-based index of the element to set.</param>
+        /// <param name="value">The new value.</param>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is negative or the ResizeArray does not contain enough elements.</exception>
         member inline xs.Set index value =
             if index < 0 || index >= xs.Count then badSetExn index xs "Set" value
             xs.[index] <- value
@@ -74,8 +81,7 @@ module AutoOpenResizeArrayExtensions =
             //if xs.Count = 0 then IndexOutOfRangeException
             xs.Count - 1
 
-        /// Get (or set) the last item in the ResizeArray.
-        /// Equal to this.[this.Count - 1]
+        /// Gets or sets the last element of the ResizeArray. Same as this.[this.Count - 1].
         member inline xs.Last
             with get () =
                 if xs.Count = 0 then badGetExn xs.LastIndex xs "Last"
@@ -84,8 +90,7 @@ module AutoOpenResizeArrayExtensions =
                 if xs.Count = 0 then badSetExn xs.LastIndex xs "Last" v
                 xs.[xs.Count - 1] <- v
 
-        /// Get (or set) the second last item in the ResizeArray.
-        /// Equal to this.[this.Count - 2]
+        /// Gets or sets the second-last element of the ResizeArray. Same as this.[this.Count - 2].
         member inline xs.SecondLast
             with get () =
                 if xs.Count < 2 then badGetExn (xs.Count - 2) xs "SecondLast"
@@ -95,8 +100,7 @@ module AutoOpenResizeArrayExtensions =
                 xs.[xs.Count - 2] <- v
 
 
-        /// Get (or set) the third last item in the ResizeArray.
-        /// Equal to this.[this.Count - 3]
+        /// Gets or sets the third-last element of the ResizeArray. Same as this.[this.Count - 3].
         member inline xs.ThirdLast
             with get () =
                 if xs.Count < 3 then badGetExn (xs.Count - 3) xs "ThirdLast"
@@ -105,8 +109,7 @@ module AutoOpenResizeArrayExtensions =
                 if xs.Count < 3 then badSetExn (xs.Count - 3) xs "ThirdLast" v
                 xs.[xs.Count - 3] <- v
 
-        /// Get (or set) the first item in the ResizeArray.
-        /// Equal to this.[0]
+        /// Gets or sets the first element of the ResizeArray. Same as this.[0].
         member inline xs.First
             with get () =
                 if xs.Count = 0 then badGetExn 0 xs "First"
@@ -115,7 +118,7 @@ module AutoOpenResizeArrayExtensions =
                 if xs.Count = 0 then badSetExn 0 xs "First" v
                 xs.[0] <- v
 
-        /// Gets the the only item in the ResizeArray.
+        /// Gets the only element of the ResizeArray.
         /// Fails if the ResizeArray does not have exactly one element.
         member inline xs.FirstAndOnly : 'T =
             if xs.Count = 0 then badGetExn 0 xs "FirstAndOnly"
@@ -123,8 +126,7 @@ module AutoOpenResizeArrayExtensions =
             xs.[0]
 
 
-        /// Get (or set) the second item in the ResizeArray.
-        /// Equal to this.[1]
+        /// Gets or sets the second element of the ResizeArray. Same as this.[1].
         member inline xs.Second
             with get () =
                 if xs.Count < 2 then badGetExn 1 xs "Second"
@@ -133,8 +135,7 @@ module AutoOpenResizeArrayExtensions =
                 if xs.Count < 2 then badSetExn 1 xs "Second" v
                 xs.[1] <- v
 
-        /// Get (or set) the third item in the ResizeArray.
-        /// Equal to this.[2]
+        /// Gets or sets the third element of the ResizeArray. Same as this.[2].
         member inline xs.Third
             with get () =
                 if xs.Count < 3 then badGetExn 2 xs "Third"
@@ -143,49 +144,50 @@ module AutoOpenResizeArrayExtensions =
                 if xs.Count < 3 then badSetExn 2 xs "Third" v
                 xs.[2] <- v
 
-        /// Checks if this.Count = 0
+        /// Returns true if the ResizeArray is empty; otherwise, false.
         member inline xs.IsEmpty =
             xs.Count = 0
 
 
-        /// Checks if this.Count = 1
+        /// Returns true if the ResizeArray has exactly one element; otherwise, false.
         member inline xs.IsSingleton =
             xs.Count = 1
 
-        /// Checks if this.Count > 0
-        /// Same as xs.HasItems
+        /// Returns true if the ResizeArray has one or more elements; otherwise, false.
+        /// Same as xs.HasItems.
         member inline xs.IsNotEmpty =
             xs.Count > 0
 
-        /// Checks if this.Count > 0
-        /// Same as xs.IsNotEmpty
+        /// Returns true if the ResizeArray has one or more elements; otherwise, false.
+        /// Same as xs.IsNotEmpty. Unlike ResizeArray.hasItems, this property does not test for an exact count.
         member inline xs.HasItems =
             xs.Count > 0
 
 
-        /// Gets an item in the ResizeArray by index.
-        /// Allows for negative index too ( -1 is last item,  like Python)
-        /// (From the release of F# 5 on a negative index can also be done with '^' prefix. E.g. ^0 for the last item)
-        /// Throws a descriptive Exception if the index is out of range. or if the ResizeArray is empty.
+        /// <summary>Gets the element at the specified index. A negative index counts backward from the end; -1 is the last element.</summary>
+        /// <param name="index">The index of the element to get.</param>
+        /// <returns>The element at the specified index.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is outside the ResizeArray or the ResizeArray is empty.</exception>
         member inline xs.GetNeg index =
             let len = xs.Count
             let ii = if index < 0 then len + index else index
             if ii < 0 || ii >= len then badGetExn index xs "GetNeg"
             xs.[ii]
 
-        /// Sets an item in the ResizeArray by index.
-        /// Allows for negative index too ( -1 is last item,  like Python)
-        /// (from the release of F# 5 on a negative index can also be done with '^' prefix. E.g. ^0 for the last item)
-        /// Throws a descriptive Exception if the index is out of range. or if the ResizeArray is empty.
+        /// <summary>Sets the element at the specified index. A negative index counts backward from the end; -1 is the last element.</summary>
+        /// <param name="index">The index of the element to set.</param>
+        /// <param name="value">The new value.</param>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is outside the ResizeArray or the ResizeArray is empty.</exception>
         member inline xs.SetNeg index value =
             let len = xs.Count
             let ii = if index < 0 then len + index else index
             if ii < 0 || ii >= len then badSetExn index xs "SetNeg" value
             xs.[ii] <- value
 
-        /// Any index will return a value.
-        /// ResizeArray is treated as an endless loop in positive and negative direction
-        /// Fails if the ResizeArray is empty.
+        /// <summary>Gets the element at the specified index, treating the ResizeArray as circular in both directions.</summary>
+        /// <param name="index">The index to normalize into the bounds of the ResizeArray.</param>
+        /// <returns>The element at the normalized index.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.GetLooped index =
             let len = xs.Count
             if len = 0 then badGetExn index xs "GetLooped"
@@ -193,9 +195,10 @@ module AutoOpenResizeArrayExtensions =
             let ii = if t >= 0 then t else t + len
             xs.[ii]
 
-        /// Any index will set a value.
-        /// ResizeArray is treated as an endless loop in positive and negative direction
-        /// Fails if the ResizeArray is empty.
+        /// <summary>Sets the element at the specified index, treating the ResizeArray as circular in both directions.</summary>
+        /// <param name="index">The index to normalize into the bounds of the ResizeArray.</param>
+        /// <param name="value">The new value.</param>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.SetLooped index value =
             let len = xs.Count
             if len = 0 then badSetExn index xs "SetLooped" value
@@ -205,7 +208,7 @@ module AutoOpenResizeArrayExtensions =
 
 
         /// Creates a new ResizeArray with the same items as the input ResizeArray.
-        /// Shallow copy only.
+        /// This is a shallow element copy. Same as xs.Clone().
         member this.Duplicate(): ResizeArray<'T> =
             this.GetRange(0, this.Count) // fastest way to create a shallow copy
 
@@ -217,7 +220,7 @@ module AutoOpenResizeArrayExtensions =
         /// When used in Fable (JavaScript) the nested ResizeArrays are compared for structural equality
         /// as per the Fable implementation of Javascript Arrays.
         /// (Like the default behavior of Collections.Generic.List)
-        /// Does not Raises ArgumentNullException if either or both list are null.
+        /// Does not raise ArgumentNullException if either or both lists are null.
         member this.IsEqualTo(other: ResizeArray<'T>) =
             isEqualTo this other
 
@@ -227,7 +230,10 @@ module AutoOpenResizeArrayExtensions =
         member inline xs.InsertAtStart x =
             xs.Insert(0, x)
 
-        /// Get and remove last item from ResizeArray
+        /// <summary>Removes and returns the last element of the ResizeArray.</summary>
+        /// <remarks>In Fable, this emits <c>.pop()</c>. In .NET, it removes the element at Count - 1.</remarks>
+        /// <returns>The removed element.</returns>
+        /// <exception cref="T:System.ArgumentException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.Pop() : 'T =
                 if xs.Count = 0 then fail xs "Pop() failed on empty."
             #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
@@ -239,15 +245,30 @@ module AutoOpenResizeArrayExtensions =
                 value
             #endif
 
-        /// Get and remove item at index from ResizeArray
+        /// <summary>Removes and returns the element at the specified index.</summary>
+        /// <param name="index">The zero-based index of the element to remove.</param>
+        /// <returns>The removed element.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is outside the ResizeArray.</exception>
         member inline xs.Pop(index: int) =
             if index < 0 || index >= xs.Count then badGetExn index xs ".Pop"
             let v = xs.[index]
             xs.RemoveAt(index)
             v
 
-        /// Creates a shallow copy of the list
-        /// (for a ResizeArray of structs this is like a deep copy)
+
+        /// <summary>Removes the last element of the ResizeArray without returning it.</summary>
+        /// <remarks>In Fable, this emits <c>.pop()</c>. In .NET, it removes the element at Count - 1.</remarks>
+        /// <exception cref="T:System.ArgumentException">Thrown when the ResizeArray is empty.</exception>
+        member inline xs.PopOff() : unit =
+                if xs.Count = 0 then fail xs "PopOff() failed on empty."
+            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+                Fable.Core.JsInterop.emitJsStatement xs "$0.pop()"
+            #else
+                let lastIndex = xs.Count - 1
+                xs.RemoveAt(lastIndex)
+            #endif
+
+        /// Creates a new ResizeArray that contains a shallow copy of the elements. Same as xs.Duplicate().
         member inline xs.Clone() =
             xs.GetRange(0, xs.Count) // fastest way to create a shallow copy
 
@@ -263,9 +284,9 @@ module AutoOpenResizeArrayExtensions =
             xs.Count - offset - 1
 
         /// <summary>
-        /// This member enables F# slicing notation operator. e.g:  xs.[1..3].
+        /// This member enables the F# slicing notation operator, for example xs.[1..3].
         /// The resulting ResizeArray includes the end index.
-        /// Just like for F# arrays out of bounds indices are ignored for getting a slice. (But not for setting it.)
+        /// Just like for F# arrays, out-of-bounds indices are ignored when getting a slice, but not when setting one.
         /// The start index is inclusive and the end index is also inclusive.
         /// </summary>
         /// <remarks>
@@ -293,13 +314,14 @@ module AutoOpenResizeArrayExtensions =
 
         /// <summary>
         /// This member enables F# slicing notation operator e.g.: xs.[1..3] &lt;- ys.
-        /// The the end index is included.
-        /// Just like for F# arrays out of bounds indices raise an Exception for setting a slice. (But not for getting it.)
-        /// If the list of new values is longer than the slice the extra values are ignored.( just like for F# arrays)
+        /// The end index is included.
+        /// Just like for F# arrays, out-of-bounds indices raise an exception when setting a slice, but not when getting one.
+        /// If the list of new values is longer than the slice, the extra values are ignored (just like for F# arrays).
         /// </summary>
         /// <remarks>
         /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
         /// </remarks>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either bound is outside the ResizeArray, the start index is greater than the end index, or newValues contains too few elements.</exception>
         member xs.SetSlice(startIdx: option<int>, endIdx: option<int>, newValues: IList<'T>) : unit =
             //.SetSlice maps onto slicing operator .[1..3] <- xs
             let count = xs.Count
@@ -332,45 +354,38 @@ module AutoOpenResizeArrayExtensions =
                 xs.[i] <- newValues.[i - stIdx]
 
         /// <summary>
-        /// Give start and end index. The resulting ResizeArray includes the value at end index too.
-        /// This function will fail on out of bound indices, while the F# slicing notation xs.[1..3] will not.
-        /// To use negative indices or out of range indices use the SliceLooped method.
+        /// Returns a new ResizeArray containing the elements between the specified inclusive start and end indices.
+        /// This member rejects out-of-bounds indices, while the F# slicing notation xs.[1..3] does not.
+        /// To normalize negative or out-of-range indices, use SliceLooped.
         /// Do not confuse this method with the new xs.Slice(start , length) method, that is built into .NET
         /// </summary>
-        /// <param name="startIdx">The start index of the slice.</param>
-        /// <param name="endIdx">The end index of the slice.</param>
+        /// <param name="startIdx">The inclusive start index of the slice.</param>
+        /// <param name="endIdx">The inclusive end index of the slice.</param>
+        /// <returns>A new ResizeArray containing the requested range.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either index is outside the ResizeArray or startIdx is greater than endIdx.</exception>
         /// <remarks>
         /// Alternative: with F# slicing notation (e.g. a.[1..3])
         /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
         /// </remarks>
         member xs.SliceIdx(startIdx:int , endIdx: int ) : ResizeArray<'T> =
             let count = xs.Count
-            let st  = startIdx //if startIdx< 0 then count + startIdx        else startIdx
-            let len = endIdx   //if endIdx  < 0 then count + endIdx - st + 1 else endIdx - st + 1
-            if st < 0 || st > count - 1 then
-                failIdx xs $"SliceIdx: Start index {startIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
-
-            if st+len > count then
-                failIdx xs $"SliceIdx: End index {endIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
-
-            if len < 0 then
-                // let en = if endIdx<0 then count+endIdx else endIdx
-                // let err = sprintf "ResizeArray.Slice: Start index '%A' (= %d) is bigger than end index '%A'(= %d) for ResizeArray of %d items" startIdx st endIdx en  count
+            if startIdx < 0 || startIdx >= count then
+                failIdx xs $"SliceIdx: Start index {startIdx} is out of range. Allowed values are 0 through {count - 1} for a ResizeArray of {count} items."
+            if endIdx < 0 || endIdx >= count then
+                failIdx xs $"SliceIdx: End index {endIdx} is out of range. Allowed values are 0 through {count - 1} for a ResizeArray of {count} items."
+            if startIdx > endIdx then
                 failIdx xs $"SliceIdx: Start index {startIdx} is bigger than end index {endIdx} for ResizeArray of {count} items"
-
-            // ResizeArray.init len (fun i -> this.[st+i])
-            xs.GetRange(st, len)
+            xs.GetRange(startIdx, endIdx - startIdx + 1)
 
         /// <summary>
-        /// Give start and end index. The resulting ResizeArray includes the value at end index too.
-        /// Any index is valid, out of range indices set into range using modulo.
-        /// Allows for negative indices too. ( -1 is last item, like in Python)
-        /// The resulting ResizeArray includes the end index.
-        /// If the start index is bigger than the end index an empty ResizeArray is returned.
-        /// For empty input ResizeArray an empty ResizeArray is returned.
+        /// Returns a new ResizeArray containing the elements between the specified start and end indices after normalizing both indices with modulo.
+        /// Both indices are inclusive, and negative and out-of-range indices are allowed.
+        /// If the normalized start index is greater than the normalized end index, an empty ResizeArray is returned.
+        /// For an empty input ResizeArray, an empty ResizeArray is returned.
         /// </summary>
-        /// <param name="startIdx">The start index of the slice.</param>
-        /// <param name="endIdx">The end index of the slice.</param>
+        /// <param name="startIdx">The inclusive start index to normalize.</param>
+        /// <param name="endIdx">The inclusive end index to normalize.</param>
+        /// <returns>A new ResizeArray containing the requested range.</returns>
         /// <remarks>
         /// Alternative: with F# slicing notation (e.g. a.[1..3])
         /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
@@ -389,18 +404,14 @@ module AutoOpenResizeArrayExtensions =
                     xs.GetRange(st, len)
 
 
-        /// Raises an Exception if the ResizeArray is empty
-        /// (Useful for chaining)
-        /// Returns the input ResizeArray
+        /// Returns the input ResizeArray for chaining, or raises an exception if it is empty.
         member inline xs.FailIfEmpty (errorMessage: string) : ResizeArray<'T> =
-            if xs.Count = 0 then failSimpel $".FailIfEmpty: {errorMessage}"
+            if xs.Count = 0 then failSimple $"FailIfEmpty: {errorMessage}"
             xs
 
-        /// Raises an Exception if the ResizeArray has less then count items.
-        /// (Useful for chaining)
-        /// Returns the input ResizeArray
+        /// Returns the input ResizeArray for chaining, or raises an exception if it has fewer than count elements.
         member inline xs.FailIfLessThan(count, errorMessage: string)  : ResizeArray<'T> =
-            if xs.Count < count then failSimpel $"FailIfLessThan {count}: {errorMessage}"
+            if xs.Count < count then failSimple $"FailIfLessThan {count}: {errorMessage}"
             xs
 
 

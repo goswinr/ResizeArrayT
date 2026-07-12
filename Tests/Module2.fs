@@ -1490,6 +1490,12 @@ module Module2 =
         Assert.AreEqual(xs |> ResizeArray.rotate -12 , xs)
         Assert.AreEqual(xs |> ResizeArray.rotate -13 , xs|> ResizeArray.rotate -1)
         Assert.AreEqual(xs |> ResizeArray.rotate  13 , xs|> ResizeArray.rotate  1)
+        Assert.AreEqual(xs |> ResizeArray.rotate Int32.MinValue, xs |> ResizeArray.rotate (Int32.MinValue % xs.Count))
+
+
+    testCase "ResizeArray.trim handles large counts without integer overflow" <| fun _ ->
+        let xs = [|0; 1; 2|].asRarr
+        Assert.AreEqual([||].asRarr, xs |> ResizeArray.trim Int32.MaxValue Int32.MaxValue)
 
 
     testCase "ResizeArray.rotateDownTill" <| fun _ ->
@@ -1502,6 +1508,7 @@ module Module2 =
     testCase "ResizeArray.rotateDownTillLast" <| fun _ ->
         let xs = [|0; 7; 2; 3; 7; 5|].asRarr
         Assert.AreEqual(xs |> ResizeArray.rotateDownTillLast(fun i -> i = 7) , [|2; 3; 7; 5; 0; 7 |].asRarr)
+        Assert.AreEqual(xs |> ResizeArray.rotateDownTillLast(fun i -> i = 0) , [|7; 2; 3; 7; 5; 0 |].asRarr)
         throwsArg (fun () -> xs |> ResizeArray.rotateDownTillLast (fun i -> i = 99) |> ignore  )
 
 
@@ -1524,6 +1531,22 @@ module Module2 =
         let result = arr|> ResizeArray.filteri (fun i _ -> i % 2 = 0)
         Assert.AreEqual([|'a';'c'|].asRarr , result)
         Assert.AreNotEqual(arr, result,"input array should not be modified")
+
+
+    testCase "ResizeArray.tryFindIndexi and findIndexi use zero-based indices" <| fun _ ->
+        let arr = [|10; 20; 30|].asRarr
+        Assert.AreEqual(Some 0, arr |> ResizeArray.tryFindIndexi (fun i value -> i = 0 && value = 10))
+        Assert.AreEqual(Some 2, arr |> ResizeArray.tryFindIndexi (fun i value -> i = 2 && value = 30))
+        Assert.AreEqual(None, arr |> ResizeArray.tryFindIndexi (fun i value -> i = value))
+        Assert.AreEqual(1, arr |> ResizeArray.findIndexi (fun i value -> i = 1 && value = 20))
+
+
+    testCase "ResizeArray min3/max3 helpers keep equal elements stable" <| fun _ ->
+        let arr = [| "aa"; "bb"; "cc"; "dd" |].asRarr
+        Assert.True((0, 1, 2) = (arr |> ResizeArray.min3IndicesBy String.length))
+        Assert.True((0, 1, 2) = (arr |> ResizeArray.max3IndicesBy String.length))
+        Assert.True(("aa", "bb", "cc") = (arr |> ResizeArray.min3By String.length))
+        Assert.True(("aa", "bb", "cc") = (arr |> ResizeArray.max3By String.length))
 
     testCase "slice2" <| fun _ ->
         let arr = [|0;1;2;3;4;5;6;7;8;9;10|].asRarr

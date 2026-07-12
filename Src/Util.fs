@@ -2,13 +2,14 @@ namespace ResizeArrayT
 
 open System
 open System.Collections.Generic
+open System.ComponentModel
 
 /// Open this module to get access to the operators +++ and ++
-/// to combines the contents of two Sequences or ICollection<'T> into a new ResizeArray
+/// to combine the contents of two sequences or ICollection<'T> values into a new ResizeArray.
 module Operators =
 
-    /// Operator +++ to shallow copy the contents of two Sequences (IEnumerable<'T>) into a new ResizeArray
-    /// On ICollection<'T> you can alo use the operator ++ which is more optimized .
+    /// Operator +++ shallow-copies the contents of two sequences (IEnumerable<'T>) into a new ResizeArray.
+    /// On ICollection<'T> you can also use the more optimized ++ operator.
     let inline (+++) (a : seq<'T>) ( b : seq<'T>)  : ResizeArray<'T> =
         let r = new ResizeArray<'T>()
         r.AddRange a
@@ -17,7 +18,7 @@ module Operators =
 
     /// Operator ++ to shallow copy the contents of two ICollection<'T> into a new ResizeArray.
     /// The capacity of the new ResizeArray is the sum of the count of the two ICollection<'T>.
-    /// This version is more optimized than the operator +++ for sequences. because it can preallocate the needed space correctly.
+    /// This version is more optimized than the +++ operator for sequences because it can preallocate the required space.
     let inline (++) (a : ICollection<'T>) ( b : ICollection<'T>) : ResizeArray<'T> =
         let l = new ResizeArray<'T>( a.Count + b.Count)
         l.AddRange a
@@ -25,12 +26,14 @@ module Operators =
         l
 
 
-[<Obsolete("not Obsolete but hidden, needs to be visible for inlining")>]
+[<EditorBrowsable(EditorBrowsableState.Never)>]
+[<CompilerMessage("This module is for internal use only.", 10001, IsHidden = true)>]
+[<Obsolete("Not obsolete, but hidden because it needs to be public for inlining.")>]
 module UtilResizeArray =
 
     /// Converts negative indices to positive ones.
     /// Correct results from -length up to length-1
-    /// e.g.: -1 is  last item .
+    /// For example, -1 is the last item.
     /// (from the release of F# 5 on a negative index can also be done with '^' prefix. E.g. ^0 for the last item)
     let inline negIdx i len =
         let ii = if i < 0 then len + i else i
@@ -130,9 +133,13 @@ module UtilResizeArray =
         let t = typeOfName<'T>()
         raise (ArgumentException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
 
-    /// Throws an ArgumentException with.
-    let failSimpel (funcAndReason:string)  =
+    /// Throws an ArgumentException with a message containing the function name and reason.
+    let failSimple (funcAndReason:string) =
         raise (ArgumentException $"ResizeArray.{funcAndReason}")
+
+    [<Obsolete("Use failSimple instead.")>]
+    let failSimpel (funcAndReason:string) =
+        failSimple funcAndReason
 
     /// Throws a KeyNotFoundException with a message that includes the content of the ResizeArray.
     let failKey (arr:ResizeArray<'T>) (funcAndReason:string)  =
@@ -145,9 +152,10 @@ module UtilResizeArray =
         raise (IndexOutOfRangeException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
 
 
-    /// A simple simple Wrapper for a ResizeArray.
-    /// The sole purpose is to provide a better Exception message when an index is out of range.
+    /// A simple wrapper for a ResizeArray.
+    /// Its sole purpose is to provide a better exception message when an index is out of range.
     type DebugIndexer<'T>(arr:ResizeArray<'T>) = // [<Struct>] would fails for setter !
+        /// Gets or sets the element at the given index and throws a descriptive exception when the index is out of range.
         member this.Item
             with get(i) =
                 if i < 0 || i >= arr.Count then badGetExn i arr "DebugIdx.[i]"
@@ -157,10 +165,13 @@ module UtilResizeArray =
                 if i < 0 || i >= arr.Count then badSetExn i arr "DebugIdx.[i]" x
                 arr.[i] <- x
 
+        /// Gets the number of elements in the wrapped ResizeArray.
         member this.Count = arr.Count
 
+        /// Gets the wrapped ResizeArray.
         member this.Array = arr
 
+        /// Returns a string representation of the wrapped ResizeArray and a sample of its contents.
         override this.ToString() =
             let t =
             #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT

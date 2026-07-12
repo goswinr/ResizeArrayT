@@ -516,6 +516,15 @@ module Module =
         throwsArg (fun () -> ResizeArray.blit intSrc 1 intDes 1 300 |> ignore)
         throwsArg (fun () -> ResizeArray.blit intSrc 1 intDes 5 8 |> ignore)
 
+        // overlapping ranges in the same ResizeArray must preserve the source range
+        let overlapRight = [| 1; 2; 3; 4; 5 |].asRarr
+        ResizeArray.blit overlapRight 0 overlapRight 1 4
+        Assert.AreEqual([| 1; 1; 2; 3; 4 |].asRarr, overlapRight)
+
+        let overlapLeft = [| 1; 2; 3; 4; 5 |].asRarr
+        ResizeArray.blit overlapLeft 1 overlapLeft 0 4
+        Assert.AreEqual([| 2; 3; 4; 5; 5 |].asRarr, overlapLeft)
+
 
 
     testCase "ResizeArray.BlitExtend() " <| fun _ ->
@@ -525,10 +534,14 @@ module Module =
         // let insert2 = [| 0..11 |].asRarr
         let expected  = [| 0..19 |].asRarr
         ResizeArray.blitExtend input 0 insert1 10 10
-        Assert.AreEqual(expected,expected)
+        Assert.AreEqual(expected, insert1)
+
+        let selfExtend = [| 1; 2; 3 |].asRarr
+        ResizeArray.blitExtend selfExtend 0 selfExtend 1 3
+        Assert.AreEqual([| 1; 1; 2; 3 |].asRarr, selfExtend)
 
         ResizeArray.blitExtend input 0 insert1 10 10
-        Assert.AreEqual(expected,expected)
+        Assert.AreEqual(expected, insert1)
         // TODO add more
 
 
@@ -2038,6 +2051,18 @@ module Module =
     testCase "ResizeArray.SlicingOutOfBounds() [0 9] " <| fun _ ->
         let arr = [|1;2;3|].asRarr
         throwsIdx   (fun () -> arr.SliceIdx(0,9)|> ignore )
+
+    testCase "ResizeArray.sliceIdx uses an inclusive end index" <| fun _ ->
+        let arr = [|0..4|].asRarr
+        Assert.AreEqual([|0|].asRarr, ResizeArray.sliceIdx 0 0 arr)
+        Assert.AreEqual([|1;2;3|].asRarr, ResizeArray.sliceIdx 1 3 arr)
+        Assert.AreEqual([|2;3;4|].asRarr, ResizeArray.sliceIdx 2 4 arr)
+
+    testCase "ResizeArray.sliceIdx rejects invalid ranges" <| fun _ ->
+        let arr = [|0..4|].asRarr
+        throwsIdx (fun () -> ResizeArray.sliceIdx -1 2 arr |> ignore)
+        throwsIdx (fun () -> ResizeArray.sliceIdx 0 5 arr |> ignore)
+        throwsIdx (fun () -> ResizeArray.sliceIdx 3 2 arr |> ignore)
 
     testCase "ResizeArray.SlicingOutOfBounds() [..] " <| fun _ ->
         let arr = [|1;2;3|].asRarr

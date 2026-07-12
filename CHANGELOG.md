@@ -7,8 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.26.1] - 2026-07-12
+
 ### Added
 - ResizeArray.headAndTail
+- ResizeArray.popOff to just remove the last element without returning it
+
+### Changed
+- Correct and complete the public API documentation and hide implementation-only utilities from generated documentation.
+
+### Fixed
+- Make `ResizeArray.sliceIdx` and `.SliceIdx` use an inclusive end index and reject invalid bounds consistently.
+- Interpolate the actual collection lengths in the `ResizeArray.zip` length-mismatch error message.
+- Correct the zero-based index passed to and returned from `ResizeArray.tryFindIndexi` and `findIndexi`.
+- Fix `rotateDownTill` and `rotateDownTillLast` boundary handling and ensure the latter tests the last element as documented.
+- Return fresh empty ResizeArrays from operations documented to return new collections.
 
 ## [0.26.0] - 2026-03-07
 ### Changed
@@ -76,7 +89,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
-[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.26.0...HEAD
+[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.26.1...HEAD
+[0.26.1]: https://github.com/goswinr/ResizeArrayT/compare/0.26.0...0.26.1
 [0.26.0]: https://github.com/goswinr/ResizeArrayT/compare/0.25.0...0.26.0
 [0.25.0]: https://github.com/goswinr/ResizeArrayT/compare/0.24.0...0.25.0
 [0.24.0]: https://github.com/goswinr/ResizeArrayT/compare/0.23.0...0.24.0
