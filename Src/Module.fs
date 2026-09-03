@@ -3051,8 +3051,9 @@ module ResizeArray =
         r.Sort(comparer)
         r
 
-    /// <summary>Splits a ResizeArray into two ResizeArrays at the given index.</summary>
-    /// <param name="index">The index at which the ResizeArray is split.</param>
+    /// <summary>Splits a ResizeArray into two ResizeArrays at the given index.
+    /// The element at the given index will be the first element of the second ResizeArray.</summary>
+    /// <param name="index">The index at which the ResizeArray is split. This index is bound-checked and must be between 0 and resizeArray.Count (inclusive).</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The two split ResizeArrays.</returns>
     /// <exception cref="T:System.ArgumentException">Thrown when index is outside the inclusive range 0 through resizeArray.Count.</exception>
