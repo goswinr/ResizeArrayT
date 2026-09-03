@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Complete parity with the F# core `Array` module: `ResizeArray.zeroCreate`, `ResizeArray.partitionWith`,
+  and the `randomChoice`, `randomChoiceBy`, `randomChoiceWith`, `randomChoices`, `randomChoicesBy`, `randomChoicesWith`,
+  `randomSample`, `randomSampleBy`, `randomSampleWith`, `randomShuffle`, `randomShuffleBy`, `randomShuffleWith`,
+  `randomShuffleInPlace`, `randomShuffleInPlaceBy` and `randomShuffleInPlaceWith` functions.
+
 ## [0.26.1] - 2026-07-12
 
 ### Added
