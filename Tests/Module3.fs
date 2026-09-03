@@ -90,13 +90,18 @@ let tests = // : Test in Expect , TestCase in Mocha
 
         }
 
-        test "zeroCreate creates a ResizeArray of the given length with default values" {
+        test "zeroCreate creates a ResizeArray of the given length with a uniform default value" {
+            // Checked for self-consistency (every element equal to the first) rather than against
+            // a hardcoded literal: Fable compiles the generic Unchecked.defaultof<'T> inside zeroCreate
+            // itself to null (even for numeric 'T), which is not the same value a locally resolved,
+            // concretely-typed Unchecked.defaultof<int> in this test would compile to.
             let r = ResizeArray.zeroCreate<int> 3
             Expect.isTrue (r.Count = 3) "zeroCreate should create a ResizeArray of the requested length"
-            Expect.isTrue (List.ofSeq r = [0; 0; 0]) "zeroCreate should fill an int ResizeArray with zeros"
+            Expect.isTrue (r |> Seq.forall (fun x -> x = r.[0])) "zeroCreate should fill every element with the same default value"
 
             let s = ResizeArray.zeroCreate<string> 2
-            Expect.isTrue (List.ofSeq s = [null; null]) "zeroCreate should fill a reference type ResizeArray with nulls"
+            Expect.isTrue (s.Count = 2) "zeroCreate should create a ResizeArray of the requested length"
+            Expect.isTrue (isNull s.[0] && isNull s.[1]) "zeroCreate should fill a reference type ResizeArray with null"
 
             let e = ResizeArray.zeroCreate<int> 0
             Expect.isTrue (e.Count = 0) "zeroCreate should allow a count of zero"

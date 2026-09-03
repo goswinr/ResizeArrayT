@@ -1579,7 +1579,9 @@ module ResizeArray =
 
 
     /// <summary>Creates a ResizeArray with the given length, where each element is initialized to
-    /// <c>Unchecked.defaultof&lt;'T&gt;</c> (<c>null</c> for reference types, zero for numeric types).</summary>
+    /// <c>Unchecked.defaultof&lt;'T&gt;</c> (<c>null</c> for reference types, zero for numeric types).
+    /// When compiled with Fable, generic <c>Unchecked.defaultof&lt;'T&gt;</c> is always <c>null</c>,
+    /// even for numeric <c>'T</c>, so the JavaScript elements may differ from the .NET ones.</summary>
     /// <param name="count">The length of the ResizeArray to create.</param>
     /// <returns>The created ResizeArray.</returns>
     /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
