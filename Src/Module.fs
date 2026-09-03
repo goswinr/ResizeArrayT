@@ -986,6 +986,18 @@ module ResizeArray =
             | Choice2Of2 value -> results2.Add value
         results1, results2
 
+    /// <summary>Splits the collection into two ResizeArrays, by applying the given partitioning function
+    /// to each element. Returns Choice1Of2 elements in the first ResizeArray and
+    /// Choice2Of2 elements in the second ResizeArray. Element order is preserved in both of the created ResizeArrays.
+    /// This is the same function as <see cref="M:ResizeArrayT.ResizeArray.partitionBy"/>, provided under the name
+    /// used by the F# core <c>Array</c> module.</summary>
+    /// <param name="partitioner">The function to transform and classify each input element into one of two output types.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A tuple of two ResizeArrays. The first containing values from Choice1Of2 results and the second
+    /// containing values from Choice2Of2 results.</returns>
+    let inline partitionWith (partitioner: 'T -> Choice<'U1, 'U2>) (resizeArray: ResizeArray<'T>) : ResizeArray<'U1> * ResizeArray<'U2> =
+        partitionBy partitioner resizeArray
+
     /// <summary>
     /// Splits the collection into three collections, containing the elements for which the
     /// given function returns <c>Choice1Of3</c>, <c>Choice2Of3</c> or <c>Choice3Of3</c>, respectively. This function is similar to
@@ -1563,6 +1575,22 @@ module ResizeArray =
         let resizeArray = ResizeArray(count)
         for i = 0 to count - 1 do
             resizeArray.Add value
+        resizeArray
+
+
+    /// <summary>Creates a ResizeArray with the given length, where each element is initialized to
+    /// <c>Unchecked.defaultof&lt;'T&gt;</c> (<c>null</c> for reference types, zero for numeric types).
+    /// When compiled with Fable, generic <c>Unchecked.defaultof&lt;'T&gt;</c> is always <c>null</c>,
+    /// even for numeric <c>'T</c>, so the JavaScript elements may differ from the .NET ones.</summary>
+    /// <param name="count">The length of the ResizeArray to create.</param>
+    /// <returns>The created ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
+    let zeroCreate<'T> (count: int) : ResizeArray<'T> =
+        if count < 0 then
+            failSimple $"zeroCreate: count ({count}) cannot be negative."
+        let resizeArray = ResizeArray(count)
+        for i = 0 to count - 1 do
+            resizeArray.Add Unchecked.defaultof<'T>
         resizeArray
 
 
@@ -2544,6 +2572,216 @@ module ResizeArray =
         match result with
         | Some res -> res
         | None -> failKey resizeArray $"pickBack: Key not found in {resizeArray.Count} elements"
+
+    //#region Random
+
+    /// Shared Random instance used internally by the random* functions that don't take
+    /// an explicit Random instance or randomizer function.
+    let private rnd = Random()
+
+    /// Turns a `unit -> float` randomizer returning a value from the [0.0, 1.0) range
+    /// into a `bound -> int` function returning a value from the [0, bound) range.
+    let inline private randomizerNext (randomizer: unit -> float) (bound: int) : int =
+        Operators.min (int (randomizer () * float bound)) (bound - 1)
+
+    /// Fisher-Yates shuffle, mutating resizeArray in place, using nextBound i to get a random index in [0, i).
+    let private fisherYatesShuffle (nextBound: int -> int) (resizeArray: ResizeArray<'T>) : unit =
+        for i = resizeArray.Count - 1 downto 1 do
+            let j = nextBound (i + 1)
+            if i <> j then
+                let t = resizeArray.[i]
+                resizeArray.[i] <- resizeArray.[j]
+                resizeArray.[j] <- t
+
+    /// Floyd's algorithm: returns count distinct random indices into [0, n) using nextBound j to get
+    /// a random index in [0, j).
+    let private randomDistinctIndices (nextBound: int -> int) (count: int) (n: int) : ResizeArray<int> =
+        let selected = HashSet<int>()
+        let order = ResizeArray<int>(count)
+        for j = n - count to n - 1 do
+            let t = nextBound (j + 1)
+            if selected.Add t then
+                order.Add t
+            else
+                selected.Add j |> ignore
+                order.Add j
+        order
+
+    /// <summary>Returns a random element from the given ResizeArray.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A randomly selected element from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    let randomChoice (resizeArray: ResizeArray<'T>) : 'T =
+        if isNull resizeArray then nullExn "randomChoice"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoice: Count must be at least one"
+        resizeArray.[rnd.Next resizeArray.Count]
+
+    /// <summary>Returns a random element from the given ResizeArray using the specified randomizer function.</summary>
+    /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A randomly selected element from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    let randomChoiceBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : 'T =
+        if isNull resizeArray then nullExn "randomChoiceBy"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoiceBy: Count must be at least one"
+        resizeArray.[randomizerNext randomizer resizeArray.Count]
+
+    /// <summary>Returns a random element from the given ResizeArray with the specified Random instance.</summary>
+    /// <param name="random">The Random instance.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A randomly selected element from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    let randomChoiceWith (random: Random) (resizeArray: ResizeArray<'T>) : 'T =
+        if isNull resizeArray then nullExn "randomChoiceWith"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoiceWith: Count must be at least one"
+        resizeArray.[random.Next resizeArray.Count]
+
+    /// <summary>Returns a ResizeArray of random elements from the given ResizeArray, each element can be selected multiple times.</summary>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    let randomChoices (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomChoices"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoices: Count must be at least one"
+        if count < 0 then failSimple $"randomChoices: count ({count}) cannot be negative."
+        let res = ResizeArray(count)
+        for _ = 1 to count do
+            res.Add resizeArray.[rnd.Next resizeArray.Count]
+        res
+
+    /// <summary>Returns a ResizeArray of random elements from the given ResizeArray using the specified randomizer function,
+    /// each element can be selected multiple times.</summary>
+    /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    let randomChoicesBy (randomizer: unit -> float) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomChoicesBy"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoicesBy: Count must be at least one"
+        if count < 0 then failSimple $"randomChoicesBy: count ({count}) cannot be negative."
+        let res = ResizeArray(count)
+        for _ = 1 to count do
+            res.Add resizeArray.[randomizerNext randomizer resizeArray.Count]
+        res
+
+    /// <summary>Returns a ResizeArray of random elements from the given ResizeArray with the specified Random instance,
+    /// each element can be selected multiple times.</summary>
+    /// <param name="random">The Random instance.</param>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    let randomChoicesWith (random: Random) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomChoicesWith"
+        if resizeArray.Count = 0 then fail resizeArray "randomChoicesWith: Count must be at least one"
+        if count < 0 then failSimple $"randomChoicesWith: count ({count}) cannot be negative."
+        let res = ResizeArray(count)
+        for _ = 1 to count do
+            res.Add resizeArray.[random.Next resizeArray.Count]
+        res
+
+    /// <summary>Returns a random sample of elements from the given ResizeArray, each element can be selected only once.</summary>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    let randomSample (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomSample"
+        if count < 0 then failSimple $"randomSample: count ({count}) cannot be negative."
+        if count > resizeArray.Count then failSimple $"randomSample: count ({count}) cannot exceed the ResizeArray's length ({resizeArray.Count})."
+        let indices = randomDistinctIndices rnd.Next count resizeArray.Count
+        let res = ResizeArray(count)
+        for idx in indices do res.Add resizeArray.[idx]
+        res
+
+    /// <summary>Returns a random sample of elements from the given ResizeArray using the specified randomizer function,
+    /// each element can be selected only once.</summary>
+    /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    let randomSampleBy (randomizer: unit -> float) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomSampleBy"
+        if count < 0 then failSimple $"randomSampleBy: count ({count}) cannot be negative."
+        if count > resizeArray.Count then failSimple $"randomSampleBy: count ({count}) cannot exceed the ResizeArray's length ({resizeArray.Count})."
+        let indices = randomDistinctIndices (randomizerNext randomizer) count resizeArray.Count
+        let res = ResizeArray(count)
+        for idx in indices do res.Add resizeArray.[idx]
+        res
+
+    /// <summary>Returns a random sample of elements from the given ResizeArray with the specified Random instance,
+    /// each element can be selected only once.</summary>
+    /// <param name="random">The Random instance.</param>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
+    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    let randomSampleWith (random: Random) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomSampleWith"
+        if count < 0 then failSimple $"randomSampleWith: count ({count}) cannot be negative."
+        if count > resizeArray.Count then failSimple $"randomSampleWith: count ({count}) cannot exceed the ResizeArray's length ({resizeArray.Count})."
+        let indices = randomDistinctIndices random.Next count resizeArray.Count
+        let res = ResizeArray(count)
+        for idx in indices do res.Add resizeArray.[idx]
+        res
+
+    /// <summary>Returns a new ResizeArray shuffled in a random order. Does not modify the input ResizeArray.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The shuffled ResizeArray.</returns>
+    let randomShuffle (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomShuffle"
+        let r = resizeArray.GetRange(0, resizeArray.Count) // fastest way to create a shallow copy
+        fisherYatesShuffle rnd.Next r
+        r
+
+    /// <summary>Returns a new ResizeArray shuffled in a random order using the specified randomizer function.
+    /// Does not modify the input ResizeArray.</summary>
+    /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The shuffled ResizeArray.</returns>
+    let randomShuffleBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomShuffleBy"
+        let r = resizeArray.GetRange(0, resizeArray.Count) // fastest way to create a shallow copy
+        fisherYatesShuffle (randomizerNext randomizer) r
+        r
+
+    /// <summary>Returns a new ResizeArray shuffled in a random order with the specified Random instance.
+    /// Does not modify the input ResizeArray.</summary>
+    /// <param name="random">The Random instance.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The shuffled ResizeArray.</returns>
+    let randomShuffleWith (random: Random) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "randomShuffleWith"
+        let r = resizeArray.GetRange(0, resizeArray.Count) // fastest way to create a shallow copy
+        fisherYatesShuffle random.Next r
+        r
+
+    /// <summary>Sorts the input ResizeArray in a random order by mutating the ResizeArray in-place.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    let randomShuffleInPlace (resizeArray: ResizeArray<'T>) : unit =
+        if isNull resizeArray then nullExn "randomShuffleInPlace"
+        fisherYatesShuffle rnd.Next resizeArray
+
+    /// <summary>Sorts the input ResizeArray in a random order using the specified randomizer function by mutating
+    /// the ResizeArray in-place.</summary>
+    /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    let randomShuffleInPlaceBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : unit =
+        if isNull resizeArray then nullExn "randomShuffleInPlaceBy"
+        fisherYatesShuffle (randomizerNext randomizer) resizeArray
+
+    /// <summary>Sorts the input ResizeArray in a random order with the specified Random instance by mutating
+    /// the ResizeArray in-place.</summary>
+    /// <param name="random">The Random instance.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    let randomShuffleInPlaceWith (random: Random) (resizeArray: ResizeArray<'T>) : unit =
+        if isNull resizeArray then nullExn "randomShuffleInPlaceWith"
+        fisherYatesShuffle random.Next resizeArray
+
+    //#endregion Random
 
     /// <summary>Applies a function to each element of the ResizeArray, threading an accumulator argument
     /// through the computation. If the input function is <c>f</c> and the elements are <c>i0...iN</c>
