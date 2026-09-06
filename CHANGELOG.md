@@ -101,7 +101,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
-[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.26.1...HEAD
+[0.27.0]: https://github.com/goswinr/ResizeArrayT/compare/0.26.1...0.27.0
 [0.26.1]: https://github.com/goswinr/ResizeArrayT/compare/0.26.0...0.26.1
 [0.26.0]: https://github.com/goswinr/ResizeArrayT/compare/0.25.0...0.26.0
 [0.25.0]: https://github.com/goswinr/ResizeArrayT/compare/0.24.0...0.25.0
