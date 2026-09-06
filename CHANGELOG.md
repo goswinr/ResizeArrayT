@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.27.0] - 2026-09-07
 
 ### Added
 - add ResizeArray.zeroCreate
@@ -15,6 +15,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - add ResizeArray.randomSample, randomSampleBy and randomSampleWith
 - add ResizeArray.randomShuffle, randomShuffleBy and randomShuffleWith
 - add ResizeArray.randomShuffleInPlace, randomShuffleInPlaceBy and randomShuffleInPlaceWith
+
+### Fixed
+- Packaging: the Fable content glob is no longer recursive, so the package no longer ships generated obj AssemblyInfo files, only the real source files.
 
 ## [0.26.1] - 2026-07-12
 
