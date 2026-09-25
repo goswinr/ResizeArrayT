@@ -273,14 +273,13 @@ module AutoOpenResizeArrayExtensions =
             xs.GetRange(0, xs.Count) // fastest way to create a shallow copy
 
         /// <summary>Get the index for the element offset elements away from the end of the collection.
-        /// This member exists to support F# indexing from back: ^0 is last item, ^1 is second last</summary>
+        /// This member exists to support F# indexing from back: ^0 is last item, ^1 is second last.
+        /// Just like for F# arrays, the offset is not validated here, so that slicing with an offset beyond the start,
+        /// e.g. xs.[..^5] on three items, returns an empty ResizeArray instead of failing.
+        /// Indexing with such an offset, e.g. xs.[^5], still fails in the ResizeArray indexer.</summary>
         /// <param name="offset">The offset from the end.</param>
-        /// <returns>The corresponding index from the start.</returns>
+        /// <returns>The corresponding index from the start. It may be outside the ResizeArray.</returns>
         member xs.GetReverseIndex(_, offset: int) : int =  // The first parameter, 'rank'  is unused in ResizeArray
-            if offset < 0 then
-                failIdx xs $"[^{offset}]: index from back is negative."
-            if offset >= xs.Count then
-                failIdx xs $"[^{offset}]: index from back is equal or bigger than resizeArray.Count"
             xs.Count - offset - 1
 
         /// <summary>

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `randomSample`, `randomSampleBy` and `randomSampleWith` now return the sampled elements in random order. Before, e.g. a sample of all elements always kept the input order.
+- Slicing from the end with an offset beyond the start, e.g. `xs.[..^5]` on three items, now returns a clamped result like F# array slicing instead of throwing.
 
 ## [0.27.0] - 2026-09-07
 

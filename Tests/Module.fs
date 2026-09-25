@@ -1998,6 +1998,24 @@ module Module =
         Assert.AreEqual(arr.[3..^0], arr.[3..4])
     )
 
+    test ("ResizeArray.Slicing with reverse index beyond the start clamps like Array slicing", fun _ ->
+        let arr = [| 1;2;3 |].asRarr
+        let empty : int ResizeArray = [||].asRarr
+
+        Assert.AreEqual(empty, arr.[..^3])
+        Assert.AreEqual(empty, arr.[..^9])
+        Assert.AreEqual(arr, arr.[^5..])
+        Assert.AreEqual(empty, [| 1 |].asRarr.[1..^1])
+        Assert.AreEqual(empty, empty.[1..^1])
+        Assert.AreEqual(empty, empty.[^0..])
+    )
+
+    test ("ResizeArray.Get item with reverse index beyond the start fails", fun _ ->
+        let arr = [| 1;2;3 |].asRarr
+        assertThat (fun () -> arr.[^3] |> ignore) (tag "Expected indexing with ^3 on three items to fail" >> throws)
+        assertThat (fun () -> arr.[^(-1)] |> ignore) (tag "Expected indexing with a negative offset to fail" >> throws)
+    )
+
     test ("ResizeArray.Set slice with first index reverse behaves as expected", fun _ ->
         let arr1 = [| 1;2;3;4;5  |].asRarr
         let arr2 = [| 1;2;3;4;5  |].asRarr
