@@ -1,7 +1,7 @@
 # Project Guidelines
 
 ## Code Style
-- Language: F# with preview language features enabled in project files.
+- Language: F#. The library uses LangVersion latest; the tests use preview for the `^` from-the-end indexing syntax.
 - Preserve existing module/file structure in Src: Util -> Extensions -> ComputationalExpression -> Module.
 - Keep public API names and behavior aligned with FSharp.Core Array module semantics where applicable.
 - Keep functions and extension members null-safe: use existing utility exception helpers instead of ad-hoc errors.
@@ -11,7 +11,7 @@
 - Follow existing style: concise inline helpers, XML docs on public APIs, and descriptive exception messages.
 
 ## Architecture
-- Main library lives in Src and targets net6.0 + net472.
+- Main library lives in Src and targets net8.0 + net472. The tests target net10.0.
 - Core boundaries:
   - Src/Util.fs: shared helpers, index normalization, and exception formatting.
   - Src/Extensions.fs: AutoOpen extension members on ResizeArray/List.
@@ -46,6 +46,6 @@
   - Keep conditional branches for .NET vs Fable where performance/representation differs.
   - Be careful with array/list casting optimizations that are valid only in Fable JS/TS.
 - When adding tests, ensure both .NET and Fable/JS paths still compile and run.
-- Prefer editing source files under Src and Tests; do not modify generated outputs under bin, obj, Tests/js, or Tests/ts unless the task explicitly requires generated artifacts.
+- Prefer editing source files under Src and Tests; do not modify generated outputs under bin, obj, Tests/_js, Tests/_ts or Tests/_tscBuild unless the task explicitly requires generated artifacts.
 
 
