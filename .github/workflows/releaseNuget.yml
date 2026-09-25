@@ -5,6 +5,9 @@ on:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     runs-on: windows-latest
@@ -17,6 +20,28 @@ jobs:
       uses: actions/setup-dotnet@v6.0.0
       with:
         dotnet-version: '10.x'
+
+    # the tag may point to any commit, so don't rely on the test runs on main:
+
+    - name: Run tests .NET
+      run: dotnet run --configuration Release
+      working-directory: ./Tests
+
+    - name: Restore .NET tools (Fable)
+      run: dotnet tool restore
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v7.0.0
+      with:
+        node-version: '24.x'
+
+    - name: Clean Install npm dependencies
+      run: npm ci
+      working-directory: ./Tests
+
+    - name: Run tests JS
+      run: npm test
+      working-directory: ./Tests
 
     - name: Replace <br> in README.md with two spaces for nuget.org
       run: |
@@ -41,11 +66,7 @@ jobs:
         if [ "${{ github.ref_name }}" != "$CHANGELOG_VERSION" ]; then
           echo "Version mismatch: git tag (${{ github.ref_name }}) and version in CHANGELOG.md ($CHANGELOG_VERSION) are not the same."
           exit 1
-        fi 
-
-    - name: Get repository name
-      id: repo-name
-      run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+        fi
 
     - name: Publish NuGet package
       run: |
