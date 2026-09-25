@@ -20,7 +20,7 @@ jobs:
         with:
           token: ${{ github.token }}
           repository: ${{ github.repository }}
-          delete_workflow_pattern: dependabot|cleanup|releaseNuget|outdatedNuget
+          delete_workflow_pattern: dependabot|cleanup|releaseNuget
           retain_days: 0
           keep_minimum_runs: 0
           delete_run_by_conclusion_pattern: success
