@@ -250,7 +250,7 @@ module AutoOpenResizeArrayExtensions =
         /// <returns>The removed element.</returns>
         /// <exception cref="T:System.IndexOutOfRangeException">Thrown when the index is outside the ResizeArray.</exception>
         member inline xs.Pop(index: int) =
-            if index < 0 || index >= xs.Count then badGetExn index xs ".Pop"
+            if index < 0 || index >= xs.Count then badGetExn index xs "Pop"
             let v = xs.[index]
             xs.RemoveAt(index)
             v
@@ -343,11 +343,11 @@ module AutoOpenResizeArrayExtensions =
 
             // end must be same or bigger than start
             if enIdx >= 0 && stIdx > enIdx then
-                failIdx xs $"[{debugTxt startIdx}..{debugTxt endIdx}, The given start index must be smaller than or equal to the end index for ResizeArray of {count} items."
+                failIdx xs $"SetSlice: [{debugTxt startIdx}..{debugTxt endIdx}], The given start index must be smaller than or equal to the end index for ResizeArray of {count} items."
 
             let countToAdd = enIdx - stIdx + 1
             if newValues.Count < countToAdd then
-                failIdx xs $"[{debugTxt startIdx}..{debugTxt endIdx}, SetSlice expected {countToAdd} item in newValues IList but only found {newValues.Count}"
+                failIdx xs $"SetSlice: [{debugTxt startIdx}..{debugTxt endIdx}], expected {countToAdd} items in newValues IList but only found {newValues.Count}."
 
             for i = stIdx to enIdx do
                 xs.[i] <- newValues.[i - stIdx]

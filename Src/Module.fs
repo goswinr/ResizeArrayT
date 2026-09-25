@@ -2083,7 +2083,7 @@ module ResizeArray =
     /// <param name="value">The value to insert.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is below not within resizeArray.Count.</exception>
+    /// <exception cref="T:System.ArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
     let insertAt (index: int) (value: 'T) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "insertAt"
         if index < 0 || index > resizeArray.Count then
@@ -2102,11 +2102,12 @@ module ResizeArray =
     /// <param name="values">The values to insert.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is below not within resizeArray.Count.</exception>
+    /// <exception cref="T:System.ArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
     let insertManyAt (index: int) (values: ICollection<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "insertManyAt"
+        if isNull values then nullExn "insertManyAt values"
         if index < 0 || index > resizeArray.Count then
-            fail resizeArray $"insertManyAt: index {index} and  not within resizeArray.Count {resizeArray.Count}."
+            fail resizeArray $"insertManyAt: index {index} not within resizeArray.Count {resizeArray.Count}."
         let r = ResizeArray(resizeArray.Count + values.Count)
         for i = 0 to index - 1 do
             r.Add resizeArray.[i]
@@ -2531,7 +2532,7 @@ module ResizeArray =
             inv.[j] <- 1uy
         for i = 0 to resizeArray.Count - 1 do
             if inv.[i] <> 1uy then
-                fail resizeArray $"permute: the indexMap function did not generated {i} a new value for "
+                fail resizeArray $"permute: the indexMap function did not generate the index {i}, so it is not a permutation of"
         res
 
 
@@ -2581,8 +2582,12 @@ module ResizeArray =
 
     /// Turns a `unit -> float` randomizer returning a value from the [0.0, 1.0) range
     /// into a `bound -> int` function returning a value from the [0, bound) range.
-    let inline private randomizerNext (randomizer: unit -> float) (bound: int) : int =
-        Operators.min (int (randomizer () * float bound)) (bound - 1)
+    /// Fails if the randomizer returns a value outside the [0.0, 1.0) range.
+    let inline private randomizerNext (funcName: string) (randomizer: unit -> float) (bound: int) : int =
+        let r = randomizer ()
+        if not (r >= 0.0 && r < 1.0) then // written like this to fail on NaN too
+            failSimple $"{funcName}: the randomizer function returned {r}, but it must return a value from the [0.0, 1.0) range."
+        Operators.min (int (r * float bound)) (bound - 1) // min in case the float multiplication rounds up to bound
 
     /// Fisher-Yates shuffle, mutating resizeArray in place, using nextBound i to get a random index in [0, i).
     let private fisherYatesShuffle (nextBound: int -> int) (resizeArray: ResizeArray<'T>) : unit =
@@ -2627,7 +2632,7 @@ module ResizeArray =
     let randomChoiceBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "randomChoiceBy"
         if resizeArray.Count = 0 then fail resizeArray "randomChoiceBy: Count must be at least one"
-        resizeArray.[randomizerNext randomizer resizeArray.Count]
+        resizeArray.[randomizerNext "randomChoiceBy" randomizer resizeArray.Count]
 
     /// <summary>Returns a random element from the given ResizeArray with the specified Random instance.</summary>
     /// <param name="random">The Random instance.</param>
@@ -2666,7 +2671,7 @@ module ResizeArray =
         if count < 0 then failSimple $"randomChoicesBy: count ({count}) cannot be negative."
         let res = ResizeArray(count)
         for _ = 1 to count do
-            res.Add resizeArray.[randomizerNext randomizer resizeArray.Count]
+            res.Add resizeArray.[randomizerNext "randomChoicesBy" randomizer resizeArray.Count]
         res
 
     /// <summary>Returns a ResizeArray of random elements from the given ResizeArray with the specified Random instance,
@@ -2710,7 +2715,7 @@ module ResizeArray =
         if isNull resizeArray then nullExn "randomSampleBy"
         if count < 0 then failSimple $"randomSampleBy: count ({count}) cannot be negative."
         if count > resizeArray.Count then failSimple $"randomSampleBy: count ({count}) cannot exceed the ResizeArray's length ({resizeArray.Count})."
-        let indices = randomDistinctIndices (randomizerNext randomizer) count resizeArray.Count
+        let indices = randomDistinctIndices (randomizerNext "randomSampleBy" randomizer) count resizeArray.Count
         let res = ResizeArray(count)
         for idx in indices do res.Add resizeArray.[idx]
         res
@@ -2748,7 +2753,7 @@ module ResizeArray =
     let randomShuffleBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomShuffleBy"
         let r = resizeArray.GetRange(0, resizeArray.Count) // fastest way to create a shallow copy
-        fisherYatesShuffle (randomizerNext randomizer) r
+        fisherYatesShuffle (randomizerNext "randomShuffleBy" randomizer) r
         r
 
     /// <summary>Returns a new ResizeArray shuffled in a random order with the specified Random instance.
@@ -2774,7 +2779,7 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     let randomShuffleInPlaceBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : unit =
         if isNull resizeArray then nullExn "randomShuffleInPlaceBy"
-        fisherYatesShuffle (randomizerNext randomizer) resizeArray
+        fisherYatesShuffle (randomizerNext "randomShuffleInPlaceBy" randomizer) resizeArray
 
     /// <summary>Sorts the input ResizeArray in a random order with the specified Random instance by mutating
     /// the ResizeArray in-place.</summary>
@@ -2842,9 +2847,11 @@ module ResizeArray =
     /// <param name="count">The number of items to remove.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is outside 0..resizeArray.Length - count</exception>
+    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or index is outside 0..resizeArray.Length - count</exception>
     let removeManyAt (index: int) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "removeManyAt"
+        if count < 0 then
+            fail resizeArray $"removeManyAt: count {count} cannot be negative."
         if index < 0 || index > resizeArray.Count - count then
             fail resizeArray $"removeManyAt: index {index} and count {count} not within resizeArray.Count {resizeArray.Count}."
         let r = resizeArray.Clone()

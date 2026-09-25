@@ -1484,6 +1484,7 @@ module Module2 =
         throwsArg (fun () -> ResizeArray.removeManyAt 0 2 [||].asRarr  |> ignore)
         throwsArg (fun () -> ResizeArray.removeManyAt -1 2 [|1|].asRarr  |> ignore)
         throwsArg (fun () -> ResizeArray.removeManyAt 2 2 [|1|].asRarr  |> ignore)
+        throwsArg (fun () -> ResizeArray.removeManyAt 0 -1 [|1..5|].asRarr  |> ignore)
     )
 
 
@@ -1538,6 +1539,7 @@ module Module2 =
         Assert.AreEqual( [|0; 0|].asRarr, ResizeArray.insertManyAt 0 [|0; 0|] [||].asRarr )
         throwsArg (fun () -> ResizeArray.insertManyAt -1 [|0; 0|] [|1|].asRarr  |> ignore)
         throwsArg (fun () -> ResizeArray.insertManyAt  2 [|0; 0|] [|1|].asRarr  |> ignore)
+        throwsNull (fun () -> ResizeArray.insertManyAt  0 (null: int[]) [|1|].asRarr  |> ignore)
     )
 
 

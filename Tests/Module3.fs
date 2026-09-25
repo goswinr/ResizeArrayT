@@ -138,6 +138,17 @@ let tests = // : TestCase in Scriptorium.Quill
             assertThat (ResizeArray.randomChoiceBy alwaysLast arr = 50) (tag "randomChoiceBy should pick the last element when the randomizer returns close to 1.0" >> isTrue)
         )
 
+        test ("random*By functions fail when the randomizer returns a value outside [0.0, 1.0)", fun _ ->
+            let arr = ResizeArray [10; 20; 30]
+            throwsArg (fun () -> ResizeArray.randomChoiceBy (fun () -> 1.0) arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomChoiceBy (fun () -> -0.1) arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomChoiceBy (fun () -> nan) arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomChoicesBy (fun () -> 2.0) 2 arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomSampleBy (fun () -> 1.0) 2 arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomShuffleBy (fun () -> -1.0) arr |> ignore)
+            throwsArg (fun () -> ResizeArray.randomShuffleInPlaceBy (fun () -> 1.0) arr)
+        )
+
         test ("randomChoiceWith uses the given Random instance deterministically", fun _ ->
             let arr = ResizeArray [10; 20; 30; 40; 50]
             let random = Random(42)

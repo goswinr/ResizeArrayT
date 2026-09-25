@@ -11,10 +11,8 @@ open System
 [<AutoOpen>]
 module AutoOpenComputationalExpression  =
 
-    //[<InlineIfLambda>] needs F# 6.0
-
-    //TODO: optimize with
-    // [<InlineIfLambda>] as in https://gist.github.com/Tarmil/afcf5f50e45e90200eb7b01615b0ffc0
+    // Optimized with [<InlineIfLambda>] (needs F# 6.0) as in:
+    // https://gist.github.com/Tarmil/afcf5f50e45e90200eb7b01615b0ffc0
     // or https://github.com/fsharp/fslang-design/blob/main/FSharp-6.0/FS-1099-list-collector.md
     // or https://github.com/fsbolero/Bolero/blob/master/src/Bolero.Server/Html.fs
 

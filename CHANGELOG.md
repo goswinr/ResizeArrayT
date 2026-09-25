@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `randomSample`, `randomSampleBy` and `randomSampleWith` now return the sampled elements in random order. Before, e.g. a sample of all elements always kept the input order.
 - Slicing from the end with an offset beyond the start, e.g. `xs.[..^5]` on three items, now returns a clamped result like F# array slicing instead of throwing.
+- The `random*By` functions fail with a descriptive exception when the randomizer returns a value outside the [0.0, 1.0) range.
+- `removeManyAt` fails with a descriptive exception on a negative count and `insertManyAt` on null values.
+- Fix garbled or incomplete error messages of `.Pop(index)`, `.[a..b] <- values` and `permute`.
 
 ## [0.27.0] - 2026-09-07
 
