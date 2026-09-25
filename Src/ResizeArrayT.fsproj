@@ -33,15 +33,12 @@
     <PackageTags>fsharp;ResizeArray;fable;fable-library</PackageTags>
 
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <IncludeSymbols>true</IncludeSymbols>
-    <!-- <SymbolPackageFormat>snupkg</SymbolPackageFormat>     -->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <PackageIcon>logo128.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <DebugType>embedded</DebugType>
+    <DebugType>embedded</DebugType> <!-- the pdb is embedded in the dll, so no separate symbols package is needed -->
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <RepositoryUrl>https://github.com/goswinr/ResizeArrayT</RepositoryUrl>
     <FsDocsLicenseLink>https://github.com/goswinr/ResizeArrayT/blob/main//LICENSE.md</FsDocsLicenseLink>

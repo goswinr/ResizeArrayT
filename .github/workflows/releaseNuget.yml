@@ -49,9 +49,9 @@ jobs:
 
     - name: Publish NuGet package
       run: |
-        $nupkgPath = Get-ChildItem -Path "./Src/bin/Release/" -Filter "*.symbols.nupkg" -Recurse | Select-Object -First 1 -ExpandProperty FullName
+        $nupkgPath = Get-ChildItem -Path "./Src/bin/Release/" -Filter "*.nupkg" -Recurse | Select-Object -First 1 -ExpandProperty FullName
         if (-not $nupkgPath) {
-          Write-Error "No .symbols.nupkg file found in ./Src/bin/Release/ folder."
+          Write-Error "No .nupkg file found in ./Src/bin/Release/ folder."
           exit 1
         }
         dotnet nuget push $nupkgPath --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
