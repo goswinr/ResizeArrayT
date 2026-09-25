@@ -2921,20 +2921,22 @@ module ResizeArray =
         results
 
 
-    /// <summary>Builds a new ResizeArray that contains the elements of the given ResizeArray, excluding the first N elements.</summary>
+    /// <summary>Builds a new ResizeArray that contains the elements of the given ResizeArray, excluding the first N elements.
+    /// A negative count is treated as zero, just like in Array.skip.</summary>
     /// <param name="count">The number of elements to skip.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A copy of the input ResizeArray, after removing the first N elements.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or exceeds the number of
+    /// <exception cref="T:System.ArgumentException">Thrown when count exceeds the number of
     /// elements in the ResizeArray.</exception>
     let skip count (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "skip"
-        if count < 0 || count > resizeArray.Count then
-            fail resizeArray $"skip: count {count} is not in range of 0 to resizeArray.Count {resizeArray.Count} "
+        if count > resizeArray.Count then
+            fail resizeArray $"skip: count {count} is bigger than resizeArray.Count {resizeArray.Count}."
 
         if count = resizeArray.Count then
             ResizeArray()
         else
+            let count = Operators.max count 0
             resizeArray.GetRange(count, resizeArray.Count - count)
 
 

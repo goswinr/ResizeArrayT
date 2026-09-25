@@ -567,8 +567,8 @@ module Module2 =
         let resultInt2 = ResizeArray.skip 0 [|1..10 |].asRarr
         if resultInt2 <!> [|1..10 |].asRarr then Assert.Fail()
 
-        throwsArg (fun () ->  ResizeArray.skip -5 [|1..10 |].asRarr |> ignore)
-        //if resultInt3 <!> [|1..10 |].asRarr then Assert.Fail()
+        let resultInt3 = ResizeArray.skip -5 [|1..10 |].asRarr // like Array.skip a negative count is treated as zero
+        if resultInt3 <!> [|1..10 |].asRarr then Assert.Fail()
 
         // string List
         let resultStr = ResizeArray.skip 2 [|"str1";"str2";"str3";"str4" |].asRarr

@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Tests: migrate the test project from Fable.Mocha and Expecto to Scriptorium (Scriptorium.Quill and Scriptorium.Nib) on both .NET and JS
+- `ResizeArray.skip` treats a negative count as zero, like `Array.skip`, instead of throwing.
 
 ### Fixed
 - `randomSample`, `randomSampleBy` and `randomSampleWith` now return the sampled elements in random order. Before, e.g. a sample of all elements always kept the input order.
