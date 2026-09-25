@@ -9,7 +9,7 @@
 ![code size](https://img.shields.io/github/languages/code-size/goswinr/ResizeArrayT.svg)
 
 
-ResizeArrayT is an F# extension and module library for `ResizeArray<'T>` ( = `Collection.Generic.List<'T>`).<br>
+ResizeArrayT is an F# extension and module library for `ResizeArray<'T>` ( = `System.Collections.Generic.List<'T>`).<br>
 It provides all the functions from the `Array` module in `FSharp.Core` for `ResizeArray`.<br>
 And more.
 
@@ -22,7 +22,7 @@ Functions starting with `try...` will return an F# option.
 
 I was always annoyed that an `IndexOutOfRangeException` does not include the actual bad index nor the actual size of the array.<br>
 This library fixes that in the `resizeArray.Get`, `resizeArray.Set`, `resizeArray.Slice` and similar instance methods for item access.<br>
-I made a similar a similar library for `array<'T>`: https://github.com/goswinr/ArrayT/ .
+I made a similar library for `array<'T>`: https://github.com/goswinr/ArrayT/ .
 
 ## Why ?
 Yes, F#'s array and list modules can do these kind of operations on collections too.<br>
@@ -32,16 +32,17 @@ In fact FSharp.Core uses [a very similar module internally](https://github.com/d
 ## It Includes:
 
 - A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html) reimplemented.<br>
- Including the sub module for Parallel computing.
+ Including a `Parallel` sub module with `choose`, `collect`, `init`, `iter`, `iteri`, `map`, `mapi` and `partition`.
 
 - A Computational Expressions `resizeArray` that can be used like existing ones for `seq`.
 
-- Support for F# slicing operator and indexing from the end. e.g: `items.[ 1 .. ^1]`.
+- Support for F# slicing operator and indexing from the end. e.g: `items.[ 1 .. ^1]`.<br>
+(Indexing from the end with `^` still needs `<LangVersion>preview</LangVersion>` in your project, or `dotnet fsi --langversion:preview`.)
 
 - Extension members on `ResizeArray` like `.Get` `.Set` `.First` `.Last` `.SecondLast` and more.<br>
 With nicer IndexOutOfRangeExceptions that include the bad index and the actual size.
 
-- All Tests from the from `FSharp.Core`'s `Array` module ported and adapted to run in both javascript and dotnet.
+- All Tests from `FSharp.Core`'s `Array` module ported and adapted to run in both javascript and dotnet.
 
 ## Namespace
 The main namespace is `ResizeArrayT`.<br>
@@ -75,7 +76,7 @@ let evenNumbers =
 
 let oddNumbers = evenNumbers |> ResizeArray.map (fun x -> x + 1) // ResizeArray module
 
-let hundred = oddNumbers.Last // Extension member to access the last item in the list
+let ninetyNine = oddNumbers.Last // Extension member to access the last item in the list
 
 ```
 
@@ -134,7 +135,9 @@ items.IsSingleton  // false
 
 ### Slicing
 
-F# slicing notation is fully supported, including indexing from the end with `^`:
+F# slicing notation is fully supported, including indexing from the end with `^`.<br>
+Just like for F# arrays, out-of-range indices are clamped when getting a slice.<br>
+Indexing from the end still needs `<LangVersion>preview</LangVersion>` in your project, or `dotnet fsi --langversion:preview` in scripts.
 
 ```fsharp
 let nums = ResizeArray([| 10; 20; 30; 40; 50 |])
@@ -144,6 +147,7 @@ nums.[..2]         // ResizeArray [10; 20; 30]
 nums.[2..]         // ResizeArray [30; 40; 50]
 nums.[1..^1]       // ResizeArray [20; 30; 40]  (from index 1 to second-last)
 nums.[^0]          // 50  (last item)
+nums.[3..9]        // ResizeArray [40; 50]  (clamped)
 ```
 
 ### Pop, Clone, and InsertAtStart
@@ -164,6 +168,8 @@ let copy = xs.Clone()          // shallow copy
 All functions from `FSharp.Core`'s `Array` module are available, plus many extras:
 
 ```fsharp
+let items = ResizeArray [ 1 .. 100 ]
+
 // Standard functional operations
 let doubled = items |> ResizeArray.map (fun x -> x * 2)
 let evens   = items |> ResizeArray.filter (fun x -> x % 2 = 0)
@@ -222,9 +228,9 @@ When an index is out of range, you get a descriptive exception including the bad
 System.IndexOutOfRangeException:
 ResizeArray.Get: Can't get index 5 from:
 ResizeArray<String> with 3 items:
-  0: "a"
-  1: "b"
-  2: "c"
+  0: a
+  1: b
+  2: c
 ```
 
 ### Operators
@@ -248,7 +254,7 @@ let chosen  = items |> ResizeArray.Parallel.choose (fun x -> tryProcess x)
 ```
 
 ## Use of AI and LLMs
-All core function are are written by hand to ensure performance and correctness.<br>
+All core functions are written by hand to ensure performance and correctness.<br>
 However, AI tools have been used for code review, typo and grammar checking in documentation<br>
 and to generate not all but many of the tests.
 
@@ -258,7 +264,7 @@ and to generate not all but many of the tests.
 
 
 ## Tests
-All Tests run in both javascript and dotnet.
+All Tests run in both javascript and dotnet, except the ones for the .NET only `Parallel` module.
 Successful Fable compilation to typescript is verified too.
 Go to the tests folder:
 
