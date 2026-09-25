@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write # for NuGet trusted publishing (OIDC)
 
 jobs:
   publish:
@@ -68,6 +69,15 @@ jobs:
           exit 1
         fi
 
+    # Trusted publishing: exchanges the GitHub OIDC token for a short-lived NuGet API key.
+    # Needs a trusted publishing policy on nuget.org for this repository and workflow file (releaseNuget.yml),
+    # and a NUGET_USER secret with the nuget.org profile name (not the email address).
+    - name: NuGet login (OIDC to temporary API key)
+      uses: NuGet/login@v1
+      id: login
+      with:
+        user: ${{ secrets.NUGET_USER }}
+
     - name: Publish NuGet package
       run: |
         $nupkgPath = Get-ChildItem -Path "./Src/bin/Release/" -Filter "*.nupkg" -Recurse | Select-Object -First 1 -ExpandProperty FullName
@@ -75,4 +85,4 @@ jobs:
           Write-Error "No .nupkg file found in ./Src/bin/Release/ folder."
           exit 1
         }
-        dotnet nuget push $nupkgPath --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        dotnet nuget push $nupkgPath --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json
