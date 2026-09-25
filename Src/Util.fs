@@ -68,6 +68,30 @@ module UtilResizeArray =
         let t = typeof<'T>.Name //  Fable reflection works only inline
         toStringCore t arr
 
+    /// Shallow structural equality of two ResizeArrays, true if both are null.
+    /// This lives here and not in an AutoOpen module because Fable compiles the library as source,
+    /// so an 'internal' function in an AutoOpen module would shadow same-named functions for users that open ResizeArrayT.
+    let internal isEqualTo (this: ResizeArray<'T>) (other: ResizeArray<'T>) =
+        if Object.ReferenceEquals(this, other) then // true if both are null
+            true // both are the same instance
+        elif isNull this || isNull other then
+            false // one is null, the other not
+        elif this.Count <> other.Count then
+            false // different count
+        else
+            let comparer = EqualityComparer<'T>.Default // for  structural equality to be implemented on this class without putting the <'T when 'T : equality> constraint on 'T?
+            let mutable i = 0
+            let mutable isEqual = true
+            let k = this.Count
+            while i < k do
+                let r1 = this.[i]
+                let r2 = other.[i]
+                i <- i + 1
+                if not <| comparer.Equals(r1, r2)  then
+                    isEqual <- false
+                    i <- k // break the loop
+            isEqual
+
     // -------------------------------------------------------------
     // for Exceptions ( never inlined)
     // -------------------------------------------------------------

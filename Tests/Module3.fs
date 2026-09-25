@@ -223,13 +223,14 @@ let tests = // : TestCase in Scriptorium.Quill
             let orderings = Collections.Generic.HashSet<string>()
             for _ = 1 to 600 do
                 ResizeArray.randomSampleWith random 3 arr |> Seq.map string |> String.concat "" |> orderings.Add |> ignore
-            assertThat (orderings.Count = 6) (tag "randomSampleWith 3 of 3 should produce all 6 orderings" >> isTrue)
+            // isEqualTo from Scriptorium.Nib, it used to be shadowed in Fable by an internal function of the same name in ResizeArrayT:
+            assertThat orderings.Count (tag "randomSampleWith 3 of 3 should produce all 6 orderings" >> isEqualTo 6)
 
             // the last element must also be able to come first in a partial sample
             let firsts = Collections.Generic.HashSet<int>()
             for _ = 1 to 300 do
                 firsts.Add (ResizeArray.randomSampleWith random 2 arr).[0] |> ignore
-            assertThat (firsts.Count = 3) (tag "randomSampleWith 2 of 3 should put every element first sometimes" >> isTrue)
+            assertThat firsts.Count (tag "randomSampleWith 2 of 3 should put every element first sometimes" >> isEqualTo 3)
         )
 
         test ("randomShuffle returns a new ResizeArray with the same elements without mutating the input", fun _ ->

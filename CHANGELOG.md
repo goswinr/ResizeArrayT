@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The `random*By` functions fail with a descriptive exception when the randomizer returns a value outside the [0.0, 1.0) range.
 - `removeManyAt` fails with a descriptive exception on a negative count and `insertManyAt` on null values.
 - Fix garbled or incomplete error messages of `.Pop(index)`, `.[a..b] <- values` and `permute`.
+- In Fable, opening `ResizeArrayT` no longer brings an internal `isEqualTo` function into scope that shadowed other functions of that name.
 
 ## [0.27.0] - 2026-09-07
 
