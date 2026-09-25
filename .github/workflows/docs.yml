@@ -2,17 +2,18 @@ name: Docs
 
 # copied and adapted from https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html#Ship-it
 
-# Trigger this Action when new code is pushed to the main branch
+# Build the docs on pull requests too, so that a broken docs build fails before the merge.
+# Deploy only when new code is pushed to the main branch.
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
-# We need some permissions to publish to Github Pages
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: read
 
 # Make sure only one documentation build/deploy runs at a time.
 # New pushes to main cancel any in-progress run to avoid concurrent deployments.
@@ -37,24 +38,28 @@ jobs:
         run: dotnet tool restore
 
       - name: Build code to make xml file
+        # this also copies README.md to Docs/index.md, see the CopyReadmeToDocs target in the fsproj
         run: dotnet build -c Release # see required xml tags: https://fsprojects.github.io/FSharp.Formatting/zero-to-hero.html#Generating-API-documentation
-
-      - name: copy README.md to Docs/index.md
-        run: cp README.md Docs/index.md
 
       - name: Generate the documentation html
         # for this to work in dotnet-tools.json, rollForward must be set to 'false' for fsdocs-tool
         run: dotnet fsdocs build --clean --strict --properties Configuration=Release --input Docs --output DocsGenerated
 
       - name: Upload documentation html files
+        if: github.event_name == 'push'
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./DocsGenerated
 
   # GitHub Actions recommends deploying in a separate job.
   deploy:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     needs: build
+    # We need some permissions to publish to Github Pages
+    permissions:
+      pages: write
+      id-token: write
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
