@@ -1,8 +1,8 @@
 {
   "type": "module",
   "scripts": {
-    "watchTS": "dotnet fable watch --outDir _ts --lang typescript ../Src/ResizeArrayT.fsproj --run tsc",
-    "buildTS": "dotnet fable --outDir _ts --noCache  --lang typescript ../Src/ResizeArrayT.fsproj --run tsc",
+    "watchTS": "dotnet fable watch ../Src/ResizeArrayT.fsproj --outDir _ts --lang typescript --run tsc",
+    "buildTS": "dotnet fable ../Src/ResizeArrayT.fsproj --outDir _ts --noCache --lang typescript --run tsc",
     "test": "dotnet fable --outDir _js --noCache --run node _js/Main.js && npm run buildTS"
   },
   "devDependencies": {
