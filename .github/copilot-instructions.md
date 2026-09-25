@@ -18,9 +18,9 @@
   - Src/ComputationalExpression.fs: resizeArray computation expression builder.
   - Src/Module.fs: main ResizeArray module functions (Array-module-compatible API + extras).
 - Tests live in Tests and are cross-runtime:
-  - .NET path uses Expecto.
-  - JS/TS path uses Fable.Mocha.
-  - Entry dispatch is controlled in Tests/Main.fs with compile-time directives.
+  - Tests use Scriptorium: Scriptorium.Quill (test DSL and runner, `open type Scriptorium.Quill.Test`) and Scriptorium.Nib (assertions, `open Scriptorium.Nib.Assertion`).
+  - Write tests as `test ("name", fun _ -> ...)` inside `testList ("name", [ ... ])` and assert with `assertThat actual (isEqualTo expected)`, `isTrue`, `isFalse`, `throws`, etc.
+  - The same suite runs on .NET (`dotnet run`) and on JS (Fable + Node.js); Tests/Main.fs calls `runTests` once with all test lists.
 
 ## Build And Test
 - Use CI-verified commands by default.

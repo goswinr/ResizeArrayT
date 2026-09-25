@@ -4,303 +4,343 @@ module Extensions =
     open ResizeArrayT
 
 
-    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-    open Fable.Mocha
-    #else
-    open Expecto
-    #endif
+    open Scriptorium.Nib.Assertion
+    open type Scriptorium.Quill.Test
 
-    let tests = // : Test in Expect , TestCase in Mocha
-      testList "extensions Tests" [
+    let tests = // : TestCase in Scriptorium.Quill
+      testList ("extensions Tests", [
 
-        test "Intro: 9=9" {Expect.equal 9 9 "Intro"}
+        test ("Intro: 9=9", fun _ -> assertThat 9 (tag "Intro" >> isEqualTo 9))
 
         let a = resizeArray{ for i in 0 .. 9 ->  float i }
         let b = ResizeArray.init 10 (fun i -> float i)
 
-        test "Get" {
-            Expect.equal (a.Get 2) 2.0 "Get 2"
-            Expect.equal (a.Get 2) a[2] "Get 2 Item"
-            Expect.throws (fun () -> a.Get 10 |> ignore ) "Get 10"
-            Expect.throws (fun () -> a.Get -1 |> ignore ) "Get -1"
+        test ("Get", fun _ ->
+            assertThat (a.Get 2) (tag "Get 2" >> isEqualTo 2.0)
+            assertThat (a.Get 2) (tag "Get 2 Item" >> isEqualTo a[2])
+            assertThat (fun () -> a.Get 10 |> ignore ) (tag "Get 10" >> throws)
+            assertThat (fun () -> a.Get -1 |> ignore ) (tag "Get -1" >> throws)
 
-        }
-        test "Set" {
+        )
+        test ("Set", fun _ ->
             let a = a.Clone()
             a.Set 2 3.0
-            Expect.equal (a.Get 2) 3.0 "Set 2"
+            assertThat (a.Get 2) (tag "Set 2" >> isEqualTo 3.0)
             a[2] <- 4.0
-            Expect.equal (a.Get 2) 4.0 "Set 2 Item"
-            Expect.throws (fun () -> a.Set 10 0.0 |> ignore ) "Set 10"
-            Expect.throws (fun () -> a.Set -1 0.0 |> ignore ) "Set -1"
-        }
+            assertThat (a.Get 2) (tag "Set 2 Item" >> isEqualTo 4.0)
+            assertThat (fun () -> a.Set 10 0.0 |> ignore ) (tag "Set 10" >> throws)
+            assertThat (fun () -> a.Set -1 0.0 |> ignore ) (tag "Set -1" >> throws)
+        )
 
-        test "IsEqualTo" {
-            Expect.isTrue (a.IsEqualTo b) "IsEqualTo"
-            Expect.isTrue (a.IsEqualTo a) "IsEqualTo self"
-            Expect.isTrue (a.IsEqualTo (a.Clone())) "IsEqualTo Clone"
+        test ("IsEqualTo", fun _ ->
+            assertThat (a.IsEqualTo b) (tag "IsEqualTo" >> isTrue)
+            assertThat (a.IsEqualTo a) (tag "IsEqualTo self" >> isTrue)
+            assertThat (a.IsEqualTo (a.Clone())) (tag "IsEqualTo Clone" >> isTrue)
             let b = a.Clone()
             b.Set 2 9.9
-            Expect.isFalse (a.IsEqualTo b) "index 2 was set to 9.9"
+            assertThat (a.IsEqualTo b) (tag "index 2 was set to 9.9" >> isFalse)
 
             let bb = resizeArray {a.Clone()}
             let aa = resizeArray {a.Clone()}
-            Expect.isTrue (ResizeArray.equals2 aa bb) "equals 2"
+            assertThat (ResizeArray.equals2 aa bb) (tag "equals 2" >> isTrue)
 
             let bb = resizeArray {a.Clone()}
             let aa = resizeArray {bb.First}
-            Expect.isTrue (ResizeArray.equals2 aa bb) "equals 2"
+            assertThat (ResizeArray.equals2 aa bb) (tag "equals 2" >> isTrue)
 
             let c = resizeArray {resizeArray {resizeArray {5;6}}}
             let d = resizeArray {resizeArray {resizeArray {5;6}}}
             #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             // because of https://github.com/fable-compiler/Fable/issues/3718
-            Expect.isTrue (ResizeArray.equals c d) "equals does check inner array in Fable"
+            assertThat (ResizeArray.equals c d) (tag "equals does check inner array in Fable" >> isTrue)
             #else
-            Expect.isFalse (ResizeArray.equals c d) "equals doesn't check inner array .NET"
+            assertThat (ResizeArray.equals c d) (tag "equals doesn't check inner array .NET" >> isFalse)
             #endif
 
-        }
+        )
 
         // -- xs.LastIndex --
-        testCase "LastIndex doesn't raises exception on empty ResizeArray" <| fun _ ->
+        test ("LastIndex doesn't raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let r =  xs.LastIndex
-            Expect.equal -1 r "Expected -1"
+            assertThat -1 (tag "Expected -1" >> isEqualTo r)
+        )
 
-        testCase "LastIndex returns Count - 1 on non-empty ResizeArray" <| fun _ ->
+        test ("LastIndex returns Count - 1 on non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let lastIndex = xs.LastIndex
-            Expect.equal lastIndex (xs.Count - 1) "Expected LastIndex to be equal to Count - 1"
+            assertThat lastIndex (tag "Expected LastIndex to be equal to Count - 1" >> isEqualTo (xs.Count - 1))
+        )
 
         //---- xs.Last ----
-        testCase "Last getter raises exception on empty ResizeArray" <| fun _ ->
+        test ("Last getter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.Last |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "Last setter raises exception on empty ResizeArray" <| fun _ ->
+        test ("Last setter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.Last <- 1
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "Last getter returns last item on non-empty ResizeArray" <| fun _ ->
+        test ("Last getter returns last item on non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let lastItem = xs.Last
-            Expect.equal lastItem 5 "Expected Last to be equal to the last item in the ResizeArray"
+            assertThat lastItem (tag "Expected Last to be equal to the last item in the ResizeArray" >> isEqualTo 5)
+        )
 
-        testCase "Last setter changes last item on non-empty ResizeArray" <| fun _ ->
+        test ("Last setter changes last item on non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             xs.Last <- 6
-            Expect.equal xs.Last 6 "Expected Last to be changed to the new value"
+            assertThat xs.Last (tag "Expected Last to be changed to the new value" >> isEqualTo 6)
+        )
 
         //---- xs.SecondLast ----
-        testCase "SecondLast getter raises exception on ResizeArray with less than 2 items" <| fun _ ->
+        test ("SecondLast getter raises exception on ResizeArray with less than 2 items", fun _ ->
             let xs = ResizeArray<int>([1])
             let testCode = fun () -> xs.SecondLast |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "SecondLast setter raises exception on ResizeArray with less than 2 items" <| fun _ ->
+        test ("SecondLast setter raises exception on ResizeArray with less than 2 items", fun _ ->
             let xs = ResizeArray<int>([1])
             let testCode = fun () -> xs.SecondLast <- 1
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "SecondLast getter returns second last item on ResizeArray with 2 or more items" <| fun _ ->
+        test ("SecondLast getter returns second last item on ResizeArray with 2 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let secondLastItem = xs.SecondLast
-            Expect.equal secondLastItem 4 "Expected SecondLast to be equal to the second last item in the ResizeArray"
+            assertThat secondLastItem (tag "Expected SecondLast to be equal to the second last item in the ResizeArray" >> isEqualTo 4)
+        )
 
-        testCase "SecondLast setter changes second last item on ResizeArray with 2 or more items" <| fun _ ->
+        test ("SecondLast setter changes second last item on ResizeArray with 2 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             xs.SecondLast <- 6
-            Expect.equal xs.SecondLast 6 "Expected SecondLast to be changed to the new value"
+            assertThat xs.SecondLast (tag "Expected SecondLast to be changed to the new value" >> isEqualTo 6)
+        )
 
         //---- xs.ThirdLast ----
-        testCase "ThirdLast getter raises exception on ResizeArray with less than 3 items" <| fun _ ->
+        test ("ThirdLast getter raises exception on ResizeArray with less than 3 items", fun _ ->
             let xs = ResizeArray<int>([1; 2])
             let testCode = fun () -> xs.ThirdLast |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "ThirdLast setter raises exception on ResizeArray with less than 3 items" <| fun _ ->
+        test ("ThirdLast setter raises exception on ResizeArray with less than 3 items", fun _ ->
             let xs = ResizeArray<int>([1; 2])
             let testCode = fun () -> xs.ThirdLast <- 1
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "ThirdLast getter returns third last item on ResizeArray with 3 or more items" <| fun _ ->
+        test ("ThirdLast getter returns third last item on ResizeArray with 3 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let thirdLastItem = xs.ThirdLast
-            Expect.equal thirdLastItem 3 "Expected ThirdLast to be equal to the third last item in the ResizeArray"
+            assertThat thirdLastItem (tag "Expected ThirdLast to be equal to the third last item in the ResizeArray" >> isEqualTo 3)
+        )
 
-        testCase "ThirdLast setter changes third last item on ResizeArray with 3 or more items" <| fun _ ->
+        test ("ThirdLast setter changes third last item on ResizeArray with 3 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             xs.ThirdLast <- 6
-            Expect.equal xs.ThirdLast 6 "Expected ThirdLast to be changed to the new value"
+            assertThat xs.ThirdLast (tag "Expected ThirdLast to be changed to the new value" >> isEqualTo 6)
+        )
 
         //---- xs.First ----
-        testCase "First getter raises exception on empty ResizeArray" <| fun _ ->
+        test ("First getter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.First |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "First setter raises exception on empty ResizeArray" <| fun _ ->
+        test ("First setter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.First <- 1
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "First getter returns first item on non-empty ResizeArray" <| fun _ ->
+        test ("First getter returns first item on non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let firstItem = xs.First
-            Expect.equal firstItem 1 "Expected First to be equal to the first item in the ResizeArray"
+            assertThat firstItem (tag "Expected First to be equal to the first item in the ResizeArray" >> isEqualTo 1)
+        )
 
-        testCase "First setter changes first item on non-empty ResizeArray" <| fun _ ->
+        test ("First setter changes first item on non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             xs.First <- 6
-            Expect.equal xs.First 6 "Expected First to be changed to the new value"
+            assertThat xs.First (tag "Expected First to be changed to the new value" >> isEqualTo 6)
+        )
 
         //---- xs.FirstAndOnly ----
-        testCase "FirstAndOnly getter raises exception on empty ResizeArray" <| fun _ ->
+        test ("FirstAndOnly getter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.FirstAndOnly |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "FirstAndOnly getter raises exception on ResizeArray with more than one item" <| fun _ ->
+        test ("FirstAndOnly getter raises exception on ResizeArray with more than one item", fun _ ->
             let xs = ResizeArray<int>([1; 2])
             let testCode = fun () -> xs.FirstAndOnly |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "FirstAndOnly getter returns the item on ResizeArray with exactly one item" <| fun _ ->
+        test ("FirstAndOnly getter returns the item on ResizeArray with exactly one item", fun _ ->
             let xs = ResizeArray<int>([1])
             let firstAndOnlyItem = xs.FirstAndOnly
-            Expect.equal firstAndOnlyItem 1 "Expected FirstAndOnly to be equal to the only item in the ResizeArray"
+            assertThat firstAndOnlyItem (tag "Expected FirstAndOnly to be equal to the only item in the ResizeArray" >> isEqualTo 1)
+        )
 
         //---- xs.Second ----
-        testCase "Second getter raises exception on ResizeArray with less than 2 items" <| fun _ ->
+        test ("Second getter raises exception on ResizeArray with less than 2 items", fun _ ->
             let xs = ResizeArray<int>([1])
             let testCode = fun () -> xs.Second |> ignore
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "Second setter raises exception on ResizeArray with less than 2 items" <| fun _ ->
+        test ("Second setter raises exception on ResizeArray with less than 2 items", fun _ ->
             let xs = ResizeArray<int>([1])
             let testCode = fun () -> xs.Second <- 1
-            Expect.throws testCode "Expected an ArgumentException"
+            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+        )
 
-        testCase "Second getter returns second item on ResizeArray with 2 or more items" <| fun _ ->
+        test ("Second getter returns second item on ResizeArray with 2 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let secondItem = xs.Second
-            Expect.equal secondItem 2 "Expected Second to be equal to the second item in the ResizeArray"
+            assertThat secondItem (tag "Expected Second to be equal to the second item in the ResizeArray" >> isEqualTo 2)
+        )
 
-        testCase "Second setter changes second item on ResizeArray with 2 or more items" <| fun _ ->
+        test ("Second setter changes second item on ResizeArray with 2 or more items", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             xs.Second <- 6
-            Expect.equal xs.Second 6 "Expected Second to be changed to the new value"
+            assertThat xs.Second (tag "Expected Second to be changed to the new value" >> isEqualTo 6)
+        )
 
         //---- xs.Third ----
         // Similar tests can be written for Third
 
         //---- xs.IsEmpty ----
-        testCase "IsEmpty returns true for empty ResizeArray" <| fun _ ->
+        test ("IsEmpty returns true for empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
-            Expect.isTrue xs.IsEmpty "Expected IsEmpty to be true for an empty ResizeArray"
+            assertThat xs.IsEmpty (tag "Expected IsEmpty to be true for an empty ResizeArray" >> isTrue)
+        )
 
-        testCase "IsEmpty returns false for non-empty ResizeArray" <| fun _ ->
+        test ("IsEmpty returns false for non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1])
-            Expect.isFalse xs.IsEmpty "Expected IsEmpty to be false for a non-empty ResizeArray"
+            assertThat xs.IsEmpty (tag "Expected IsEmpty to be false for a non-empty ResizeArray" >> isFalse)
+        )
 
         //---- xs.IsSingleton ----
-        testCase "IsSingleton returns true for ResizeArray with one item" <| fun _ ->
+        test ("IsSingleton returns true for ResizeArray with one item", fun _ ->
             let xs = ResizeArray<int>([1])
-            Expect.isTrue xs.IsSingleton "Expected IsSingleton to be true for a ResizeArray with one item"
+            assertThat xs.IsSingleton (tag "Expected IsSingleton to be true for a ResizeArray with one item" >> isTrue)
+        )
 
-        testCase "IsSingleton returns false for ResizeArray with zero or more than one items" <| fun _ ->
+        test ("IsSingleton returns false for ResizeArray with zero or more than one items", fun _ ->
             let xs = ResizeArray<int>([1; 2])
-            Expect.isFalse xs.IsSingleton "Expected IsSingleton to be false for a ResizeArray with zero or more than one items"
+            assertThat xs.IsSingleton (tag "Expected IsSingleton to be false for a ResizeArray with zero or more than one items" >> isFalse)
+        )
 
         //---- xs.IsNotEmpty ----
-        testCase "IsNotEmpty returns false for empty ResizeArray" <| fun _ ->
+        test ("IsNotEmpty returns false for empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
-            Expect.isFalse xs.IsNotEmpty "Expected IsNotEmpty to be false for an empty ResizeArray"
+            assertThat xs.IsNotEmpty (tag "Expected IsNotEmpty to be false for an empty ResizeArray" >> isFalse)
+        )
 
-        testCase "IsNotEmpty returns true for non-empty ResizeArray" <| fun _ ->
+        test ("IsNotEmpty returns true for non-empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1])
-            Expect.isTrue xs.IsNotEmpty "Expected IsNotEmpty to be true for a non-empty ResizeArray"
+            assertThat xs.IsNotEmpty (tag "Expected IsNotEmpty to be true for a non-empty ResizeArray" >> isTrue)
+        )
 
         //---- xs.InsertAtStart ----
-        testCase "InsertAtStart inserts item at the beginning of the ResizeArray" <| fun _ ->
+        test ("InsertAtStart inserts item at the beginning of the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             xs.InsertAtStart 0
-            Expect.equal xs.First 0 "Expected InsertAtStart to insert the item at the beginning of the ResizeArray"
+            assertThat xs.First (tag "Expected InsertAtStart to insert the item at the beginning of the ResizeArray" >> isEqualTo 0)
+        )
 
         //---- xs.GetNeg ----
-        testCase "GetNeg gets an item in the ResizeArray by index, allowing for negative index" <| fun _ ->
+        test ("GetNeg gets an item in the ResizeArray by index, allowing for negative index", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             let item = xs.GetNeg -1
-            Expect.equal item 3 "Expected GetNeg to get the last item in the ResizeArray when index is -1"
+            assertThat item (tag "Expected GetNeg to get the last item in the ResizeArray when index is -1" >> isEqualTo 3)
+        )
 
         //---- xs.SetNeg ----
-        testCase "SetNeg sets an item in the ResizeArray by index, allowing for negative index" <| fun _ ->
+        test ("SetNeg sets an item in the ResizeArray by index, allowing for negative index", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             xs.SetNeg -1 4
-            Expect.equal xs.Last 4 "Expected SetNeg to set the last item in the ResizeArray when index is -1"
+            assertThat xs.Last (tag "Expected SetNeg to set the last item in the ResizeArray when index is -1" >> isEqualTo 4)
+        )
 
         //---- xs.GetLooped ----
-        testCase "GetLooped gets an item in the ResizeArray by index, treating the ResizeArray as an endless loop" <| fun _ ->
+        test ("GetLooped gets an item in the ResizeArray by index, treating the ResizeArray as an endless loop", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             let item = xs.GetLooped 3
-            Expect.equal item 1 "Expected GetLooped to get the first item in the ResizeArray when index is equal to the count of the ResizeArray"
+            assertThat item (tag "Expected GetLooped to get the first item in the ResizeArray when index is equal to the count of the ResizeArray" >> isEqualTo 1)
+        )
 
         //---- xs.SetLooped ----
-        testCase "SetLooped sets an item in the ResizeArray by index, treating the ResizeArray as an endless loop" <| fun _ ->
+        test ("SetLooped sets an item in the ResizeArray by index, treating the ResizeArray as an endless loop", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             xs.SetLooped 3 4
-            Expect.equal xs.First 4 "Expected SetLooped to set the first item in the ResizeArray when index is equal to the count of the ResizeArray"
+            assertThat xs.First (tag "Expected SetLooped to set the first item in the ResizeArray when index is equal to the count of the ResizeArray" >> isEqualTo 4)
+        )
 
         //---- xs.Pop ----
-        testCase "Pop gets and removes the last item from the ResizeArray" <| fun _ ->
+        test ("Pop gets and removes the last item from the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             let item = xs.Pop()
-            Expect.equal item 3 "Expected Pop to get the last item in the ResizeArray"
-            Expect.equal xs.Count 2 "Expected Pop to remove the last item from the ResizeArray"
+            assertThat item (tag "Expected Pop to get the last item in the ResizeArray" >> isEqualTo 3)
+            assertThat xs.Count (tag "Expected Pop to remove the last item from the ResizeArray" >> isEqualTo 2)
+        )
 
         //---- xs.Clone ----
-        testCase "Clone creates a shallow copy of the ResizeArray" <| fun _ ->
+        test ("Clone creates a shallow copy of the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3])
             let ys = xs.Clone()
-            Expect.isTrue (ys.IsEqualTo xs) "Expected Clone to create a shallow copy of the ResizeArray"
+            assertThat (ys.IsEqualTo xs) (tag "Expected Clone to create a shallow copy of the ResizeArray" >> isTrue)
+        )
 
         //---- xs.GetReverseIndex ----
-        testCase "GetReverseIndex gets the index for the element offset elements away from the end of the ResizeArray" <| fun _ ->
+        test ("GetReverseIndex gets the index for the element offset elements away from the end of the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([00; 11; 22; 33])
             let item = xs.[^1]
-            Expect.equal item 22 "Expected GetReverseIndex to get the index of the second last item in the ResizeArray when offset is 1"
+            assertThat item (tag "Expected GetReverseIndex to get the index of the second last item in the ResizeArray when offset is 1" >> isEqualTo 22)
+        )
 
         //---- xs.GetSlice ----
-        testCase "GetSlice gets a slice from the ResizeArray" <| fun _ ->
+        test ("GetSlice gets a slice from the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let slice = xs[1..3]
-            Expect.isTrue (slice.IsEqualTo (ResizeArray<int>([2; 3; 4]))) "Expected GetSlice to get a slice from the ResizeArray"
+            assertThat (slice.IsEqualTo (ResizeArray<int>([2; 3; 4]))) (tag "Expected GetSlice to get a slice from the ResizeArray" >> isTrue)
+        )
 
-        testCase "SliceIdx uses an inclusive end index" <| fun _ ->
+        test ("SliceIdx uses an inclusive end index", fun _ ->
             let xs = ResizeArray<int>([0..4])
-            Expect.isTrue ((xs.SliceIdx(0, 0)).IsEqualTo(ResizeArray<int>([0]))) "Expected the first item"
-            Expect.isTrue ((xs.SliceIdx(1, 3)).IsEqualTo(ResizeArray<int>([1; 2; 3]))) "Expected indices 1 through 3"
-            Expect.isTrue ((xs.SliceIdx(2, 4)).IsEqualTo(ResizeArray<int>([2; 3; 4]))) "Expected indices 2 through 4"
-            Expect.isTrue ((xs.SliceIdx(0, 4)).IsEqualTo(ResizeArray<int>([0..4]))) "Expected the full range"
-            Expect.isTrue ((xs.SliceIdx(4, 4)).IsEqualTo(ResizeArray<int>([4]))) "Expected the final item"
+            assertThat ((xs.SliceIdx(0, 0)).IsEqualTo(ResizeArray<int>([0]))) (tag "Expected the first item" >> isTrue)
+            assertThat ((xs.SliceIdx(1, 3)).IsEqualTo(ResizeArray<int>([1; 2; 3]))) (tag "Expected indices 1 through 3" >> isTrue)
+            assertThat ((xs.SliceIdx(2, 4)).IsEqualTo(ResizeArray<int>([2; 3; 4]))) (tag "Expected indices 2 through 4" >> isTrue)
+            assertThat ((xs.SliceIdx(0, 4)).IsEqualTo(ResizeArray<int>([0..4]))) (tag "Expected the full range" >> isTrue)
+            assertThat ((xs.SliceIdx(4, 4)).IsEqualTo(ResizeArray<int>([4]))) (tag "Expected the final item" >> isTrue)
+        )
 
-        testCase "SliceIdx rejects invalid ranges" <| fun _ ->
+        test ("SliceIdx rejects invalid ranges", fun _ ->
             let xs = ResizeArray<int>([0..4])
-            Expect.throws (fun () -> xs.SliceIdx(-1, 2) |> ignore) "Expected a negative start index to fail"
-            Expect.throws (fun () -> xs.SliceIdx(0, -1) |> ignore) "Expected a negative end index to fail"
-            Expect.throws (fun () -> xs.SliceIdx(5, 5) |> ignore) "Expected a start index at Count to fail"
-            Expect.throws (fun () -> xs.SliceIdx(0, 5) |> ignore) "Expected an end index past Count to fail"
-            Expect.throws (fun () -> xs.SliceIdx(3, 2) |> ignore) "Expected start greater than end to fail"
-            Expect.throws (fun () -> ResizeArray<int>().SliceIdx(0, 0) |> ignore) "Expected slicing an empty ResizeArray to fail"
+            assertThat (fun () -> xs.SliceIdx(-1, 2) |> ignore) (tag "Expected a negative start index to fail" >> throws)
+            assertThat (fun () -> xs.SliceIdx(0, -1) |> ignore) (tag "Expected a negative end index to fail" >> throws)
+            assertThat (fun () -> xs.SliceIdx(5, 5) |> ignore) (tag "Expected a start index at Count to fail" >> throws)
+            assertThat (fun () -> xs.SliceIdx(0, 5) |> ignore) (tag "Expected an end index past Count to fail" >> throws)
+            assertThat (fun () -> xs.SliceIdx(3, 2) |> ignore) (tag "Expected start greater than end to fail" >> throws)
+            assertThat (fun () -> ResizeArray<int>().SliceIdx(0, 0) |> ignore) (tag "Expected slicing an empty ResizeArray to fail" >> throws)
+        )
 
         //---- xs.SetSlice ----
-        testCase "SetSlice sets a slice in the ResizeArray" <| fun _ ->
+        test ("SetSlice sets a slice in the ResizeArray", fun _ ->
             let xs = ResizeArray<int>([1; 2; 3; 4; 5])
             let newValues = ResizeArray<int>([6; 7; 8])
             xs[1..3] <-  newValues
-            Expect.isTrue (xs.IsEqualTo (ResizeArray<int>([1; 6; 7; 8; 5]))) "Expected SetSlice to set a slice in the ResizeArray"
+            assertThat (xs.IsEqualTo (ResizeArray<int>([1; 6; 7; 8; 5]))) (tag "Expected SetSlice to set a slice in the ResizeArray" >> isTrue)
+        )
 
-    ]
+    ])

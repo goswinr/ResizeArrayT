@@ -17,5 +17,5 @@
     // Fable-generated TypeScript should not have errors, so strict mode by default
     "strict": true
   },
-  "include": ["./_ts/Src/*.ts"] // only compile the Src folder with TSC, not the tests or mocha bindings
+  "include": ["./_ts/Src/*.ts"] // only compile the Src folder with TSC, not the tests or the Scriptorium test libraries
 }

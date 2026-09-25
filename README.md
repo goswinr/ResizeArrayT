@@ -266,13 +266,16 @@ Go to the tests folder:
 cd Tests
 ```
 
-For testing with .NET using Expecto:
+The tests use [Scriptorium](https://fable-hub.github.io/Scriptorium/) (Scriptorium.Quill as test runner and Scriptorium.Nib for assertions).
+The same test suite runs unchanged on .NET and in JS via Fable.
+
+For testing with .NET:
 
 ```bash
 dotnet run
 ```
 
-for JS testing with Fable.Mocha and TS verification:
+for JS testing (Fable compiles the tests and runs them with Node.js) and TS verification:
 
 ```bash
 npm test

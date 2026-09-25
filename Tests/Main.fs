@@ -1,33 +1,18 @@
 namespace Tests
 
-open ResizeArrayT
-open Tests.Module3 // Add reference to Module3 tests
+open type Scriptorium.Quill.Runner
 
 module Main =
 
-    #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-
-    open Fable.Mocha
-    Mocha.runTests Tests.Extensions.tests |> ignore
-    Mocha.runTests Tests.Module.tests |> ignore
-    Mocha.runTests Tests.Module2.tests |> ignore
-    Mocha.runTests Tests.Module3.tests |> ignore // Add Module3 tests
-    Mocha.runTests Tests.FableCompat.tests |> ignore
-
-    #else
-
-    open Expecto
+    // Scriptorium.Quill runs the same suite on .NET and on JS (Fable).
+    // On JS runTests calls process.exit with the exit code once all tests are done,
+    // so it must be called only once, with all test lists.
     [<EntryPoint>]
-    let main argv =
-        runTestsWithCLIArgs [] [||] Tests.Extensions.tests
-        |||
-        runTestsWithCLIArgs [] [||] Tests.Module.tests
-        |||
-        runTestsWithCLIArgs [] [||] Tests.Module2.tests
-        |||
-        runTestsWithCLIArgs [] [||] Tests.Module3.tests // Add Module3 tests
-        |||
-        runTestsWithCLIArgs [] [||] Tests.FableCompat.tests
-
-
-    #endif
+    let main _argv =
+        runTests [
+            Tests.Extensions.tests
+            Tests.Module.tests
+            Tests.Module2.tests
+            Tests.Module3.tests
+            Tests.FableCompat.tests
+        ]
