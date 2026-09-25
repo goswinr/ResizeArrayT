@@ -2593,8 +2593,8 @@ module ResizeArray =
                 resizeArray.[i] <- resizeArray.[j]
                 resizeArray.[j] <- t
 
-    /// Floyd's algorithm: returns count distinct random indices into [0, n) using nextBound j to get
-    /// a random index in [0, j).
+    /// Floyd's algorithm: returns count distinct random indices into [0, n) in random order,
+    /// using nextBound j to get a random index in [0, j).
     let private randomDistinctIndices (nextBound: int -> int) (count: int) (n: int) : ResizeArray<int> =
         let selected = HashSet<int>()
         let order = ResizeArray<int>(count)
@@ -2605,6 +2605,9 @@ module ResizeArray =
             else
                 selected.Add j |> ignore
                 order.Add j
+        // Floyd's algorithm picks a uniformly random subset, but not in a uniformly random order.
+        // (e.g. for count = n the indices would always come out as 0, 1, 2, ...) So shuffle them too.
+        fisherYatesShuffle nextBound order
         order
 
     /// <summary>Returns a random element from the given ResizeArray.</summary>

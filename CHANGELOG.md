@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Tests: migrate the test project from Fable.Mocha and Expecto to Scriptorium (Scriptorium.Quill and Scriptorium.Nib) on both .NET and JS
 
+### Fixed
+- `randomSample`, `randomSampleBy` and `randomSampleWith` now return the sampled elements in random order. Before, e.g. a sample of all elements always kept the input order.
+
 ## [0.27.0] - 2026-09-07
 
 ### Added
