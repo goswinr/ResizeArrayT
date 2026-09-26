@@ -21,7 +21,7 @@ When a function fails on invalid input it will throw a descriptive exception.<br
 Functions starting with `try...` will return an F# option.
 
 I was always annoyed that an `IndexOutOfRangeException` does not include the actual bad index nor the actual size of the array.<br>
-This library fixes that in the `resizeArray.Get`, `resizeArray.Set`, `resizeArray.Slice` and similar instance methods for item access.<br>
+This library fixes that in the `resizeArray.Get`, `resizeArray.Set`, `resizeArray.SliceIdx` and similar instance methods for item access.<br>
 I made a similar library for `array<'T>`: https://github.com/goswinr/ArrayT/ .
 
 ## Why ?
@@ -148,6 +148,15 @@ nums.[2..]         // ResizeArray [30; 40; 50]
 nums.[1..^1]       // ResizeArray [20; 30; 40]  (from index 1 to second-last)
 nums.[^0]          // 50  (last item)
 nums.[3..9]        // ResizeArray [40; 50]  (clamped)
+```
+
+To get an exception for out-of-range indices instead, use `slice`, `sliceIdx` or `sliceLooped`. They all include the end index:
+
+```fsharp
+nums |> ResizeArray.slice 1 -2   // ResizeArray [20; 30; 40]  (negative indices allowed, -1 is the last item)
+nums.SliceIdx(1, 3)              // ResizeArray [20; 30; 40]  (throws on negative indices)
+nums.SliceLooped(-2, -1)         // ResizeArray [40; 50]      (any index wraps around with modulo)
+nums.SliceLooped(5, 6)           // ResizeArray [10; 20]
 ```
 
 ### Pop, Clone, and InsertAtStart

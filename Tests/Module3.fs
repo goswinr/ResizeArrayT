@@ -276,6 +276,34 @@ let tests = // : TestCase in Scriptorium.Quill
             throwsArg (fun () -> ResizeArray.failIfLessThan 3 "too few" xs |> ignore)
         )
 
+        test ("slice with positive and negative indices", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            assertThat (List.ofSeq (ResizeArray.slice 1 3 xs)) (tag "slice 1 3" >> isEqualTo [2; 3; 4])
+            assertThat (List.ofSeq (ResizeArray.slice -2 -1 xs)) (tag "slice -2 -1" >> isEqualTo [4; 5])
+            assertThat (List.ofSeq (ResizeArray.slice 1 -2 xs)) (tag "slice 1 -2" >> isEqualTo [2; 3; 4])
+            assertThat (List.ofSeq (ResizeArray.slice 2 2 xs)) (tag "slice 2 2" >> isEqualTo [3])
+            assertThat (List.ofSeq (ResizeArray.slice 0 -1 xs)) (tag "slice 0 -1" >> isEqualTo [1; 2; 3; 4; 5])
+            assertThat (obj.ReferenceEquals(xs, ResizeArray.slice 0 -1 xs)) (tag "slice returns a new ResizeArray" >> isFalse)
+        )
+
+        test ("slice returns empty when end index is one less than start index", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            assertThat (ResizeArray.slice 3 2 xs).Count (tag "slice 3 2" >> isEqualTo 0)
+            assertThat (ResizeArray.slice 0 -6 xs).Count (tag "slice 0 -6, like trim 0 5" >> isEqualTo 0)
+        )
+
+        test ("slice throws on invalid ranges with descriptive messages", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            throwsIdx (fun () -> ResizeArray.slice 3 1 xs |> ignore)
+            throwsWith ["ResizeArray.slice: Start index 3 is bigger than end index 1"] (fun () -> ResizeArray.slice 3 1 xs |> ignore)
+            throwsWith ["End index -99 is out of range"] (fun () -> ResizeArray.slice 1 -99 xs |> ignore)
+            throwsWith ["End index -6 is out of range"] (fun () -> ResizeArray.slice 1 -6 xs |> ignore)
+            throwsWith ["End index 5 is out of range"] (fun () -> ResizeArray.slice 1 5 xs |> ignore)
+            throwsWith ["Start index -6 is out of range"] (fun () -> ResizeArray.slice -6 2 xs |> ignore)
+            throwsIdx (fun () -> ResizeArray.slice 0 0 (ResizeArray<int>()) |> ignore)
+            throwsNull (fun () -> ResizeArray.slice 0 1 (null: ResizeArray<int>) |> ignore)
+        )
+
         test ("mapIfResult", fun _ ->
             let xs = ResizeArray [1; 2; 3]
             let plus1 = ResizeArray.map ((+) 1)

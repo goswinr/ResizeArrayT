@@ -158,7 +158,7 @@ module ResizeArray =
     /// <summary>
     /// Returns a new ResizeArray containing the elements between the specified inclusive start and end indices.
     /// This function rejects out-of-bounds indices, while the F# slicing notation xs.[1..3] does not.
-    /// To normalize negative or out-of-range indices, use ResizeArray.sliceLooped.
+    /// To allow negative indices use ResizeArray.slice, to normalize any index with modulo use ResizeArray.sliceLooped.
     /// </summary>
     /// <param name="startIdx">The inclusive start index of the slice.</param>
     /// <param name="endIdx">The inclusive end index of the slice.</param>
@@ -202,36 +202,37 @@ module ResizeArray =
             else
                 xs.GetRange(st, len)
 
-    (*
-    // Slice the Array given start and end index.
-    // Allows for negative indices too. ( -1 is last item, like Python)
-    // The resulting Array includes the end index.
-    // Raises an IndexOutOfRangeException if indices are out of range.
-    // If you don't want an exception to be raised for index overflow or overlap use Array.trim.
-    // (A negative index can also be done with '^' prefix. E.g. ^0 for the last item, when F# Language preview features are enabled.)
-    let slice startIdx endIdx (arr: ResizeArray<'T>) : ResizeArray<'T> =
-            if isNull arr then nullExn "slice"
-        #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
-            let count = arr.Count
-            let st  = if startIdx< 0 then count + startIdx        else startIdx
-            let len = if endIdx  < 0 then count + endIdx - st + 1 else endIdx - st + 1
-            if st < 0 || st > count - 1 then
-                failIdx arr $"Slice: Start index {startIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
+    /// <summary>Slice the ResizeArray given start and end index.
+    /// Allows for negative indices too. ( -1 is last item, like Python)
+    /// The resulting ResizeArray includes the end index.
+    /// If the end index is one less than the start index an empty ResizeArray is returned.
+    /// Raises an IndexOutOfRangeException if indices are out of range.
+    /// If you don't want an exception to be raised for index overflow or overlap use ResizeArray.trim.
+    /// To reject negative indices use ResizeArray.sliceIdx, to normalize any index with modulo use ResizeArray.sliceLooped.
+    /// There is no xs.Slice extension member for this, because it would be shadowed by the built-in xs.Slice(start, count) method of .NET.</summary>
+    /// <param name="startIdx">The start index (inclusive, can be negative).</param>
+    /// <param name="endIdx">The end index (inclusive, can be negative).</param>
+    /// <param name="arr">The input ResizeArray.</param>
+    /// <returns>A new ResizeArray containing the sliced elements.</returns>
+    /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either index is out of range or the start index is after the end index.</exception>
+    /// <remarks>With F# preview features enabled a negative index can also be done with '^' prefix. E.g. xs.[1..^1] skips the first and last item.</remarks>
+    let slice (startIdx:int) (endIdx:int) (arr: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull arr then nullExn "slice"
+        let count = arr.Count
+        let st  = if startIdx < 0 then count + startIdx else startIdx
+        let en  = if endIdx   < 0 then count + endIdx   else endIdx
+        let len = en - st + 1 // zero if end is one less than start, like ResizeArray.trim when all items are trimmed
 
-            if st+len > count then
-                failIdx arr $"Slice: End index {endIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
+        if st < 0 || st > count - 1 then
+            failIdx arr $"slice: Start index {startIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
 
-            if len < 0 then
-                // let en = if endIdx<0 then count+endIdx else endIdx
-                // let err = sprintf "ResizeArray.Slice: Start index '%A' (= %d) is bigger than end index '%A'(= %d) for ResizeArray of %d items" startIdx st endIdx en  count
-                failIdx arr $"Slice: Start index {startIdx} is bigger than end index {endIdx} for ResizeArray of {count} items"
+        if en > count - 1 || (len < 0 && en < 0) then
+            failIdx arr $"slice: End index {endIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
 
-            // ResizeArray.init len (fun i -> this.[st+i])
-            arr.GetRange(st, len)
-        #else
-            arr.Slice(startIdx, endIdx)
-        #endif
-    *)
+        if len < 0 then
+            failIdx arr $"slice: Start index {startIdx} is bigger than end index {endIdx} for ResizeArray of {count} items"
+
+        arr.GetRange(st, len)
 
     /// Trims items from the start and end.
     /// If the sum of fromStartCount and fromEndCount is equal to or greater than arr.Count, it returns an empty ResizeArray.
