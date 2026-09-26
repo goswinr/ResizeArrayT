@@ -6,6 +6,7 @@ module Extensions =
 
     open Scriptorium.Nib.Assertion
     open type Scriptorium.Quill.Test
+    open Exceptions
 
     let tests = // : TestCase in Scriptorium.Quill
       testList ("extensions Tests", [
@@ -176,13 +177,21 @@ module Extensions =
         test ("FirstAndOnly getter raises exception on empty ResizeArray", fun _ ->
             let xs = ResizeArray<int>()
             let testCode = fun () -> xs.FirstAndOnly |> ignore
-            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+            assertThat testCode (tag "Expected an IndexOutOfRangeException" >> throws)
         )
 
         test ("FirstAndOnly getter raises exception on ResizeArray with more than one item", fun _ ->
             let xs = ResizeArray<int>([1; 2])
             let testCode = fun () -> xs.FirstAndOnly |> ignore
-            assertThat testCode (tag "Expected an ArgumentException" >> throws)
+            assertThat testCode (tag "Expected an IndexOutOfRangeException" >> throws)
+        )
+
+        test ("FirstAndOnly error message says exactly one item is expected", fun _ ->
+            throwsIdx (fun () -> ResizeArray<int>().FirstAndOnly |> ignore)
+            throwsIdx (fun () -> ResizeArray<int>([1; 2]).FirstAndOnly |> ignore)
+            throwsWith ["ResizeArray.FirstAndOnly: Expected exactly one item"; "empty ResizeArray<"] (fun () -> ResizeArray<int>().FirstAndOnly |> ignore)
+            throwsWith ["ResizeArray.FirstAndOnly: Expected exactly one item"; "with 2 items"] (fun () -> ResizeArray<int>([1; 2]).FirstAndOnly |> ignore)
+            throwsWith ["ResizeArray.firstAndOnly: input is null"] (fun () -> ResizeArray.firstAndOnly (null: ResizeArray<int>) |> ignore)
         )
 
         test ("FirstAndOnly getter returns the item on ResizeArray with exactly one item", fun _ ->

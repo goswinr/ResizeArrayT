@@ -153,6 +153,13 @@ module UtilResizeArray =
         let t = typeOfName<'T>()
         raise (IndexOutOfRangeException $"ResizeArray.{funcName}: Can't set index {i} to {doingSet} on:\n{toStringCore t arr}{contentAsString 5 arr}")
 
+    /// Throws an IndexOutOfRangeException when the ResizeArray does not have the expected number of items,
+    /// with a message that includes the content of the ResizeArray.
+    /// 'expected' is a description of the expected item count, e.g. "exactly one item".
+    let badCountExn (arr:ResizeArray<'T>) (funcName:string) (expected:string) =
+        let t = typeOfName<'T>()
+        raise (IndexOutOfRangeException $"ResizeArray.{funcName}: Expected {expected} in:\n{toStringCore t arr}{contentAsString 5 arr}")
+
     /// Throws an ArgumentException with a message that includes the content of the ResizeArray.
     let fail (arr:ResizeArray<'T>) (funcAndReason:string)  =
         let t = typeOfName<'T>()

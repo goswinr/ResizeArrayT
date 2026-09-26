@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The exception message of `xs.FirstAndOnly` and `ResizeArray.firstAndOnly` says that exactly one item is expected, like in ArrayT, instead of reporting a bad index.
+
 ### Fixed
 - `xs.ToString(Int32.MaxValue)` printed "..." and the last item twice because of an integer overflow.
 - `ResizeArray.failIfEmpty` and `failIfLessThan` raise an `ArgumentNullException` for null input, instead of a `NullReferenceException`.

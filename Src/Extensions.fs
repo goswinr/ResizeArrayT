@@ -99,8 +99,7 @@ module AutoOpenResizeArrayExtensions =
         /// Gets the only element of the ResizeArray.
         /// Fails if the ResizeArray does not have exactly one element.
         member inline xs.FirstAndOnly : 'T =
-            if xs.Count = 0 then badGetExn 0 xs "FirstAndOnly"
-            if xs.Count > 1 then badGetExn 1 xs "FirstAndOnly, ResizeArray is expected to have exactly one item."
+            if xs.Count <> 1 then badCountExn xs "FirstAndOnly" "exactly one item"
             xs.[0]
 
 
