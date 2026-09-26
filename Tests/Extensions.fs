@@ -8,6 +8,10 @@ module Extensions =
     open type Scriptorium.Quill.Test
     open Exceptions
 
+#nowarn "44" // to test the obsolete Duplicate alias
+    let private obsoleteDuplicate (xs: ResizeArray<int>) : ResizeArray<int> = xs.Duplicate()
+#warnon "44"
+
     let tests = // : TestCase in Scriptorium.Quill
       testList ("extensions Tests", [
 
@@ -350,6 +354,16 @@ module Extensions =
             let newValues = ResizeArray<int>([6; 7; 8])
             xs[1..3] <-  newValues
             assertThat (xs.IsEqualTo (ResizeArray<int>([1; 6; 7; 8; 5]))) (tag "Expected SetSlice to set a slice in the ResizeArray" >> isTrue)
+        )
+
+        //---- xs.Copy, xs.Clone ----
+        test ("Copy and Clone create independent shallow copies", fun _ ->
+            let xs = ResizeArray<int>([1; 2; 3])
+            for name, copy in ["Copy", xs.Copy(); "Clone", xs.Clone(); "obsolete Duplicate", obsoleteDuplicate xs] do
+                assertThat (copy.IsEqualTo xs) (tag $"{name} has the same items" >> isTrue)
+                assertThat (obj.ReferenceEquals(xs, copy)) (tag $"{name} creates a new ResizeArray" >> isFalse)
+                copy.[0] <- 99
+                assertThat xs.[0] (tag $"{name} does not change the original" >> isEqualTo 1)
         )
 
         //---- xs.ToString(n) ----

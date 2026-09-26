@@ -184,8 +184,10 @@ module AutoOpenResizeArrayExtensions =
             xs.[ii] <- value
 
 
+        /// Use xs.Copy() or xs.Clone() instead.
         /// Creates a new ResizeArray with the same items as the input ResizeArray.
         /// This is a shallow element copy. Same as xs.Clone().
+        [<Obsolete("Use xs.Copy() or xs.Clone() instead.")>]
         member this.Duplicate(): ResizeArray<'T> =
             this.GetRange(0, this.Count) // fastest way to create a shallow copy
 
@@ -245,8 +247,13 @@ module AutoOpenResizeArrayExtensions =
                 xs.RemoveAt(lastIndex)
             #endif
 
-        /// Creates a new ResizeArray that contains a shallow copy of the elements. Same as xs.Duplicate().
-        member inline xs.Clone() =
+        /// Creates a new ResizeArray that contains a shallow copy of the elements. Same as xs.Copy().
+        member inline xs.Clone() : ResizeArray<'T> =
+            xs.GetRange(0, xs.Count) // fastest way to create a shallow copy
+
+        /// Creates a new ResizeArray that contains a shallow copy of the elements. Same as xs.Clone() and ResizeArray.copy.
+        /// (Named like arr.Copy() in ArrayT, since arrays can't have a typed Clone() extension.)
+        member inline xs.Copy() : ResizeArray<'T> =
             xs.GetRange(0, xs.Count) // fastest way to create a shallow copy
 
         /// <summary>Get the index for the element offset elements away from the end of the collection.

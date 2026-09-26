@@ -169,7 +169,7 @@ let second = xs.Pop(1)         // returns 2, xs is now [1; 3; 4]
 
 xs.InsertAtStart(0)            // xs is now [0; 1; 3; 4]
 
-let copy = xs.Clone()          // shallow copy
+let copy = xs.Clone()          // shallow copy, same as xs.Copy()
 ```
 
 ### ResizeArray Module

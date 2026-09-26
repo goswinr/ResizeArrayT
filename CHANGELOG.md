@@ -11,9 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResizeArray.mapIfResult` and `mapIfInputAndResult`, the names used in ArrayT.
 - `ResizeArray.slice` is back: it slices with an inclusive end index and allows negative indices (-1 is the last item), like `Array.slice` in ArrayT.
 - `ResizeArray.matches`, `findValue`, `findLastValue`, `findArray` and `findLastArray` from ArrayT.
+- `xs.Copy()` for a shallow copy, same as `xs.Clone()`, and named like `arr.Copy()` in ArrayT.
 
 ### Changed
 - `ResizeArray.applyIfResult` and `applyIfInputAndResult` are marked obsolete, use `mapIfResult` and `mapIfInputAndResult` instead.
+- `xs.Duplicate()` is marked obsolete, use `xs.Copy()` or `xs.Clone()` instead.
 - The exception message of `xs.FirstAndOnly` and `ResizeArray.firstAndOnly` says that exactly one item is expected, like in ArrayT, instead of reporting a bad index.
 
 ### Fixed
