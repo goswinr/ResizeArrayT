@@ -343,4 +343,17 @@ module Extensions =
             assertThat (xs.IsEqualTo (ResizeArray<int>([1; 6; 7; 8; 5]))) (tag "Expected SetSlice to set a slice in the ResizeArray" >> isTrue)
         )
 
+        //---- xs.ToString(n) ----
+        test ("ToString(n) prints n entries, then ... and the last entry", fun _ ->
+            let xs = ResizeArray<int>([1; 2; 3; 4; 5])
+            let s = xs.ToString(2).Replace("\r\n", "\n").Trim()
+            assertThat s (tag "two entries and the last" >> isEqualTo "ResizeArray<Int32> with 5 items:\n  0: 1\n  1: 2\n  ...\n  4: 5")
+        )
+
+        test ("ToString(Int32.MaxValue) prints all entries once", fun _ ->
+            let xs = ResizeArray<int>([1; 2; 3])
+            let s = xs.ToString(System.Int32.MaxValue).Replace("\r\n", "\n").Trim()
+            assertThat s (tag "all entries, no ellipsis" >> isEqualTo "ResizeArray<Int32> with 3 items:\n  0: 1\n  1: 2\n  2: 3")
+        )
+
     ])

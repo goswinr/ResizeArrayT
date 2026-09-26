@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- `xs.ToString(Int32.MaxValue)` printed "..." and the last item twice because of an integer overflow.
+
 ## [0.28.0] - 2026-09-25
 
 ### Changed
@@ -116,6 +121,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
+[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.28.0...HEAD
 [0.28.0]: https://github.com/goswinr/ResizeArrayT/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/goswinr/ResizeArrayT/compare/0.26.1...0.27.0
 [0.26.1]: https://github.com/goswinr/ResizeArrayT/compare/0.26.0...0.26.1
