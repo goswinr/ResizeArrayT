@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `ResizeArray.mapIfResult` and `mapIfInputAndResult`, the names used in ArrayT.
+
 ### Changed
+- `ResizeArray.applyIfResult` and `applyIfInputAndResult` are marked obsolete, use `mapIfResult` and `mapIfInputAndResult` instead.
 - The exception message of `xs.FirstAndOnly` and `ResizeArray.firstAndOnly` says that exactly one item is expected, like in ArrayT, instead of reporting a bad index.
 
 ### Fixed

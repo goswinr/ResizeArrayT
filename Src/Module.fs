@@ -1141,15 +1141,42 @@ module ResizeArray =
             else allFalse.Add el
         p1True, p2True, p3True, p4True, allFalse
 
-    /// Applies a function to List
-    /// If resulting List meets the resultPredicate it is returned, otherwise the original input is returned.
+    /// <summary>Applies a function to the ResizeArray.
+    /// If the resulting ResizeArray meets the resultPredicate it is returned, otherwise the original input is returned.</summary>
+    /// <param name="resultPredicate">The predicate to test the result.</param>
+    /// <param name="transform">The transformation function to apply.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The transformed ResizeArray if it meets the predicate, otherwise the original ResizeArray.</returns>
+    let inline mapIfResult (resultPredicate: ResizeArray<'T> -> bool) (transform: ResizeArray<'T> -> ResizeArray<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "mapIfResult"
+        let r = transform resizeArray
+        if resultPredicate r then r else resizeArray
+
+    /// <summary>Applies a function to the ResizeArray if it meets the inputPredicate, otherwise just returns input.
+    /// If the resulting ResizeArray meets the resultPredicate it is returned, otherwise the original input is returned.</summary>
+    /// <param name="inputPredicate">The predicate to test the input ResizeArray.</param>
+    /// <param name="resultPredicate">The predicate to test the result.</param>
+    /// <param name="transform">The transformation function to apply.</param>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>The transformed ResizeArray if both predicates are met, otherwise the original ResizeArray.</returns>
+    let inline mapIfInputAndResult (inputPredicate: ResizeArray<'T> -> bool) (resultPredicate: ResizeArray<'T> -> bool) (transform: ResizeArray<'T> -> ResizeArray<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull resizeArray then nullExn "mapIfInputAndResult"
+        if inputPredicate resizeArray then
+            let r = transform resizeArray
+            if resultPredicate r then r
+            else resizeArray
+        else
+            resizeArray
+
+    /// Use mapIfResult instead.
+    [<Obsolete("Use mapIfResult instead")>]
     let inline applyIfResult (resultPredicate: ResizeArray<'T> -> bool) (transform: ResizeArray<'T> -> ResizeArray<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "applyIfResult"
         let r = transform resizeArray
         if resultPredicate r then r else resizeArray
 
-    /// Applies a function to List if it meets the inputPredicate, otherwise just returns input.
-    /// If resulting List meets the resultPredicate it is returned, otherwise original input is returned.
+    /// Use mapIfInputAndResult instead.
+    [<Obsolete("Use mapIfInputAndResult instead")>]
     let inline applyIfInputAndResult (inputPredicate: ResizeArray<'T> -> bool) (resultPredicate: ResizeArray<'T> -> bool) (transform: ResizeArray<'T> -> ResizeArray<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "applyIfInputAndResult"
         if inputPredicate resizeArray then

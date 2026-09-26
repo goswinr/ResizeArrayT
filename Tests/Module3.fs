@@ -7,6 +7,11 @@ open ResizeArrayT
 open Tests.Exceptions
 open System
 
+#nowarn "44" // to test the obsolete applyIf aliases
+let private obsoleteApplyIfResult pr f (xs: ResizeArray<int>) = ResizeArray.applyIfResult pr f xs
+let private obsoleteApplyIfInputAndResult pi pr f (xs: ResizeArray<int>) = ResizeArray.applyIfInputAndResult pi pr f xs
+#warnon "44"
+
 // [<Tests>]
 let tests = // : TestCase in Scriptorium.Quill
     testList ("Module3 Tests", [
@@ -269,6 +274,35 @@ let tests = // : TestCase in Scriptorium.Quill
             assertThat (obj.ReferenceEquals(xs, ResizeArray.failIfLessThan 2 "ok" xs)) (tag "failIfLessThan returns the input" >> isTrue)
             throwsArg (fun () -> ResizeArray.failIfEmpty "is empty" (ResizeArray<int>()) |> ignore)
             throwsArg (fun () -> ResizeArray.failIfLessThan 3 "too few" xs |> ignore)
+        )
+
+        test ("mapIfResult", fun _ ->
+            let xs = ResizeArray [1; 2; 3]
+            let plus1 = ResizeArray.map ((+) 1)
+            let applied = ResizeArray.mapIfResult (fun r -> r.Count > 0) plus1 xs
+            assertThat (List.ofSeq applied) (tag "mapIfResult applied" >> isEqualTo [2; 3; 4])
+            let notApplied = ResizeArray.mapIfResult (fun r -> r.Count > 10) plus1 xs
+            assertThat (obj.ReferenceEquals(xs, notApplied)) (tag "mapIfResult not applied" >> isTrue)
+            throwsNull (fun () -> ResizeArray.mapIfResult (fun _ -> true) id (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("mapIfInputAndResult", fun _ ->
+            let xs = ResizeArray [1; 2; 3]
+            let plus1 = ResizeArray.map ((+) 1)
+            let applied = ResizeArray.mapIfInputAndResult (fun a -> a.Count > 0) (fun r -> r.Count > 0) plus1 xs
+            assertThat (List.ofSeq applied) (tag "mapIfInputAndResult applied" >> isEqualTo [2; 3; 4])
+            let inputFailed = ResizeArray.mapIfInputAndResult (fun a -> a.Count > 10) (fun _ -> true) plus1 xs
+            assertThat (obj.ReferenceEquals(xs, inputFailed)) (tag "mapIfInputAndResult input failed" >> isTrue)
+            let resultFailed = ResizeArray.mapIfInputAndResult (fun _ -> true) (fun r -> r.Count > 10) plus1 xs
+            assertThat (obj.ReferenceEquals(xs, resultFailed)) (tag "mapIfInputAndResult result failed" >> isTrue)
+            throwsNull (fun () -> ResizeArray.mapIfInputAndResult (fun _ -> true) (fun _ -> true) id (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("obsolete applyIfResult and applyIfInputAndResult still work", fun _ ->
+            let xs = ResizeArray [1; 2; 3]
+            let plus1 = ResizeArray.map ((+) 1)
+            assertThat (List.ofSeq (obsoleteApplyIfResult (fun r -> r.Count > 0) plus1 xs)) (tag "applyIfResult" >> isEqualTo [2; 3; 4])
+            assertThat (List.ofSeq (obsoleteApplyIfInputAndResult (fun _ -> true) (fun _ -> true) plus1 xs)) (tag "applyIfInputAndResult" >> isEqualTo [2; 3; 4])
         )
 
         test ("failIfEmpty and failIfLessThan throw on null", fun _ ->
