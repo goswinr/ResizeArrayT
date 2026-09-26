@@ -166,6 +166,7 @@ module ResizeArray =
     /// <returns>A new ResizeArray containing the requested range.</returns>
     /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either index is outside the ResizeArray or startIdx is greater than endIdx.</exception>
     let sliceIdx (startIdx:int) (endIdx: int) (xs: ResizeArray<'T>): ResizeArray<'T> =
+        if isNull xs then nullExn "sliceIdx"
         let count = xs.Count
         if startIdx < 0 || startIdx >= count then
             failIdx xs $"sliceIdx: Start index {startIdx} is out of range. Allowed values are 0 through {count - 1} for a ResizeArray of {count} items."
@@ -190,6 +191,7 @@ module ResizeArray =
     /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
     /// </remarks>
     let sliceLooped (startIdx:int) (endIdx:int ) (xs: ResizeArray<'T>): ResizeArray<'T> =
+        if isNull xs then nullExn "sliceLooped"
         if xs.Count = 0 then
             ResizeArray<'T>()
         else

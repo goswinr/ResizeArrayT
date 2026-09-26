@@ -304,6 +304,11 @@ let tests = // : TestCase in Scriptorium.Quill
             throwsNull (fun () -> ResizeArray.slice 0 1 (null: ResizeArray<int>) |> ignore)
         )
 
+        test ("sliceIdx and sliceLooped throw on null", fun _ ->
+            throwsNull (fun () -> ResizeArray.sliceIdx 0 1 (null: ResizeArray<int>) |> ignore)
+            throwsNull (fun () -> ResizeArray.sliceLooped 0 1 (null: ResizeArray<int>) |> ignore)
+        )
+
         test ("mapIfResult", fun _ ->
             let xs = ResizeArray [1; 2; 3]
             let plus1 = ResizeArray.map ((+) 1)

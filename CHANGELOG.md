@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `xs.ToString(Int32.MaxValue)` printed "..." and the last item twice because of an integer overflow.
-- `ResizeArray.failIfEmpty` and `failIfLessThan` raise an `ArgumentNullException` for null input, instead of a `NullReferenceException`.
+- `ResizeArray.failIfEmpty`, `failIfLessThan`, `sliceIdx` and `sliceLooped` raise an `ArgumentNullException` for null input, instead of a `NullReferenceException`.
 
 ## [0.28.0] - 2026-09-25
 
