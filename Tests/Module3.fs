@@ -12,10 +12,49 @@ let private obsoleteApplyIfResult pr f (xs: ResizeArray<int>) = ResizeArray.appl
 let private obsoleteApplyIfInputAndResult pi pr f (xs: ResizeArray<int>) = ResizeArray.applyIfInputAndResult pi pr f xs
 #warnon "44"
 
+/// Compares by Value only, but Equals also checks the Name.
+/// So items that compare as equal are not equal by '='.
+[<CustomEquality; CustomComparison>]
+type TieItem =
+    { Value: int; Name: string }
+    override this.Equals(o) =
+        match o with
+        | :? TieItem as i -> i.Value = this.Value && i.Name = this.Name
+        | _ -> false
+    override this.GetHashCode() = hash (this.Value, this.Name)
+    interface IComparable with
+        member this.CompareTo(o) = compare this.Value (o :?> TieItem).Value
+
 // [<Tests>]
 let tests = // : TestCase in Scriptorium.Quill
     testList ("Module3 Tests", [
         // Add your tests here
+        test ("min3 and max3 functions match a stable sort, also when equality disagrees with comparison", fun _ ->
+            let values = [1; 2; 3]
+            let inputs = [
+                for a in values do
+                    for b in values do
+                        for c in values do
+                            [a; b; c]
+                            for d in values do
+                                [a; b; c; d] ]
+            for vs in inputs do
+                let items = vs |> List.mapi (fun i v -> { Value = v; Name = string i }) |> ResizeArray
+                // List.sortWith is a stable sort
+                let stableIdx cmp = items |> List.ofSeq |> List.indexed |> List.sortWith (fun (_, x) (_, y) -> cmp x y) |> List.map fst
+                let asc  = stableIdx (fun (x: TieItem) y -> compare x.Value y.Value)
+                let desc = stableIdx (fun (x: TieItem) y -> compare y.Value x.Value)
+                let first3 (idx: int list) = idx.[0], idx.[1], idx.[2]
+                let names (x: TieItem, y: TieItem, z: TieItem) = [x.Name; y.Name; z.Name]
+                let expectedNames (idx: int list) = [ for i in idx.[0..2] -> string i ]
+                assertThat (ResizeArray.min3IndicesBy id items) (tag $"min3IndicesBy {vs}" >> isEqualTo (first3 asc))
+                assertThat (ResizeArray.max3IndicesBy id items) (tag $"max3IndicesBy {vs}" >> isEqualTo (first3 desc))
+                assertThat (names (ResizeArray.min3 items))     (tag $"min3 {vs}"   >> isEqualTo (expectedNames asc))
+                assertThat (names (ResizeArray.max3 items))     (tag $"max3 {vs}"   >> isEqualTo (expectedNames desc))
+                assertThat (names (ResizeArray.min3By id items)) (tag $"min3By {vs}" >> isEqualTo (expectedNames asc))
+                assertThat (names (ResizeArray.max3By id items)) (tag $"max3By {vs}" >> isEqualTo (expectedNames desc))
+        )
+
         test ("zipDefault combines arrays with default values", fun _ ->
             let getDefaultVal index longerValue = longerValue + index
             let arr1 = ResizeArray [1; 2; 10]
