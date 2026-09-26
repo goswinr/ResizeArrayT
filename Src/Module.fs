@@ -1186,9 +1186,10 @@ module ResizeArray =
         else
             resizeArray
 
-    /// Returns all elements that exists more than once in ResizeArray.
+    /// Returns all elements that exist more than once in ResizeArray.
     /// Each element that exists more than once is only returned once.
-    /// Returned order is by first occurrence of first duplicate.
+    /// The returned item is the second occurrence, where the duplicate is first detected.
+    /// Returned order is by position of that second occurrence.
     let duplicates (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "duplicates"
         let h = HashSet<'T>()
@@ -1196,9 +1197,10 @@ module ResizeArray =
         // first Add should be false, second Add true, to recognize the first occurrence of a duplicate:
         resizeArray.FindAll(System.Predicate(fun x -> if h.Add x then false else t.Add x))
 
-    /// Returns all elements that exists more than once in ResizeArray.
-    /// Each element that exists more than once is only returned once.
-    /// Returned order is by first occurrence of first duplicate.
+    /// Returns all elements whose projected value exists more than once in ResizeArray.
+    /// Each projected value that exists more than once is only returned once.
+    /// The returned item is the second occurrence, where the duplicate is first detected.
+    /// Returned order is by position of that second occurrence.
     let duplicatesBy (f: 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "duplicatesBy"
         let h = HashSet<'U>()
@@ -1208,8 +1210,8 @@ module ResizeArray =
 
 
     /// <summary>Returns a new collection containing only the elements of the collection
-    /// for which the given predicate run on the index returns <c>true</c>.</summary>
-    /// <param name="predicate">The function to test the current index.</param>
+    /// for which the given predicate, called with the index and the element, returns <c>true</c>.</summary>
+    /// <param name="predicate">The function to test the index and the element.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray containing the elements for which the given predicate returns true.</returns>
     let inline filteri (predicate: int -> 'T-> bool) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
