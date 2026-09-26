@@ -1255,6 +1255,114 @@ module ResizeArray =
         | None -> failKey resizeArray "findIndexi did not find for given predicate in"
 
 
+    /// <summary>Checks if a given ResizeArray matches the content in the ResizeArray at a given index.</summary>
+    /// <param name="searchFor">The ResizeArray pattern to search for.</param>
+    /// <param name="atIdx">The index to start the search.</param>
+    /// <param name="searchIn">The ResizeArray to search in.</param>
+    /// <returns>True if the pattern matches at the given index.</returns>
+    let matches (searchFor: ResizeArray<'T>) (atIdx:int) (searchIn: ResizeArray<'T>) : bool =
+        if isNull searchFor then nullExn "matches"
+        if isNull searchIn then nullExn "matches"
+        if searchFor.Count = 0 then fail searchIn "matches: the searchFor ResizeArray is empty"
+        if atIdx < 0               then fail searchIn $"matches: atIdx Index is too small: {atIdx} for ResizeArray of {searchIn.Count} items"
+        if atIdx >= searchIn.Count then fail searchIn $"matches: atIdx Index is too big: {atIdx} for ResizeArray of {searchIn.Count} items"
+        let fLast = searchFor.Count - 1
+        let iLen = searchIn.Count
+        let rec find i f = // index in searchIn, index in searchFor
+            if  i = iLen then false // not found! not enough items left in searchIn
+            elif searchIn.[i] = searchFor.[f] then
+                if f = fLast then true // found, exit!
+                else find (i + 1) (f + 1)
+            else false // exit
+        find atIdx 0
+
+    /// <summary>Find first index where searchFor occurs in searchIn ResizeArray.
+    /// Give lower and upper bound index for search space.
+    /// Returns -1 if not found.</summary>
+    /// <param name="searchFor">The value to search for.</param>
+    /// <param name="fromIdx">The starting index for the search.</param>
+    /// <param name="tillIdx">The ending index for the search.</param>
+    /// <param name="searchIn">The ResizeArray to search in.</param>
+    /// <returns>The index of the first occurrence, or -1 if not found.</returns>
+    let findValue (searchFor:'T) (fromIdx:int) (tillIdx:int) (searchIn: ResizeArray<'T>) : int =
+        if isNull searchIn then nullExn "findValue"
+        if fromIdx < 0                then fail searchIn $"findValue: fromIdx Index is too small: {fromIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx >= searchIn.Count  then fail searchIn $"findValue: tillIdx Index is too big: {tillIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx < fromIdx          then fail searchIn $"findValue: tillIdx Index {tillIdx} is smaller than fromIdx Index {fromIdx} for ResizeArray of {searchIn.Count} items"
+        let rec find i =
+            if  i > tillIdx then -1 // not found!
+            elif searchIn.[i] = searchFor then i // found, exit!
+            else find (i + 1)
+        find fromIdx
+
+    /// <summary>Find last index where searchFor occurs in searchIn ResizeArray. Searching from end.
+    /// Give lower and upper bound index for search space.
+    /// Returns -1 if not found.</summary>
+    /// <param name="searchFor">The value to search for.</param>
+    /// <param name="fromIdx">The starting index for the search.</param>
+    /// <param name="tillIdx">The ending index for the search.</param>
+    /// <param name="searchIn">The ResizeArray to search in.</param>
+    /// <returns>The index of the last occurrence, or -1 if not found.</returns>
+    let findLastValue (searchFor:'T) (fromIdx:int) (tillIdx:int) (searchIn: ResizeArray<'T>) : int =
+        if isNull searchIn then nullExn "findLastValue"
+        if fromIdx < 0                then fail searchIn $"findLastValue: fromIdx Index is too small: {fromIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx >= searchIn.Count  then fail searchIn $"findLastValue: tillIdx Index is too big: {tillIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx < fromIdx          then fail searchIn $"findLastValue: tillIdx Index {tillIdx} is smaller than fromIdx Index {fromIdx} for ResizeArray of {searchIn.Count} items"
+        let rec find i =
+            if  i < fromIdx then -1 // not found!
+            elif searchIn.[i] = searchFor then i // found, exit!
+            else find (i - 1)
+        find tillIdx
+
+    /// <summary>Find first index where searchFor ResizeArray occurs in searchIn ResizeArray.
+    /// Give lower and upper bound index for search space.
+    /// Returns index of first element or -1 if not found.</summary>
+    /// <param name="searchFor">The ResizeArray pattern to search for.</param>
+    /// <param name="fromIdx">The starting index for the search.</param>
+    /// <param name="tillIdx">The ending index for the search.</param>
+    /// <param name="searchIn">The ResizeArray to search in.</param>
+    /// <returns>The index of the first occurrence, or -1 if not found.</returns>
+    let findArray (searchFor: ResizeArray<'T>) (fromIdx:int) (tillIdx:int) (searchIn: ResizeArray<'T>) : int =
+        if isNull searchIn then nullExn "findArray"
+        if isNull searchFor then nullExn "findArray"
+        if searchFor.Count = 0 then fail searchIn "findArray: the searchFor ResizeArray is empty"
+        if fromIdx < 0                then fail searchIn $"findArray (of {searchFor.Count} items): fromIdx Index is too small: {fromIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx >= searchIn.Count  then fail searchIn $"findArray (of {searchFor.Count} items): tillIdx Index is too big: {tillIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx < fromIdx          then fail searchIn $"findArray (of {searchFor.Count} items): tillIdx Index {tillIdx} is smaller than fromIdx Index {fromIdx} for ResizeArray of {searchIn.Count} items"
+        let fLast = searchFor.Count - 1
+        let rec find i f = // index in searchIn, index in searchFor
+            if  i > tillIdx - fLast + f then -1 // not found! not enough items left in searchIn
+            elif searchIn.[i] = searchFor.[f] then
+                if f = fLast then i - fLast // found, exit!
+                else find (i + 1) (f + 1)
+            else find (i + 1 - f) 0 // set back search to i+1 before first match
+        find fromIdx 0
+
+    /// <summary>Find last index where searchFor ResizeArray occurs in searchIn ResizeArray. Searching from end.
+    /// Give lower and upper bound index for search space.
+    /// Returns index of first element or -1 if not found.</summary>
+    /// <param name="searchFor">The ResizeArray pattern to search for.</param>
+    /// <param name="fromIdx">The starting index for the search.</param>
+    /// <param name="tillIdx">The ending index for the search.</param>
+    /// <param name="searchIn">The ResizeArray to search in.</param>
+    /// <returns>The index of the last occurrence, or -1 if not found.</returns>
+    let findLastArray (searchFor: ResizeArray<'T>) (fromIdx:int) (tillIdx:int) (searchIn: ResizeArray<'T>) : int =
+        if isNull searchIn then nullExn "findLastArray"
+        if isNull searchFor then nullExn "findLastArray"
+        if searchFor.Count = 0 then fail searchIn "findLastArray: the searchFor ResizeArray is empty"
+        if fromIdx < 0                then fail searchIn $"findLastArray (of {searchFor.Count} items): fromIdx Index is too small: {fromIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx >= searchIn.Count  then fail searchIn $"findLastArray (of {searchFor.Count} items): tillIdx Index is too big: {tillIdx} for ResizeArray of {searchIn.Count} items"
+        if tillIdx < fromIdx          then fail searchIn $"findLastArray (of {searchFor.Count} items): tillIdx Index {tillIdx} is smaller than fromIdx Index {fromIdx} for ResizeArray of {searchIn.Count} items"
+        let fLast = searchFor.Count - 1
+        let rec find i f = // index in searchIn, index in searchFor
+            if  i - f < fromIdx then -1 // not found! not enough items left in searchIn
+            elif searchIn.[i] = searchFor.[f] then
+                if f = 0 then i // found, exit!
+                else find (i - 1) (f - 1)
+            else find (i - 1 + fLast - f) fLast // set back search to i-1 before first match
+        find tillIdx fLast
+
+
 
     //--------------------------------------------------------------------------------------------------------------------
     //--------------------------------------------------------------------------------------------------------------------

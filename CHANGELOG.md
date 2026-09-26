@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `ResizeArray.mapIfResult` and `mapIfInputAndResult`, the names used in ArrayT.
 - `ResizeArray.slice` is back: it slices with an inclusive end index and allows negative indices (-1 is the last item), like `Array.slice` in ArrayT.
+- `ResizeArray.matches`, `findValue`, `findLastValue`, `findArray` and `findLastArray` from ArrayT.
 
 ### Changed
 - `ResizeArray.applyIfResult` and `applyIfInputAndResult` are marked obsolete, use `mapIfResult` and `mapIfInputAndResult` instead.

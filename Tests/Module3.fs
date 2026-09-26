@@ -309,6 +309,71 @@ let tests = // : TestCase in Scriptorium.Quill
             throwsNull (fun () -> ResizeArray.sliceLooped 0 1 (null: ResizeArray<int>) |> ignore)
         )
 
+        test ("matches", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            assertThat (ResizeArray.matches (ResizeArray [2; 3]) 1 xs) (tag "matches at index 1" >> isTrue)
+            assertThat (ResizeArray.matches (ResizeArray [2; 4]) 1 xs) (tag "does not match" >> isFalse)
+            assertThat (ResizeArray.matches (ResizeArray [5; 6]) 4 xs) (tag "not enough items" >> isFalse)
+            throwsArg (fun () -> ResizeArray.matches (ResizeArray [1]) -1 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.matches (ResizeArray [1]) 5 xs |> ignore)
+            throwsWith ["ResizeArray.matches: the searchFor ResizeArray is empty"] (fun () -> ResizeArray.matches (ResizeArray<int>()) 0 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.matches null 0 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.matches (ResizeArray [1]) 0 null |> ignore)
+        )
+
+        test ("findValue and findLastValue", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 2; 5]
+            assertThat (ResizeArray.findValue 2 0 4 xs) (tag "findValue" >> isEqualTo 1)
+            assertThat (ResizeArray.findValue 2 2 4 xs) (tag "findValue in range" >> isEqualTo 3)
+            assertThat (ResizeArray.findValue 2 2 2 xs) (tag "findValue not in range" >> isEqualTo -1)
+            assertThat (ResizeArray.findValue 6 0 4 xs) (tag "findValue not found" >> isEqualTo -1)
+            assertThat (ResizeArray.findLastValue 2 0 4 xs) (tag "findLastValue" >> isEqualTo 3)
+            assertThat (ResizeArray.findLastValue 2 0 2 xs) (tag "findLastValue in range" >> isEqualTo 1)
+            assertThat (ResizeArray.findLastValue 6 0 4 xs) (tag "findLastValue not found" >> isEqualTo -1)
+            throwsArg (fun () -> ResizeArray.findValue 1 -1 2 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findValue 1 0 5 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findValue 1 2 1 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findLastValue 1 -1 2 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findLastValue 1 0 5 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.findValue 1 0 0 (null: ResizeArray<int>) |> ignore)
+            throwsNull (fun () -> ResizeArray.findLastValue 1 0 0 (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("findArray and findLastArray", fun _ ->
+            let i = ResizeArray("abcde")
+            let l = i.LastIndex
+            let ab = ResizeArray("ab")
+            let de = ResizeArray("de")
+            assertThat (ResizeArray.findArray ab 0 l i) (tag "findArray ab" >> isEqualTo 0)
+            assertThat (ResizeArray.findArray ab 1 l i) (tag "findArray ab from 1" >> isEqualTo -1)
+            assertThat (ResizeArray.findLastArray ab 0 l i) (tag "findLastArray ab" >> isEqualTo 0)
+            assertThat (ResizeArray.findLastArray ab 1 l i) (tag "findLastArray ab from 1" >> isEqualTo -1)
+            assertThat (ResizeArray.findArray de 0 (l-1) i) (tag "findArray de till l-1" >> isEqualTo -1)
+            assertThat (ResizeArray.findArray de 0 l i) (tag "findArray de" >> isEqualTo 3)
+            assertThat (ResizeArray.findLastArray de 0 (l-1) i) (tag "findLastArray de till l-1" >> isEqualTo -1)
+            assertThat (ResizeArray.findLastArray de 0 l i) (tag "findLastArray de" >> isEqualTo 3)
+            let rep = ResizeArray [1; 2; 1; 2; 1; 2]
+            assertThat (ResizeArray.findArray (ResizeArray [1; 2]) 0 5 rep) (tag "findArray first of repeated" >> isEqualTo 0)
+            assertThat (ResizeArray.findLastArray (ResizeArray [1; 2]) 0 5 rep) (tag "findLastArray last of repeated" >> isEqualTo 4)
+        )
+
+        test ("findArray and findLastArray throw on invalid input", fun _ ->
+            let xs = ResizeArray [1; 2; 3]
+            let one = ResizeArray [1]
+            throwsArg (fun () -> ResizeArray.findArray one -1 2 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findArray one 0 3 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findArray one 2 1 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findLastArray one -1 2 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findLastArray one 0 3 xs |> ignore)
+            throwsArg (fun () -> ResizeArray.findLastArray one 2 1 xs |> ignore)
+            throwsWith ["findArray"; "searchFor ResizeArray is empty"] (fun () -> ResizeArray.findArray (ResizeArray<int>()) 0 2 xs |> ignore)
+            throwsWith ["findLastArray"; "searchFor ResizeArray is empty"] (fun () -> ResizeArray.findLastArray (ResizeArray<int>()) 0 2 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.findArray null 0 2 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.findLastArray null 0 2 xs |> ignore)
+            throwsNull (fun () -> ResizeArray.findArray one 0 0 null |> ignore)
+            throwsNull (fun () -> ResizeArray.findLastArray one 0 0 null |> ignore)
+        )
+
         test ("mapIfResult", fun _ ->
             let xs = ResizeArray [1; 2; 3]
             let plus1 = ResizeArray.map ((+) 1)
