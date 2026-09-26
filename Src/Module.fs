@@ -67,12 +67,14 @@ module ResizeArray =
 
     /// Returns the input ResizeArray for chaining, or raises an exception if it is empty.
     let inline failIfEmpty (errorMessage: string) (arr: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull arr then nullExn "failIfEmpty"
         if arr.Count = 0 then
             failSimple ("FailIfEmpty: " + errorMessage)
         arr
 
     /// Returns the input ResizeArray for chaining, or raises an exception if it has fewer than count elements.
     let failIfLessThan (count) (errorMessage: string) (arr: ResizeArray<'T>) : ResizeArray<'T> =
+        if isNull arr then nullExn "failIfLessThan"
         if arr.Count < count then
             failSimple $"FailIfLessThan {count}: {errorMessage}"
         arr

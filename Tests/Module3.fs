@@ -262,4 +262,18 @@ let tests = // : TestCase in Scriptorium.Quill
             ResizeArray.randomShuffleInPlaceWith (Random(13)) arr3
             assertThat ((arr3 |> Seq.sort |> List.ofSeq) = original) (tag "randomShuffleInPlaceWith should keep the same elements" >> isTrue)
         )
+
+        test ("failIfEmpty and failIfLessThan", fun _ ->
+            let xs = ResizeArray [1; 2]
+            assertThat (obj.ReferenceEquals(xs, ResizeArray.failIfEmpty "ok" xs)) (tag "failIfEmpty returns the input" >> isTrue)
+            assertThat (obj.ReferenceEquals(xs, ResizeArray.failIfLessThan 2 "ok" xs)) (tag "failIfLessThan returns the input" >> isTrue)
+            throwsArg (fun () -> ResizeArray.failIfEmpty "is empty" (ResizeArray<int>()) |> ignore)
+            throwsArg (fun () -> ResizeArray.failIfLessThan 3 "too few" xs |> ignore)
+        )
+
+        test ("failIfEmpty and failIfLessThan throw on null", fun _ ->
+            let nullArr : ResizeArray<int> = null
+            throwsNull (fun () -> ResizeArray.failIfEmpty "is null" nullArr |> ignore)
+            throwsNull (fun () -> ResizeArray.failIfLessThan 3 "is null" nullArr |> ignore)
+        )
     ])
