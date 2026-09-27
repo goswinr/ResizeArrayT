@@ -7,9 +7,10 @@ open ResizeArrayT
 open Tests.Exceptions
 open System
 
-#nowarn "44" // to test the obsolete applyIf aliases
+#nowarn "44" // to test the obsolete applyIf and slice aliases
 let private obsoleteApplyIfResult pr f (xs: ResizeArray<int>) = ResizeArray.applyIfResult pr f xs
 let private obsoleteApplyIfInputAndResult pi pr f (xs: ResizeArray<int>) = ResizeArray.applyIfInputAndResult pi pr f xs
+let private obsoleteSlice startIdx endIdx (xs: ResizeArray<int>) = ResizeArray.slice startIdx endIdx xs
 #warnon "44"
 
 /// Compares by Value only, but Equals also checks the Name.
@@ -315,37 +316,64 @@ let tests = // : TestCase in Scriptorium.Quill
             throwsArg (fun () -> ResizeArray.failIfLessThan 3 "too few" xs |> ignore)
         )
 
-        test ("slice with positive and negative indices", fun _ ->
+        test ("sliceNeg with positive and negative indices", fun _ ->
             let xs = ResizeArray [1; 2; 3; 4; 5]
-            assertThat (List.ofSeq (ResizeArray.slice 1 3 xs)) (tag "slice 1 3" >> isEqualTo [2; 3; 4])
-            assertThat (List.ofSeq (ResizeArray.slice -2 -1 xs)) (tag "slice -2 -1" >> isEqualTo [4; 5])
-            assertThat (List.ofSeq (ResizeArray.slice 1 -2 xs)) (tag "slice 1 -2" >> isEqualTo [2; 3; 4])
-            assertThat (List.ofSeq (ResizeArray.slice 2 2 xs)) (tag "slice 2 2" >> isEqualTo [3])
-            assertThat (List.ofSeq (ResizeArray.slice 0 -1 xs)) (tag "slice 0 -1" >> isEqualTo [1; 2; 3; 4; 5])
-            assertThat (obj.ReferenceEquals(xs, ResizeArray.slice 0 -1 xs)) (tag "slice returns a new ResizeArray" >> isFalse)
+            assertThat (List.ofSeq (ResizeArray.sliceNeg 1 3 xs)) (tag "sliceNeg 1 3" >> isEqualTo [2; 3; 4])
+            assertThat (List.ofSeq (ResizeArray.sliceNeg -2 -1 xs)) (tag "sliceNeg -2 -1" >> isEqualTo [4; 5])
+            assertThat (List.ofSeq (ResizeArray.sliceNeg 1 -2 xs)) (tag "sliceNeg 1 -2" >> isEqualTo [2; 3; 4])
+            assertThat (List.ofSeq (ResizeArray.sliceNeg 2 2 xs)) (tag "sliceNeg 2 2" >> isEqualTo [3])
+            assertThat (List.ofSeq (ResizeArray.sliceNeg 0 -1 xs)) (tag "sliceNeg 0 -1" >> isEqualTo [1; 2; 3; 4; 5])
+            assertThat (obj.ReferenceEquals(xs, ResizeArray.sliceNeg 0 -1 xs)) (tag "sliceNeg returns a new ResizeArray" >> isFalse)
+            assertThat (List.ofSeq (xs.SliceNeg(1, -2))) (tag "xs.SliceNeg(1, -2)" >> isEqualTo [2; 3; 4])
         )
 
-        test ("slice returns empty when end index is one less than start index", fun _ ->
+        test ("sliceNeg returns empty when end index is one less than start index", fun _ ->
             let xs = ResizeArray [1; 2; 3; 4; 5]
-            assertThat (ResizeArray.slice 3 2 xs).Count (tag "slice 3 2" >> isEqualTo 0)
-            assertThat (ResizeArray.slice 0 -6 xs).Count (tag "slice 0 -6, like trim 0 5" >> isEqualTo 0)
+            assertThat (ResizeArray.sliceNeg 3 2 xs).Count (tag "sliceNeg 3 2" >> isEqualTo 0)
+            assertThat (ResizeArray.sliceNeg 0 -6 xs).Count (tag "sliceNeg 0 -6, like trim 0 5" >> isEqualTo 0)
         )
 
-        test ("slice throws on invalid ranges with descriptive messages", fun _ ->
+        test ("sliceNeg throws on invalid ranges with descriptive messages", fun _ ->
             let xs = ResizeArray [1; 2; 3; 4; 5]
-            throwsIdx (fun () -> ResizeArray.slice 3 1 xs |> ignore)
-            throwsWith ["ResizeArray.slice: Start index 3 is bigger than end index 1"] (fun () -> ResizeArray.slice 3 1 xs |> ignore)
-            throwsWith ["End index -99 is out of range"] (fun () -> ResizeArray.slice 1 -99 xs |> ignore)
-            throwsWith ["End index -6 is out of range"] (fun () -> ResizeArray.slice 1 -6 xs |> ignore)
-            throwsWith ["End index 5 is out of range"] (fun () -> ResizeArray.slice 1 5 xs |> ignore)
-            throwsWith ["Start index -6 is out of range"] (fun () -> ResizeArray.slice -6 2 xs |> ignore)
-            throwsIdx (fun () -> ResizeArray.slice 0 0 (ResizeArray<int>()) |> ignore)
-            throwsNull (fun () -> ResizeArray.slice 0 1 (null: ResizeArray<int>) |> ignore)
+            throwsIdx (fun () -> ResizeArray.sliceNeg 3 1 xs |> ignore)
+            throwsWith ["ResizeArray.SliceNeg: Start index 3 is bigger than end index 1"] (fun () -> ResizeArray.sliceNeg 3 1 xs |> ignore)
+            throwsWith ["End index -99 is out of range"] (fun () -> ResizeArray.sliceNeg 1 -99 xs |> ignore)
+            throwsWith ["End index -6 is out of range"] (fun () -> ResizeArray.sliceNeg 1 -6 xs |> ignore)
+            throwsWith ["End index 5 is out of range"] (fun () -> ResizeArray.sliceNeg 1 5 xs |> ignore)
+            throwsWith ["Start index -6 is out of range"] (fun () -> ResizeArray.sliceNeg -6 2 xs |> ignore)
+            throwsIdx (fun () -> ResizeArray.sliceNeg 0 0 (ResizeArray<int>()) |> ignore)
+            throwsNull (fun () -> ResizeArray.sliceNeg 0 1 (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("obsolete slice still works like sliceNeg", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            assertThat (List.ofSeq (obsoleteSlice 1 -2 xs)) (tag "slice 1 -2" >> isEqualTo [2; 3; 4])
+            throwsNull (fun () -> obsoleteSlice 0 1 (null: ResizeArray<int>) |> ignore)
         )
 
         test ("sliceIdx and sliceLooped throw on null", fun _ ->
             throwsNull (fun () -> ResizeArray.sliceIdx 0 1 (null: ResizeArray<int>) |> ignore)
             throwsNull (fun () -> ResizeArray.sliceLooped 0 1 (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("sliceNeg and sliceIdx name an empty input in the message", fun _ ->
+            let empty = ResizeArray<int>()
+            throwsWith ["ResizeArray.SliceNeg: Can't slice an empty ResizeArray"] (fun () -> ResizeArray.sliceNeg 0 0 empty |> ignore)
+            throwsWith ["ResizeArray.SliceNeg: Can't slice an empty ResizeArray"] (fun () -> empty.SliceNeg(0, -1) |> ignore)
+            throwsWith ["ResizeArray.SliceIdx: Can't slice an empty ResizeArray"] (fun () -> ResizeArray.sliceIdx 0 0 empty |> ignore)
+            throwsWith ["ResizeArray.SliceIdx: Can't slice an empty ResizeArray"] (fun () -> empty.SliceIdx(0, 0) |> ignore)
+            assertThat (ResizeArray.sliceLooped 0 5 empty).Count (tag "sliceLooped on empty input" >> isEqualTo 0)
+        )
+
+        test ("sliceIdx and sliceLooped give the same results as the extension members", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            assertThat (List.ofSeq (ResizeArray.sliceIdx 1 3 xs)) (tag "sliceIdx 1 3" >> isEqualTo (List.ofSeq (xs.SliceIdx(1, 3))))
+            assertThat (List.ofSeq (ResizeArray.sliceLooped 6 -1 xs)) (tag "sliceLooped 6 -1" >> isEqualTo (List.ofSeq (xs.SliceLooped(6, -1))))
+            assertThat (List.ofSeq (ResizeArray.sliceLooped 6 -1 xs)) (tag "sliceLooped 6 -1 values" >> isEqualTo [2; 3; 4; 5])
+            assertThat (List.ofSeq (ResizeArray.sliceLooped 5 6 xs)) (tag "sliceLooped 5 6" >> isEqualTo [1; 2])
+            throwsWith ["ResizeArray.SliceIdx: Start index -1 is out of range"] (fun () -> ResizeArray.sliceIdx -1 2 xs |> ignore)
+            throwsWith ["ResizeArray.SliceIdx: End index 5 is out of range"] (fun () -> ResizeArray.sliceIdx 0 5 xs |> ignore)
+            throwsWith ["ResizeArray.SliceIdx: Start index 3 is bigger than end index 2"] (fun () -> ResizeArray.sliceIdx 3 2 xs |> ignore)
         )
 
         test ("matches", fun _ ->

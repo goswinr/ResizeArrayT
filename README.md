@@ -150,14 +150,23 @@ nums.[^0]          // 50  (last item)
 nums.[3..9]        // ResizeArray [40; 50]  (clamped)
 ```
 
-To get an exception for out-of-range indices instead, use `slice`, `sliceIdx` or `sliceLooped`. They all include the end index:
+To get an exception for out-of-range indices instead, use `SliceNeg` or `SliceIdx`. `SliceLooped` wraps any index around with modulo. They all include the end index:
 
 ```fsharp
-nums |> ResizeArray.slice 1 -2   // ResizeArray [20; 30; 40]  (negative indices allowed, -1 is the last item)
-nums.SliceIdx(1, 3)              // ResizeArray [20; 30; 40]  (throws on negative indices)
-nums.SliceLooped(-2, -1)         // ResizeArray [40; 50]      (any index wraps around with modulo)
-nums.SliceLooped(5, 6)           // ResizeArray [10; 20]
+nums.SliceNeg(1, -2)       // ResizeArray [20; 30; 40]  (negative indices allowed, -1 is the last item)
+nums.SliceIdx(1, 3)        // ResizeArray [20; 30; 40]  (throws on negative indices)
+nums.SliceLooped(-2, -1)   // ResizeArray [40; 50]      (any index wraps around with modulo)
+nums.SliceLooped(5, 6)     // ResizeArray [10; 20]      (5 wraps to 0, 6 to 1)
+
+// Module functions
+nums |> ResizeArray.sliceNeg 1 -2
+nums |> ResizeArray.sliceIdx 1 3
+nums |> ResizeArray.sliceLooped -2 -1
 ```
+
+These work the same in [ArrayT](https://github.com/goswinr/ArrayT/) and [Str](https://github.com/goswinr/Str/).<br>
+Don't confuse them with the built-in `nums.Slice(start, count)` method of .NET, which takes a count instead of an end index.
+For a start index and a count, you can also use `ResizeArray.sub`.
 
 ### Pop, Clone, and InsertAtStart
 

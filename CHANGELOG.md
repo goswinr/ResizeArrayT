@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `ResizeArray.mapIfResult` and `mapIfInputAndResult`, the names used in ArrayT.
-- `ResizeArray.slice` is back: it slices with an inclusive end index and allows negative indices (-1 is the last item), like `Array.slice` in ArrayT.
+- `xs.SliceNeg` and `ResizeArray.sliceNeg` slice with an inclusive end index and allow negative indices (-1 is the last item), like in ArrayT and Str.
+- `ResizeArray.slice` does the same, but is marked obsolete, because in .NET the `.Slice` method of some collections takes a start index and a length instead.
 - `ResizeArray.matches`, `findValue`, `findLastValue`, `findArray` and `findLastArray` from ArrayT.
 - `xs.Copy()` for a shallow copy, same as `xs.Clone()`, and named like `arr.Copy()` in ArrayT.
 
@@ -17,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResizeArray.applyIfResult` and `applyIfInputAndResult` are marked obsolete, use `mapIfResult` and `mapIfInputAndResult` instead.
 - `xs.Duplicate()` is marked obsolete, use `xs.Copy()` or `xs.Clone()` instead.
 - The exception message of `xs.FirstAndOnly` and `ResizeArray.firstAndOnly` says that exactly one item is expected, like in ArrayT, instead of reporting a bad index.
+- `ResizeArray.sliceIdx` and `sliceLooped` call `xs.SliceIdx` and `xs.SliceLooped`, like in ArrayT, so their exception messages name `SliceIdx`.
+- `ResizeArray.sliceIdx` and `xs.SliceIdx` fail with a "Can't slice an empty ResizeArray" message on empty input, like ArrayT and Str.
+- The docs of the slicing functions match those in ArrayT and Str.
 
 ### Fixed
 - `xs.ToString(Int32.MaxValue)` printed "..." and the last item twice because of an integer overflow.

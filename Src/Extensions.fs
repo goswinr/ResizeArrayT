@@ -258,6 +258,7 @@ module AutoOpenResizeArrayExtensions =
 
         /// <summary>Get the index for the element offset elements away from the end of the collection.
         /// This member exists to support F# indexing from back: ^0 is last item, ^1 is second last.
+        /// (Indexing from the end with the '^' prefix needs LangVersion preview.)
         /// Just like for F# arrays, the offset is not validated here, so that slicing with an offset beyond the start,
         /// e.g. xs.[..^5] on three items, returns an empty ResizeArray instead of failing.
         /// Indexing with such an offset, e.g. xs.[^5], still fails in the ResizeArray indexer.</summary>
@@ -271,10 +272,8 @@ module AutoOpenResizeArrayExtensions =
         /// The resulting ResizeArray includes the end index.
         /// Just like for F# arrays, out-of-bounds indices are ignored when getting a slice, but not when setting one.
         /// The start index is inclusive and the end index is also inclusive.
+        /// (With LangVersion preview, F# also supports slicing from the end with the '^' prefix, e.g. xs.[1..^1] skips the first and last item.)
         /// </summary>
-        /// <remarks>
-        /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
-        /// </remarks>
         member xs.GetSlice(startIdx: option<int>, endIdx: option<int>) : ResizeArray<'T> =
             //.GetSlice maps onto slicing operator .[1..3]
             let stIdx =
@@ -300,10 +299,8 @@ module AutoOpenResizeArrayExtensions =
         /// The end index is included.
         /// Just like for F# arrays, out-of-bounds indices raise an exception when setting a slice, but not when getting one.
         /// If the list of new values is longer than the slice, the extra values are ignored (just like for F# arrays).
+        /// (With LangVersion preview, F# also supports slicing from the end with the '^' prefix, e.g. xs.[1..^1] &lt;- ys.)
         /// </summary>
-        /// <remarks>
-        /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
-        /// </remarks>
         /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either bound is outside the ResizeArray, the start index is greater than the end index, or newValues contains too few elements.</exception>
         member xs.SetSlice(startIdx: option<int>, endIdx: option<int>, newValues: IList<'T>) : unit =
             //.SetSlice maps onto slicing operator .[1..3] <- xs
@@ -336,22 +333,51 @@ module AutoOpenResizeArrayExtensions =
             for i = stIdx to enIdx do
                 xs.[i] <- newValues.[i - stIdx]
 
+        /// <summary>Slice the ResizeArray given start and end index.
+        /// Allows for negative indices too. ( -1 is last item, like Python)
+        /// The resulting ResizeArray includes the end index.
+        /// If the end index is one less than the start index an empty ResizeArray is returned.
+        /// If you don't want an exception to be raised for index overflow or overlap use ResizeArray.trim.
+        /// To reject negative indices use SliceIdx, to normalize any index with modulo use SliceLooped.
+        /// Do not confuse this member with the xs.Slice(start, length) method that is built into .NET.
+        /// (With LangVersion preview, F# also supports slicing from the end with the '^' prefix, e.g. xs.[1..^1] skips the first and last item.)</summary>
+        /// <param name="startIdx">The start index (inclusive, can be negative).</param>
+        /// <param name="endIdx">The end index (inclusive, can be negative).</param>
+        /// <returns>A new ResizeArray containing the sliced elements.</returns>
+        /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either index is out of range or the start index is after the end index.</exception>
+        member xs.SliceNeg(startIdx:int , endIdx:int ) : ResizeArray<'T> =
+            let count = xs.Count
+            if count = 0 then
+                failIdx xs $"SliceNeg: Can't slice an empty ResizeArray. startIdx: {startIdx} endIdx: {endIdx}"
+            let st  = if startIdx < 0 then count + startIdx else startIdx
+            let en  = if endIdx   < 0 then count + endIdx   else endIdx
+            let len = en - st + 1 // zero if end is one less than start, like ResizeArray.trim when all items are trimmed
+
+            if st < 0 || st > count - 1 then
+                failIdx xs $"SliceNeg: Start index {startIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
+
+            if en > count - 1 || (len < 0 && en < 0) then
+                failIdx xs $"SliceNeg: End index {endIdx} is out of range. Allowed values are -{count} up to {count-1} for ResizeArray of {count} items"
+
+            if len < 0 then
+                failIdx xs $"SliceNeg: Start index {startIdx} is bigger than end index {endIdx} for ResizeArray of {count} items"
+
+            xs.GetRange(st, len)
+
         /// <summary>
         /// Returns a new ResizeArray containing the elements between the specified inclusive start and end indices.
-        /// This member rejects out-of-bounds indices, while the F# slicing notation xs.[1..3] does not.
-        /// To normalize negative or out-of-range indices, use SliceLooped.
-        /// Do not confuse this method with the new xs.Slice(start , length) method, that is built into .NET
+        /// This member rejects negative and out-of-bounds indices, while the F# slicing notation xs.[1..3] does not.
+        /// To allow negative indices use SliceNeg, to normalize any index with modulo use SliceLooped.
+        /// Do not confuse this member with the xs.Slice(start, length) method that is built into .NET.
         /// </summary>
         /// <param name="startIdx">The inclusive start index of the slice.</param>
         /// <param name="endIdx">The inclusive end index of the slice.</param>
         /// <returns>A new ResizeArray containing the requested range.</returns>
         /// <exception cref="T:System.IndexOutOfRangeException">Thrown when either index is outside the ResizeArray or startIdx is greater than endIdx.</exception>
-        /// <remarks>
-        /// Alternative: with F# slicing notation (e.g. a.[1..3])
-        /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
-        /// </remarks>
         member xs.SliceIdx(startIdx:int , endIdx: int ) : ResizeArray<'T> =
             let count = xs.Count
+            if count = 0 then
+                failIdx xs $"SliceIdx: Can't slice an empty ResizeArray. startIdx: {startIdx} endIdx: {endIdx}"
             if startIdx < 0 || startIdx >= count then
                 failIdx xs $"SliceIdx: Start index {startIdx} is out of range. Allowed values are 0 through {count - 1} for a ResizeArray of {count} items."
             if endIdx < 0 || endIdx >= count then
@@ -369,15 +395,11 @@ module AutoOpenResizeArrayExtensions =
         /// <param name="startIdx">The inclusive start index to normalize.</param>
         /// <param name="endIdx">The inclusive end index to normalize.</param>
         /// <returns>A new ResizeArray containing the requested range.</returns>
-        /// <remarks>
-        /// Alternative: with F# slicing notation (e.g. a.[1..3])
-        /// With F# preview features enabled a negative index can also be done with '^' prefix. E.g. ^0 for the last item.
-        /// </remarks>
         member xs.SliceLooped(startIdx:int , endIdx:int ) : ResizeArray<'T> =
-            if xs.Count = 0 then
+            let count = xs.Count
+            if count = 0 then
                 ResizeArray<'T>()
             else
-                let count = xs.Count
                 let st = negIdxLooped startIdx count
                 let en = negIdxLooped endIdx count
                 let len = en - st + 1
