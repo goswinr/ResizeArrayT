@@ -32,7 +32,7 @@ In fact FSharp.Core uses [a very similar module internally](https://github.com/d
 ## It Includes:
 
 - A `ResizeArray` module that has  **all**  functions from [`Array` module from `FSharp.Core`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule.html) reimplemented.<br>
- Including a `Parallel` sub module with `choose`, `collect`, `init`, `iter`, `iteri`, `map`, `mapi` and `partition`.
+ Including a `Parallel` sub module with **all** functions from [`Array.Parallel`](https://fsharp.github.io/fsharp-core-docs/reference/fsharp-collections-arraymodule-parallel.html), like `map`, `choose`, `reduce`, `sum`, `groupBy` and `sort`.
 
 - A Computational Expressions `resizeArray` that can be used like existing ones for `seq`.
 

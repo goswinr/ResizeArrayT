@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResizeArray.slice` does the same, but is marked obsolete, because in .NET the `.Slice` method of some collections takes a start index and a length instead.
 - `ResizeArray.matches`, `findValue`, `findLastValue`, `findArray` and `findLastArray` from ArrayT.
 - `xs.Copy()` for a shallow copy, same as `xs.Clone()`, and named like `arr.Copy()` in ArrayT.
+- `ResizeArray.Parallel` has all functions of `Array.Parallel` from FSharp.Core now. New are `average`, `averageBy`, `exists`, `filter`, `forall`, `groupBy`, `max`, `maxBy`, `min`, `minBy`, `partitionWith`, `reduce`, `reduceBy`, `sort`, `sortBy`, `sortByDescending`, `sortDescending`, `sortInPlace`, `sortInPlaceBy`, `sortInPlaceWith`, `sortWith`, `sum`, `sumBy`, `tryFind`, `tryFindIndex`, `tryPick` and `zip`.
 
 ### Changed
 - `ResizeArray.applyIfResult` and `applyIfInputAndResult` are marked obsolete, use `mapIfResult` and `mapIfInputAndResult` instead.
