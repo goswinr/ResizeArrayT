@@ -3011,7 +3011,46 @@ module ResizeArray =
     let sort<'T when 'T: comparison> (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "sort"
         let r = resizeArray.GetRange(0, resizeArray.Count) // fastest way to create a shallow copy
+        #if FABLE_COMPILER
+        // Fable's comparer object adds overhead around the same generic comparison.
         r.Sort(Operators.compare)
+        #else
+        // Preserves F# ordering while avoiding boxed primitive comparisons on .NET.
+        r.Sort(LanguagePrimitives.FastGenericComparer<'T>)
+        #endif
+        r
+
+
+    /// <summary>Sorts integers in ascending order, returning a new ResizeArray without changing the input.
+    /// In Fable, this offers a performance benefit over the generic sort function by using a comparison specialized for int.
+    /// This is NOT a stable sort, i.e. the original order of equal elements is not necessarily preserved.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A new sorted ResizeArray.</returns>
+    let sortInt (resizeArray: ResizeArray<int>) : ResizeArray<int> =
+        if isNull resizeArray then nullExn "sortInt"
+        let r = resizeArray.GetRange(0, resizeArray.Count)
+        #if FABLE_COMPILER
+        r.Sort(fun (a: int) b -> Operators.compare a b)
+        #else
+        r.Sort()
+        #endif
+        r
+
+
+    /// <summary>Sorts double-precision floats in ascending order, returning a new ResizeArray without changing the input.
+    /// In Fable, this offers a performance benefit over the generic sort function by using a comparison specialized for float.
+    /// NaN sorts before all other values. NaNs compare equal to each other, and -0.0 and +0.0 compare equal.
+    /// This is NOT a stable sort, i.e. the original order of equal elements is not necessarily preserved.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    /// <returns>A new sorted ResizeArray.</returns>
+    let sortFloat (resizeArray: ResizeArray<float>) : ResizeArray<float> =
+        if isNull resizeArray then nullExn "sortFloat"
+        let r = resizeArray.GetRange(0, resizeArray.Count)
+        #if FABLE_COMPILER
+        r.Sort(fun (a: float) b -> Operators.compare a b)
+        #else
+        r.Sort()
+        #endif
         r
 
 
@@ -3067,7 +3106,40 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     let sortInPlace<'T when 'T: comparison> (resizeArray: ResizeArray<'T>) : unit =
         if isNull resizeArray then nullExn "sortInPlace"
-        resizeArray.Sort(Operators.compare) // Operators.compare is need to match sorting of Array.sort
+        #if FABLE_COMPILER
+        // Fable's comparer object adds overhead around the same generic comparison.
+        resizeArray.Sort(Operators.compare)
+        #else
+        // Preserves F# ordering while avoiding boxed primitive comparisons on .NET.
+        resizeArray.Sort(LanguagePrimitives.FastGenericComparer<'T>)
+        #endif
+
+
+    /// <summary>Sorts integers in ascending order by mutating the ResizeArray in place.
+    /// In Fable, this offers a performance benefit over the generic sortInPlace function by using a comparison specialized for int.
+    /// This is NOT a stable sort, i.e. the original order of equal elements is not necessarily preserved.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    let sortInPlaceInt (resizeArray: ResizeArray<int>) : unit =
+        if isNull resizeArray then nullExn "sortInPlaceInt"
+        #if FABLE_COMPILER
+        resizeArray.Sort(fun (a: int) b -> Operators.compare a b)
+        #else
+        resizeArray.Sort()
+        #endif
+
+
+    /// <summary>Sorts double-precision floats in ascending order by mutating the ResizeArray in place.
+    /// In Fable, this offers a performance benefit over the generic sortInPlace function by using a comparison specialized for float.
+    /// NaN sorts before all other values. NaNs compare equal to each other, and -0.0 and +0.0 compare equal.
+    /// This is NOT a stable sort, i.e. the original order of equal elements is not necessarily preserved.</summary>
+    /// <param name="resizeArray">The input ResizeArray.</param>
+    let sortInPlaceFloat (resizeArray: ResizeArray<float>) : unit =
+        if isNull resizeArray then nullExn "sortInPlaceFloat"
+        #if FABLE_COMPILER
+        resizeArray.Sort(fun (a: float) b -> Operators.compare a b)
+        #else
+        resizeArray.Sort()
+        #endif
 
 
     /// <summary>Sorts the elements of a ResizeArray by mutating the ResizeArray in-place, using the given projection for the keys.

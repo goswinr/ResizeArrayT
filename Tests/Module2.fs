@@ -639,6 +639,102 @@ module Module2 =
     )
 
 
+    test ("ResizeArray.sort and sortInPlace preserve generic ordering and mutation behavior", fun _ ->
+        let check (values: 'T list) =
+            let input = ResizeArray values
+            let result = ResizeArray.sort input
+            let expected = List.sortWith Operators.compare values
+            if result.Count <> values.Length then Assert.Fail()
+            // Comparison, rather than equality, also works for NaN values.
+            for i = 0 to result.Count - 1 do
+                if compare result.[i] expected.[i] <> 0 then Assert.Fail()
+                if compare input.[i] values.[i] <> 0 then Assert.Fail()
+            if obj.ReferenceEquals(input, result) then Assert.Fail()
+            ResizeArray.sortInPlace input
+            if input.Count <> expected.Length then Assert.Fail()
+            for i = 0 to input.Count - 1 do
+                if compare input.[i] expected.[i] <> 0 then Assert.Fail()
+
+        check ([]: int list)
+        check [42]
+        check [Int32.MaxValue; 0; -1; Int32.MinValue; 42; 42]
+        check ["a"; "Z"; null; "ä"; "A"; ""; "z"]
+        check [nan; infinity; -infinity; 0.0; -0.0; -1.0; nan; 1.0]
+        check [Some 3; None; Some -1; Some 3]
+        check [(2, "a"); (1, "z"); (1, "A"); (1, null)]
+        check [[|2; 1|]; [||]; [|1; 2|]; [|1|]]
+        throwsNull (fun () -> ResizeArray.sort (null: ResizeArray<int>) |> ignore)
+        throwsNull (fun () -> ResizeArray.sortInPlace (null: ResizeArray<int>))
+    )
+
+    test ("ResizeArray.sort uses ordinal string ordering", fun _ ->
+        let result = ResizeArray.sort (ResizeArray ["a"; "Z"; null; "ä"; "A"; ""; "z"])
+        if List.ofSeq result <> [null; ""; "A"; "Z"; "a"; "z"; "ä"] then Assert.Fail()
+    )
+
+    test ("ResizeArray.sortInt and sortInPlaceInt preserve numeric ordering", fun _ ->
+        let check (values: int list) =
+            let input = ResizeArray values
+            let result = ResizeArray.sortInt input
+            let expected = List.sort values
+            if List.ofSeq result <> expected then Assert.Fail()
+            if List.ofSeq input <> values then Assert.Fail()
+            if obj.ReferenceEquals(input, result) then Assert.Fail()
+            ResizeArray.sortInPlaceInt input
+            if List.ofSeq input <> expected then Assert.Fail()
+
+        check []
+        check [42]
+        check [8; 8; 8]
+        check [0 .. 100]
+        check [100 .. -1 .. 0]
+        check [for i in 0 .. 1023 -> (i * 25173 + 13849) % 65536 - 32768]
+        let edges = [Int32.MinValue; Int32.MaxValue; -1; 0; 1]
+        check edges
+        for a in edges do
+            for b in edges do check [a; b]
+    )
+
+    test ("ResizeArray.sortFloat and sortInPlaceFloat preserve NaN and signed zeros", fun _ ->
+        let check (values: float list) =
+            let input = ResizeArray values
+            let result = ResizeArray.sortFloat input
+            let expected = List.sortWith compare values
+            let isNegativeZero x = x = 0.0 && 1.0 / x = -infinity
+            let checkValues original (actual: ResizeArray<float>) =
+                if actual.Count <> List.length original then Assert.Fail()
+                for i = 0 to actual.Count - 1 do
+                    if compare actual.[i] original.[i] <> 0 then Assert.Fail()
+                // Equality/comparison cannot distinguish the two zeros; check their counts too.
+                let negativeZeros xs = Seq.filter isNegativeZero xs |> Seq.length
+                if negativeZeros actual <> negativeZeros original then Assert.Fail()
+            checkValues expected result
+            checkValues values input
+            if obj.ReferenceEquals(input, result) then Assert.Fail()
+            ResizeArray.sortInPlaceFloat input
+            checkValues expected input
+
+        check []
+        check [42.0]
+        check [nan]
+        check [nan; nan; nan]
+        check [-0.0; 0.0; -0.0; 0.0]
+        check [for i in 0 .. 1023 -> if i % 10 = 0 then nan else float ((i * 25173 + 13849) % 65536 - 32768) / 7.0]
+        let edges = [nan; -infinity; -Double.MaxValue; -1.0; -Double.Epsilon; -0.0;
+                     0.0; Double.Epsilon; 1.0; Double.MaxValue; infinity; nan]
+        check edges
+        check (List.rev edges)
+        for a in edges do
+            for b in edges do check [a; b]
+    )
+
+    test ("ResizeArray typed sorting functions reject null", fun _ ->
+        throwsNull (fun () -> ResizeArray.sortInt null |> ignore)
+        throwsNull (fun () -> ResizeArray.sortFloat null |> ignore)
+        throwsNull (fun () -> ResizeArray.sortInPlaceInt null)
+        throwsNull (fun () -> ResizeArray.sortInPlaceFloat null)
+    )
+
     test ("ResizeArray.sortInPlaceWith", fun _ ->
         // integer array
         let intArr = [|3;5;7;2;4;8 |].asRarr

@@ -249,10 +249,11 @@ let tests =
 
                 // The sort is not stable, so for equal keys check only the keys and that no element got lost.
                 let indexed = ResizeArray.indexed xs
-                let original = indexed |> List.ofSeq |> List.sort
                 let checkByKey (fname: string) (expectedKeys: int list) (sorted: ResizeArray<int * int>) =
                     assertThat (sorted |> Seq.map snd |> List.ofSeq) (tag $"{fname} keys {name}" >> isEqualTo expectedKeys)
-                    assertThat (sorted |> List.ofSeq |> List.sort) (tag $"{fname} elements {name}" >> isEqualTo original)
+                    // the indices are unique, so no element got lost if each index is still there once with its own key
+                    let keepsElements = sorted.Count = xs.Count && sorted |> Seq.forall (fun (i, key) -> xs.[i] = key) && (sorted |> Seq.map fst |> Seq.distinct |> Seq.length) = xs.Count
+                    assertThat keepsElements (tag $"{fname} elements {name}" >> isTrue)
                 checkByKey "sortBy" expected (ResizeArray.Parallel.sortBy snd indexed)
                 checkByKey "sortByDescending" expectedDesc (ResizeArray.Parallel.sortByDescending snd indexed)
                 let inPlaceBy = ResizeArray(indexed)

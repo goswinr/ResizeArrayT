@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="6.0.7" />
+    <PackageReference Include="Fable.Core" Version="4.5.0" Condition="$(DefineConstants.Contains('FABLE_COMPILER'))" />
+    <ProjectReference Include="../../Src/ResizeArrayT.fsproj" />
+    <Compile Include="TypedSort.fs" />
+    <Compile Include="TypedBenchmark.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+</Project>
