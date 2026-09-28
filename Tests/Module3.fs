@@ -29,7 +29,26 @@ type TieItem =
 // [<Tests>]
 let tests = // : TestCase in Scriptorium.Quill
     testList ("Module3 Tests", [
-        // Add your tests here
+        test ("groupByDict uses structural keys and preserves group order", fun _ ->
+            let xs = ResizeArray [1; 2; 3; 4; 5]
+            let mutable calls = 0
+            let d = ResizeArray.groupByDict (fun x -> calls <- calls + 1; [|x % 2|]) xs
+            assertThat d.Count (tag "structurally equal arrays form one group" >> isEqualTo 2)
+            assertThat (List.ofSeq d.[[|1|]]) (tag "fresh key lookup and input order" >> isEqualTo [1; 3; 5])
+            assertThat (List.ofSeq d.[[|0|]]) (tag "other group" >> isEqualTo [2; 4])
+            assertThat calls (tag "projection runs once per item" >> isEqualTo xs.Count)
+            let nested = ResizeArray.groupByDict (fun x -> Some ([|x % 2|], "key")) xs
+            assertThat (List.ofSeq nested.[Some ([|1|], "key")]) (tag "nested structural key" >> isEqualTo [1; 3; 5])
+            assertThat (ResizeArray.groupByDict id (ResizeArray<int>())).Count (tag "empty input" >> isEqualTo 0)
+            throwsNull (fun () -> ResizeArray.groupByDict id (null: ResizeArray<int>) |> ignore)
+        )
+
+        test ("groupByDict rejects null and None keys", fun _ ->
+            throwsNull (fun () -> ResizeArray.groupByDict (fun _ -> (null: string)) (ResizeArray [1]) |> ignore)
+            throwsNull (fun () -> ResizeArray.groupByDict (fun _ -> (None: int option)) (ResizeArray [1]) |> ignore)
+            throwsWith ["groupByDict"; "null or None"] (fun () -> ResizeArray.groupByDict (fun _ -> (None: int option)) (ResizeArray [1]) |> ignore)
+        )
+
         test ("min3 and max3 functions match a stable sort, also when equality disagrees with comparison", fun _ ->
             let values = [1; 2; 3]
             let inputs = [

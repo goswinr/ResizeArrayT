@@ -219,6 +219,16 @@ items |> ResizeArray.windowed2 |> Seq.iter (fun (a, b) -> printfn "%A -> %A" a b
 items |> ResizeArray.prevThisNext |> Seq.iter (fun (prev, this', next) -> printfn "%A %A %A" prev this' next)
 ```
 
+### Grouping into a dictionary
+
+`ResizeArray.groupByDict` uses F# structural equality for grouping and dictionary lookups on both .NET and Fable, like `Array.groupByDict` in ArrayT.
+Keys must support equality (`'Key : equality`); null and `None` keys are rejected. Elements within each group keep their input order.
+
+```fsharp
+let groups = ResizeArray [1; 2; 3; 4; 5] |> ResizeArray.groupByDict (fun x -> [|x % 2|])
+groups.[[|1|]]    // ResizeArray [1; 3; 5], looked up using a fresh, structurally equal array key
+```
+
 ### Construction and Conversion
 
 ```fsharp

@@ -2130,18 +2130,24 @@ module ResizeArray =
                 groupByImpl StructBox<'Key>.Comparer (fun t -> StructBox(projection t)) (fun sb -> sb.Value) resizeArray
         #endif
 
-    /// <summary>Applies a key-generating function to each element of a ResizeArray and yields a Dict of
-    /// unique keys and respective elements that match to this key. As opposed to ResizeArray.groupBy the key may not be null or Option.None</summary>
-    /// <param name="projection">A function that transforms an element of the ResizeArray into a comparable key. As opposed to ResizeArray.groupBy the key may not be null or Option.None </param>
+    /// <summary>Applies a key-generating function to each element of a ResizeArray and yields a Dictionary of
+    /// unique keys and respective elements that match to this key.
+    /// Uses F# structural equality for grouping and dictionary lookups on both .NET and Fable.
+    /// Keys must support equality. Element order within each group is preserved.
+    /// As opposed to ResizeArray.groupBy the key may not be null or Option.None.</summary>
+    /// <param name="projection">A function that transforms an element of the ResizeArray into a key supporting equality. Null and Option.None keys are rejected.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A dictionary containing each unique key and its matching elements.</returns>
+    /// <exception cref="T:System.ArgumentNullException">Thrown when the input ResizeArray is null or a projected key is null or Option.None.</exception>
     let groupByDict (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : Dictionary<'Key, ResizeArray<'T>> =
         if isNull resizeArray then nullExn "groupByDict"
-        let dict = Dictionary<'Key, ResizeArray<'T>>()
+        let dict = Dictionary<'Key, ResizeArray<'T>>(HashIdentity.Structural<'Key>)
         // Build the groupings
         for i = 0 to resizeArray.Count - 1 do
             let v = resizeArray.[i]
             let k = projection v
+            if isNull (box k) then
+                raise (ArgumentNullException("projection", "ResizeArray.groupByDict: the projected key is null or None."))
             match dict.TryGetValue k with
             | true, r -> r.Add v
             | _ ->
