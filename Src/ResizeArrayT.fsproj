@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
@@ -55,7 +55,7 @@
     <PackageReference Update="FSharp.Core" Version="6.0.7" />    <!-- 6.0 for InlineIfLambda , otherwise the minimum FSharp.Core version would be forced by the SDK used for building it. this would be needlessly too high-->
 
     <PackageReference Include="Fable.Core" Version="4.5.0" Condition="$(DefineConstants.Contains('FABLE_COMPILER'))" />    <!-- Fable.Core is used to emit more optimized JS than the Fable compiler -->
-    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.3" PrivateAssets="all"  />
+    <PackageReference Include="Ionide.KeepAChangelog.Tasks" Version="0.3.3" PrivateAssets="all" />
     <!-- SourceLink.GitHub higher than 10.0.105 needs net8 -->
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="10.0.400" PrivateAssets="All" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
 
@@ -71,12 +71,14 @@
     <Compile Include="Util.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="ComputationalExpression.fs" />
+    <Compile Include="MinMax.fs" />
     <Compile Include="Module.fs" />
+    <Compile Include="Parallel.fs" />
   </ItemGroup>
 
   <Target Name="CopyReadmeToDocs" AfterTargets="Build">
     <!-- for fsdocs to build locally -->
-    <Copy SourceFiles="../README.md" DestinationFiles="../Docs/index.md" ContinueOnError="false"/>
+    <Copy SourceFiles="../README.md" DestinationFiles="../Docs/index.md" ContinueOnError="false" />
   </Target>
 
   <Target Name="WriteChangelogVersion" AfterTargets="AfterBuild"><!-- for version checks in github tag based builds -->

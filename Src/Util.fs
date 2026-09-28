@@ -26,8 +26,6 @@ module Operators =
         l
 
 
-[<EditorBrowsable(EditorBrowsableState.Never)>]
-[<CompilerMessage("This module is for internal use only.", 10001, IsHidden = true)>]
 [<Obsolete("Not obsolete, but hidden because it needs to be public for inlining.")>]
 module UtilResizeArray =
 
@@ -91,6 +89,72 @@ module UtilResizeArray =
                     isEqual <- false
                     i <- k // break the loop
             isEqual
+
+    // -------------------------------------------------------------
+    // IEEE 754:2019 minimum and maximum of float and float32
+    // -------------------------------------------------------------
+    // IEEE 754:2019 defines two different operations for the minimum and the maximum:
+    // 'minimum' and 'maximum' propagate NaN, 'minimumNumber' and 'maximumNumber' skip NaN.
+    // All four treat -0.0 as smaller than +0.0.
+    // See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
+    // ResizeArray.min, max, minNumber and maxNumber use these functions when 'T is float or float32.
+    // They are not inline, so that the call sites of those inline functions stay small.
+
+    /// Casts x to 'U. Only use it when 'T and 'U are known to be the same type at runtime.
+    let inline retype (x: 'T) : 'U = unbox<'U> (box x)
+
+    /// True for -0.0. For float and float32.
+    let inline isNegZero (x: ^F) : bool =
+        x = LanguagePrimitives.GenericZero && LanguagePrimitives.GenericOne / x < LanguagePrimitives.GenericZero
+
+    /// The IEEE 754:2019 'minimum' of two floats: NaN propagates and -0.0 is smaller than +0.0.
+    let inline minimumOf (a: ^F) (b: ^F) : ^F =
+        if a < b then a
+        elif b < a then b
+        elif a = b then (if isNegZero b then b else a) // -0.0 = +0.0 is true
+        elif a <> a then a // a is NaN
+        else b // b is NaN
+
+    /// The IEEE 754:2019 'maximum' of two floats: NaN propagates and +0.0 is bigger than -0.0.
+    let inline maximumOf (a: ^F) (b: ^F) : ^F =
+        if a > b then a
+        elif b > a then b
+        elif a = b then (if isNegZero a then b else a)
+        elif a <> a then a
+        else b
+
+    /// The IEEE 754:2019 'minimumNumber' of two floats: NaN is skipped and -0.0 is smaller than +0.0.
+    /// Returns NaN only if both are NaN.
+    let inline minimumNumberOf (a: ^F) (b: ^F) : ^F =
+        if a < b then a
+        elif b < a then b
+        elif a = b then (if isNegZero b then b else a)
+        elif b <> b then a // b is NaN
+        else b // a is NaN
+
+    /// The IEEE 754:2019 'maximumNumber' of two floats: NaN is skipped and +0.0 is bigger than -0.0.
+    /// Returns NaN only if both are NaN.
+    let inline maximumNumberOf (a: ^F) (b: ^F) : ^F =
+        if a > b then a
+        elif b > a then b
+        elif a = b then (if isNegZero a then b else a)
+        elif b <> b then a
+        else b
+
+    let inline private reduceFloats ([<InlineIfLambda>] op: ^F -> ^F -> ^F) (xs: ResizeArray< ^F >) : ^F =
+        let mutable acc = xs.[0]
+        for i = 1 to xs.Count - 1 do
+            acc <- op acc xs.[i]
+        acc
+
+    let minimumFloat         (xs: ResizeArray<float>)   : float   = reduceFloats minimumOf xs
+    let minimumFloat32       (xs: ResizeArray<float32>) : float32 = reduceFloats minimumOf xs
+    let maximumFloat         (xs: ResizeArray<float>)   : float   = reduceFloats maximumOf xs
+    let maximumFloat32       (xs: ResizeArray<float32>) : float32 = reduceFloats maximumOf xs
+    let minimumNumberFloat   (xs: ResizeArray<float>)   : float   = reduceFloats minimumNumberOf xs
+    let minimumNumberFloat32 (xs: ResizeArray<float32>) : float32 = reduceFloats minimumNumberOf xs
+    let maximumNumberFloat   (xs: ResizeArray<float>)   : float   = reduceFloats maximumNumberOf xs
+    let maximumNumberFloat32 (xs: ResizeArray<float32>) : float32 = reduceFloats maximumNumberOf xs
 
     // -------------------------------------------------------------
     // for Exceptions ( never inlined)

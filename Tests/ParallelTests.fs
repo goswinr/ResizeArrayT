@@ -134,6 +134,41 @@ let tests =
             throwsNull (fun () -> ResizeArray.Parallel.maxBy id nullArr |> ignore)
         )
 
+        test ("Parallel.min and max propagate NaN and order -0.0 before +0.0, minBy and maxBy ignore NaN keys, like the sequential versions", fun _ ->
+            let bits (x: float) = BitConverter.DoubleToInt64Bits x
+            for n in nonEmptySizes do
+                let rand = Random(n + 12)
+                let xs = ResizeArray.init n (fun _ -> float (rand.Next 1000 - 500))
+                // NaN at the start, in the middle and at the end
+                for nanIdx in List.distinct [0; n / 2; n - 1] do
+                    let ys = ResizeArray xs
+                    ys.[nanIdx] <- nan
+                    assertThat (Double.IsNaN (ResizeArray.Parallel.min ys)) (tag $"min n={n} NaN at {nanIdx}" >> isTrue)
+                    assertThat (Double.IsNaN (ResizeArray.Parallel.max ys)) (tag $"max n={n} NaN at {nanIdx}" >> isTrue)
+                    let fs = ResizeArray.map float32 ys
+                    assertThat (Single.IsNaN (ResizeArray.Parallel.min fs)) (tag $"float32 min n={n} NaN at {nanIdx}" >> isTrue)
+                    assertThat (Single.IsNaN (ResizeArray.Parallel.max fs)) (tag $"float32 max n={n} NaN at {nanIdx}" >> isTrue)
+                    let indexed = ResizeArray.indexed ys
+                    assertThat (fst (ResizeArray.Parallel.minBy snd indexed)) (tag $"minBy n={n} NaN at {nanIdx}" >> isEqualTo (fst (ResizeArray.minBy snd indexed)))
+                    assertThat (fst (ResizeArray.Parallel.maxBy snd indexed)) (tag $"maxBy n={n} NaN at {nanIdx}" >> isEqualTo (fst (ResizeArray.maxBy snd indexed)))
+                    assertThat (Double.IsNaN (snd (ResizeArray.Parallel.minBy snd indexed))) (tag $"minBy n={n} NaN at {nanIdx} returns NaN only if all are NaN" >> isEqualTo (n = 1))
+                // -0.0 is smaller than +0.0, in whichever chunk they are
+                let zeros = ResizeArray.init n (fun i -> if i % 3 = 1 then -0.0 else 0.0)
+                let hasNegZero = n > 1
+                assertThat (bits (ResizeArray.Parallel.min zeros)) (tag $"min zeros n={n}" >> isEqualTo (bits (if hasNegZero then -0.0 else 0.0)))
+                assertThat (bits (ResizeArray.Parallel.max zeros)) (tag $"max zeros n={n}" >> isEqualTo (bits 0.0))
+                assertThat (bits (ResizeArray.Parallel.min zeros)) (tag $"min zeros n={n} like sequential" >> isEqualTo (bits (ResizeArray.min zeros)))
+                // whole chunks with only NaN keys, in the first and the second half
+                for firstHalfNaN in [true; false] do
+                    let halfNaN = xs |> ResizeArray.mapi (fun i x -> (i, if (i < n / 2) = firstHalfNaN then nan else x))
+                    assertThat (fst (ResizeArray.Parallel.minBy snd halfNaN)) (tag $"minBy n={n} half NaN {firstHalfNaN}" >> isEqualTo (fst (ResizeArray.minBy snd halfNaN)))
+                    assertThat (fst (ResizeArray.Parallel.maxBy snd halfNaN)) (tag $"maxBy n={n} half NaN {firstHalfNaN}" >> isEqualTo (fst (ResizeArray.maxBy snd halfNaN)))
+                // all keys NaN: the first element
+                let allNaN = ResizeArray.init n (fun i -> (i, nan))
+                assertThat (fst (ResizeArray.Parallel.minBy snd allNaN)) (tag $"minBy all NaN n={n}" >> isEqualTo 0)
+                assertThat (fst (ResizeArray.Parallel.maxBy snd allNaN)) (tag $"maxBy all NaN n={n}" >> isEqualTo 0)
+        )
+
         test ("Parallel.sum, sumBy, average and averageBy match the sequential versions", fun _ ->
             for n in sizes do
                 let xs = randomInts (n + 5) n 1000
