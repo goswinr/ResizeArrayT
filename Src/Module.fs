@@ -610,7 +610,7 @@ module ResizeArray =
     /// Both are legitimate, but different operations, see https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
     /// If several elements are equally great, the first one of them is returned.</remarks>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The maximum element, or NaN.</returns>
     let inline max (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "max"
@@ -628,7 +628,7 @@ module ResizeArray =
     /// Both are legitimate, but different operations, see https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
     /// If several elements are equally great, the first one of them is returned.</remarks>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The maximum element that is not NaN.</returns>
     let inline maxNumber (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "maxNumber"
@@ -646,7 +646,7 @@ module ResizeArray =
     /// Same as Array.maxNumberBy in ArrayT.</remarks>
     /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The maximum element.</returns>
     let inline maxBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "maxBy"
@@ -665,7 +665,7 @@ module ResizeArray =
     /// Both are legitimate, but different operations, see https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
     /// If several elements are equally small, the first one of them is returned.</remarks>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The minimum element, or NaN.</returns>
     let inline min (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "min"
@@ -683,7 +683,7 @@ module ResizeArray =
     /// Both are legitimate, but different operations, see https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
     /// If several elements are equally small, the first one of them is returned.</remarks>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The minimum element that is not NaN.</returns>
     let inline minNumber (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "minNumber"
@@ -701,7 +701,7 @@ module ResizeArray =
     /// Same as Array.minNumberBy in ArrayT.</remarks>
     /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The minimum element.</returns>
     let inline minBy ( (*[<InlineIfLambda>]*) projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "minBy"
@@ -717,7 +717,7 @@ module ResizeArray =
     /// If several keys are equally small, the index of the first one is returned.</summary>
     /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The index of the smallest element.</returns>
     let inline minIndexBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : int =
         if isNull resizeArray then nullExn "minIndexBy"
@@ -729,7 +729,7 @@ module ResizeArray =
     /// If several keys are equally great, the index of the first one is returned.</summary>
     /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The index of the maximum element.</returns>
     let inline maxIndexBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : int =
         if isNull resizeArray then nullExn "maxIndexBy"
@@ -1209,7 +1209,7 @@ module ResizeArray =
     /// <param name="predicate">The function to test each indexed element against.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The index of the first element that satisfies the predicate, or an exception.</returns>
-    /// <exception cref="System.KeyNotFoundException">Thrown when no element satisfies the predicate.</exception>
+    /// <exception cref="ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown when no element satisfies the predicate.</exception>
     let findIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : int=
         if isNull resizeArray then nullExn "findIndexi"
         match tryFindIndexi predicate resizeArray with
@@ -1405,7 +1405,7 @@ module ResizeArray =
 
     /// <summary>Returns the average of the elements in the ResizeArray.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when <c>ResizeArray</c> is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when <c>ResizeArray</c> is empty.</exception>
     /// <returns>The average of the elements in the ResizeArray.</returns>
     let inline average (resizeArray: ResizeArray<'T>) : ^T =
         if isNull resizeArray then nullExn "average"
@@ -1420,7 +1420,7 @@ module ResizeArray =
     /// <summary>Returns the average of the elements generated by applying the function to each element of the ResizeArray.</summary>
     /// <param name="projection">The function to transform the ResizeArray elements before averaging.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when <c>ResizeArray</c> is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when <c>ResizeArray</c> is empty.</exception>
     /// <returns>The computed average.</returns>
     let inline averageBy (projection: 'T -> ^Key) (resizeArray: ResizeArray<'T>) : ^Key =
         if isNull resizeArray then nullExn "averageBy"
@@ -1450,7 +1450,7 @@ module ResizeArray =
     /// <param name="chunkSize">The maximum size of each chunk.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray divided into chunks.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when <c>chunkSize</c> is not positive.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when <c>chunkSize</c> is not positive.</exception>
     let chunkBySize chunkSize (resizeArray: ResizeArray<'T>) : ResizeArray<ResizeArray<'T>> =
         if isNull resizeArray then nullExn "chunkBySize"
         if chunkSize <= 0 then
@@ -1564,7 +1564,7 @@ module ResizeArray =
     /// <param name="target">The target ResizeArray.</param>
     /// <param name="targetStartIndex">The starting index of the target ResizeArray.</param>
     /// <param name="count">The number of elements to copy.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when any of sourceIndex,targetStartIndex or count are negative, or when there aren't enough elements in source or target.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when any of sourceIndex,targetStartIndex or count are negative, or when there aren't enough elements in source or target.</exception>
     let inline blit (source: ResizeArray<'T>) (sourceIndex: int) (target: ResizeArray<'T>) (targetStartIndex: int) (count: int) : unit =
         if isNull source then nullExn "blit source"
         if isNull target then nullExn "blit target"
@@ -1595,7 +1595,7 @@ module ResizeArray =
     /// <param name="target">The target ResizeArray.</param>
     /// <param name="targetStartIndex">The starting index of the target ResizeArray.</param>
     /// <param name="count">The number of elements to copy.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when any of sourceIndex, targetStartIndex or count are negative, or when there aren't enough elements in source.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when any of sourceIndex, targetStartIndex or count are negative, or when there aren't enough elements in source.</exception>
     let inline blitExtend (source: ResizeArray<'T>) (sourceIndex: int) (target: ResizeArray<'T>) (targetStartIndex: int) (count: int) : unit =
         if isNull source then nullExn "blitExtend source"
         if isNull target then nullExn "blitExtend target"
@@ -1673,7 +1673,7 @@ module ResizeArray =
     /// <param name="count">The length of the ResizeArray to create.</param>
     /// <param name="value">The value for the elements.</param>
     /// <returns>The created ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative.</exception>
     let create (count: int) (value: 'T) : ResizeArray<'T> =
         if count < 0 then
             failSimple $"create: count ({count}) cannot be negative."
@@ -1689,7 +1689,7 @@ module ResizeArray =
     /// even for numeric <c>'T</c>, so the JavaScript elements may differ from the .NET ones.</summary>
     /// <param name="count">The length of the ResizeArray to create.</param>
     /// <returns>The created ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative.</exception>
     let zeroCreate<'T> (count: int) : ResizeArray<'T> =
         if count < 0 then
             failSimple $"zeroCreate: count ({count}) cannot be negative."
@@ -1748,7 +1748,7 @@ module ResizeArray =
     /// <summary>Returns the only element of the ResizeArray.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The only element of the ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input does not have precisely one element.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input does not have precisely one element.</exception>
     let exactlyOne (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "exactlyOne"
         if resizeArray.Count = 1 then
@@ -1813,7 +1813,7 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <returns><c>true</c> if any result from <c>predicate</c> is <c>true</c>.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     let exists2 (predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
         if isNull resizeArray1 then nullExn "exists2 first" // TODO Or return false?
         if isNull resizeArray2 then nullExn "exists2 second"
@@ -1837,7 +1837,7 @@ module ResizeArray =
     /// <param name="startIndex">The index of the first element to set.</param>
     /// <param name="count">The number of elements to set.</param>
     /// <param name="value">The value to set.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when startIndex or count is negative, or startIndex is greater than target.Count.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when startIndex or count is negative, or startIndex is greater than target.Count.</exception>
     let fill (target: ResizeArray<'T>) (startIndex: int) (count: int) (value: 'T) : unit =
         if isNull target then nullExn "fill"
         if startIndex < 0 then
@@ -1865,10 +1865,10 @@ module ResizeArray =
 
 
     /// <summary>Returns the first element for which the given function returns <c>true</c>.
-    /// Raise <see cref="T:System.Collections.Generic.KeyNotFoundException"/> if no such element exists.</summary>
+    /// Raise <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> if no such element exists.</summary>
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
     /// <returns>The first element for which <c>predicate</c> returns true.</returns>
     let find (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "find"
@@ -1878,10 +1878,10 @@ module ResizeArray =
         | index -> resizeArray.[index]
 
     /// <summary>Returns the last element for which the given function returns <c>true</c>.
-    /// Raise <see cref="T:System.Collections.Generic.KeyNotFoundException"/> if no such element exists.</summary>
+    /// Raise <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> if no such element exists.</summary>
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
     /// <returns>The last element for which <c>predicate</c> returns true.</returns>
     let findBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "findBack"
@@ -1900,11 +1900,11 @@ module ResizeArray =
 
 
     /// <summary>Returns the index of the first element in the ResizeArray that satisfies the given predicate.
-    /// Raises <see cref="T:System.Collections.Generic.KeyNotFoundException"/> if
+    /// Raises <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> if
     /// none of the elements satisfy the predicate.</summary>
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
     /// <returns>The index of the first element in the ResizeArray that satisfies the given predicate.</returns>
     let findIndex (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : int =
         if isNull resizeArray then nullExn "findIndex"
@@ -1915,11 +1915,11 @@ module ResizeArray =
 
 
     /// <summary>Returns the index of the last element in the ResizeArray
-    /// that satisfies the given predicate. Raise <see cref="T:System.Collections.Generic.KeyNotFoundException"/> if
+    /// that satisfies the given predicate. Raise <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> if
     /// none of the elements satisfy the predicate.</summary>
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if <c>predicate</c> never returns true.</exception>
     /// <returns>The index of the last element in the ResizeArray that satisfies the given predicate.</returns>
     let findIndexBack (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : int =
         if isNull resizeArray then nullExn "findIndexBack"
@@ -1961,7 +1961,7 @@ module ResizeArray =
     /// <param name="state">The initial state.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The final state.</returns>
     let fold2<'T1, 'T2, 'State> folder (state: 'State) (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) : 'State =
         if isNull resizeArray1 then nullExn "fold2 first"
@@ -1999,7 +1999,7 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <param name="state">The initial state.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The final state.</returns>
     let foldBack2<'T1, 'T2, 'State> folder (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) (state: 'State) : 'State =
         if isNull resizeArray1 then nullExn "foldBack2 first"
@@ -2047,7 +2047,7 @@ module ResizeArray =
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns><c>true</c> if all of the ResizeArray elements satisfy the predicate.</returns>
     let forall2 (predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
         if isNull resizeArray1 then nullExn "forall2 first"
@@ -2070,7 +2070,7 @@ module ResizeArray =
     /// <param name="count">The length of the sub ResizeArray.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The created sub ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when either startIndex or count is negative, or when there aren't enough elements in the input ResizeArray.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when either startIndex or count is negative, or when there aren't enough elements in the input ResizeArray.</exception>
     let sub (startIndex: int) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "sub"
         if startIndex < 0 then
@@ -2133,7 +2133,7 @@ module ResizeArray =
     /// <param name="projection">A function that transforms an element of the ResizeArray into a key supporting equality. Null and Option.None keys are rejected.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A dictionary containing each unique key and its matching elements.</returns>
-    /// <exception cref="T:System.ArgumentNullException">Thrown when the input ResizeArray is null or a projected key is null or Option.None.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentNullException">Thrown when the input ResizeArray is null or a projected key is null or Option.None.</exception>
     let groupByDict (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : Dictionary<'Key, ResizeArray<'T>> =
         if isNull resizeArray then nullExn "groupByDict"
         let dict = Dictionary<'Key, ResizeArray<'T>>(HashIdentity.Structural<'Key>)
@@ -2142,7 +2142,7 @@ module ResizeArray =
             let v = resizeArray.[i]
             let k = projection v
             if isNull (box k) then
-                raise (ArgumentNullException("projection", "ResizeArray.groupByDict: the projected key is null or None."))
+                raise (ResizeArrayTArgumentNullException("projection", "ResizeArray.groupByDict: the projected key is null or None."))
             match dict.TryGetValue k with
             | true, r -> r.Add v
             | _ ->
@@ -2155,7 +2155,7 @@ module ResizeArray =
     /// <summary>Returns the first element of the ResizeArray.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The first element of the ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     let inline head (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "head"
         if resizeArray.Count = 0 then
@@ -2180,7 +2180,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to initialize.</param>
     /// <param name="initializer">The function to generate the initial values for each index.</param>
     /// <returns>The created ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative.</exception>
     let inline init (count: int) (initializer: int -> 'T) : ResizeArray<'T> =
         if count < 0 then
             failSimple $"init: count ({count}) is negative."
@@ -2194,7 +2194,7 @@ module ResizeArray =
     /// <param name="value">The value to insert.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
     let insertAt (index: int) (value: 'T) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "insertAt"
         if index < 0 || index > resizeArray.Count then
@@ -2213,7 +2213,7 @@ module ResizeArray =
     /// <param name="values">The values to insert.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when index is not within 0 to resizeArray.Count.</exception>
     let insertManyAt (index: int) (values: ICollection<'T>) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "insertManyAt"
         if isNull values then nullExn "insertManyAt values"
@@ -2259,7 +2259,7 @@ module ResizeArray =
     /// <param name="action">The function to apply.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     let inline iter2 (action: 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
         if isNull resizeArray1 then nullExn "iter2 first"
         if isNull resizeArray2 then nullExn "iter2 second"
@@ -2287,7 +2287,7 @@ module ResizeArray =
     /// <param name="action">The function to apply to each index and pair of elements.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     let inline iteri2 (action: int -> 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
         if isNull resizeArray1 then nullExn "iteri2 first"
         if isNull resizeArray2 then nullExn "iteri2 second"
@@ -2301,7 +2301,7 @@ module ResizeArray =
     /// <summary>Gets the last element of the ResizeArray.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The last element of the ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input does not have any elements.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input does not have any elements.</exception>
     let inline last (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "last"
         if resizeArray.Count = 0 then
@@ -2387,7 +2387,7 @@ module ResizeArray =
     /// <param name="mapping">The function to transform the pairs of the input elements.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
     let map2 (mapping: 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "map2 first"
@@ -2408,7 +2408,7 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <param name="resizeArray3">The third input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
     let map3 (mapping: 'T1 -> 'T2 -> 'T3 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) (resizeArray3: ResizeArray<'T3>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "map3 first"
@@ -2487,7 +2487,7 @@ module ResizeArray =
     /// <param name="mapping">The function to transform pairs of input elements and their indices.</param>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
     let mapi2 (mapping: int -> 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "mapi2 first"
@@ -2558,7 +2558,7 @@ module ResizeArray =
     /// <param name="indexMap">The function that maps input indices to output indices.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The output ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when indexMap does not produce a valid permutation.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when indexMap does not produce a valid permutation.</exception>
     let permute (indexMap: int -> int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "permute"
         let res = resizeArray.Clone()
@@ -2577,10 +2577,10 @@ module ResizeArray =
 
     /// <summary>Applies the given function to successive elements, returning the first
     /// result where function returns <c>Some(x)</c> for some <c>x</c>. If the function
-    /// never returns <c>Some(x)</c> then <see cref="T:System.Collections.Generic.KeyNotFoundException"/> is raised.</summary>
+    /// never returns <c>Some(x)</c> then <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> is raised.</summary>
     /// <param name="chooser">The function to generate options from the elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if every result from
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if every result from
     /// <c>chooser</c> is <c>None</c>.</exception>
     /// <returns>The first result.</returns>
     let pick (chooser: 'T -> 'U option) (resizeArray: ResizeArray<'T>) =
@@ -2596,10 +2596,10 @@ module ResizeArray =
 
     /// <summary>Starting from last element going backwards. Applies the given function to successive elements, returning the first
     /// result where function returns <c>Some(x)</c> for some <c>x</c>. If the function
-    /// never returns <c>Some(x)</c> then <see cref="T:System.Collections.Generic.KeyNotFoundException"/> is raised.</summary>
+    /// never returns <c>Some(x)</c> then <see cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException"/> is raised.</summary>
     /// <param name="chooser">The function to generate options from the elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.Collections.Generic.KeyNotFoundException">Thrown if every result from
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown if every result from
     /// <c>chooser</c> is <c>None</c>.</exception>
     /// <returns>The first result. From the end of the ResizeArray.</returns>
     let pickBack (chooser: 'T -> 'U option) (resizeArray: ResizeArray<'T>) =
@@ -2657,7 +2657,7 @@ module ResizeArray =
     /// <summary>Returns a random element from the given ResizeArray.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A randomly selected element from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     let randomChoice (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "randomChoice"
         if resizeArray.Count = 0 then fail resizeArray "randomChoice: Count must be at least one"
@@ -2667,7 +2667,7 @@ module ResizeArray =
     /// <param name="randomizer">The randomizer function, must return a float number from the [0.0, 1.0) range.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A randomly selected element from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     let randomChoiceBy (randomizer: unit -> float) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "randomChoiceBy"
         if resizeArray.Count = 0 then fail resizeArray "randomChoiceBy: Count must be at least one"
@@ -2677,7 +2677,7 @@ module ResizeArray =
     /// <param name="random">The Random instance.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A randomly selected element from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     let randomChoiceWith (random: Random) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "randomChoiceWith"
         if resizeArray.Count = 0 then fail resizeArray "randomChoiceWith: Count must be at least one"
@@ -2687,7 +2687,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
     let randomChoices (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomChoices"
         if resizeArray.Count = 0 then fail resizeArray "randomChoices: Count must be at least one"
@@ -2703,7 +2703,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
     let randomChoicesBy (randomizer: unit -> float) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomChoicesBy"
         if resizeArray.Count = 0 then fail resizeArray "randomChoicesBy: Count must be at least one"
@@ -2719,7 +2719,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty or count is negative.</exception>
     let randomChoicesWith (random: Random) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomChoicesWith"
         if resizeArray.Count = 0 then fail resizeArray "randomChoicesWith: Count must be at least one"
@@ -2733,7 +2733,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
     let randomSample (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomSample"
         if count < 0 then failSimple $"randomSample: count ({count}) cannot be negative."
@@ -2749,7 +2749,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
     let randomSampleBy (randomizer: unit -> float) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomSampleBy"
         if count < 0 then failSimple $"randomSampleBy: count ({count}) cannot be negative."
@@ -2765,7 +2765,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to return.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray of randomly selected elements from the input ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative or greater than the length of the input ResizeArray.</exception>
     let randomSampleWith (random: Random) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "randomSampleWith"
         if count < 0 then failSimple $"randomSampleWith: count ({count}) cannot be negative."
@@ -2836,7 +2836,7 @@ module ResizeArray =
     /// Raises ArgumentException if the ResizeArray has size zero.</summary>
     /// <param name="reduction">The function to reduce a pair of elements to a single element.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The final result of the reductions.</returns>
     let reduce (reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "reduce"
@@ -2855,7 +2855,7 @@ module ResizeArray =
     /// <param name="reduction">A function that takes in the next-to-last element of the list and the
     /// current accumulated result to produce the next accumulated result.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The final result of the reductions.</returns>
     let reduceBack (reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "reduceBack"
@@ -2872,7 +2872,7 @@ module ResizeArray =
     /// <param name="index">The index of the item to be removed.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is outside 0..resizeArray.Length - 1</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when index is outside 0..resizeArray.Length - 1</exception>
     let removeAt (index: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "removeAt"
         if index < 0 || index >= resizeArray.Count then
@@ -2886,7 +2886,7 @@ module ResizeArray =
     /// <param name="count">The number of items to remove.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or index is outside 0..resizeArray.Length - count</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative or index is outside 0..resizeArray.Length - count</exception>
     let removeManyAt (index: int) (count: int) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "removeManyAt"
         if count < 0 then
@@ -2901,7 +2901,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to replicate.</param>
     /// <param name="initial">The value to replicate</param>
     /// <returns>The generated ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative.</exception>
     let replicate count (initial: 'T) =
         if count < 0 then
             failSimple $"replicate: count {count} cannot be negative."
@@ -2972,7 +2972,7 @@ module ResizeArray =
     /// <param name="count">The number of elements to skip.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A copy of the input ResizeArray, after removing the first N elements.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count exceeds the number of
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count exceeds the number of
     /// elements in the ResizeArray.</exception>
     let skip count (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "skip"
@@ -3179,7 +3179,7 @@ module ResizeArray =
     /// <param name="index">The index at which the ResizeArray is split. This index is bound-checked and must be between 0 and resizeArray.Count (inclusive).</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The two split ResizeArrays.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when index is outside the inclusive range 0 through resizeArray.Count.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when index is outside the inclusive range 0 through resizeArray.Count.</exception>
     let splitAt index (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "splitAt"
         if index < 0 || index > resizeArray.Count then
@@ -3192,7 +3192,7 @@ module ResizeArray =
     /// <param name="chunkCount">The maximum number of chunks.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray split into chunks.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when <c>count</c> is not positive.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when <c>count</c> is not positive.</exception>
     let splitInto (chunkCount: int) (resizeArray: ResizeArray<'T>) : ResizeArray<ResizeArray<'T>> =
         if isNull resizeArray then nullExn "splitInto"
         if chunkCount < 1 then
@@ -3245,7 +3245,7 @@ module ResizeArray =
 
     /// <summary>Returns a new ResizeArray containing the elements of the original except the first element.</summary>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the ResizeArray is empty.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the ResizeArray is empty.</exception>
     /// <returns>A new ResizeArray containing the elements of the original except the first element.</returns>
     let tail (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "tail"
@@ -3260,7 +3260,7 @@ module ResizeArray =
     /// <param name="count">The number of items to take.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when count is negative or exceeds the number of elements in the ResizeArray.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when count is negative or exceeds the number of elements in the ResizeArray.</exception>
     let take count (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "take"
         if count < 0 then
@@ -3313,7 +3313,7 @@ module ResizeArray =
     /// <summary>Returns the transpose of the given sequence of ResizeArrays.</summary>
     /// <param name="resizeArrays">The input sequence of ResizeArrays.</param>
     /// <returns>The transposed ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     let transpose (resizeArrays: ResizeArray<ResizeArray<'T>>) : ResizeArray<ResizeArray<'T>> =
         if isNull resizeArrays then nullExn "transpose"
         // originally let transpose (resizeArrays: seq<ResizeArray<'T>>) : ResizeArray<ResizeArray<'T>> =
@@ -3562,7 +3562,7 @@ module ResizeArray =
     /// <param name="windowSize">The number of elements in each window.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The result ResizeArray.</returns>
-    /// <exception cref="T:System.ArgumentException">Thrown when windowSize is not positive.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when windowSize is not positive.</exception>
     let windowed windowSize (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "windowed"
         if windowSize <= 0 then
@@ -3580,7 +3580,7 @@ module ResizeArray =
     /// <summary>Combines the two ResizeArrays into a ResizeArray of pairs. The two ResizeArrays must have equal lengths, otherwise an <c>ArgumentException</c> is raised.</summary>
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of tupled elements.</returns>
     let zip (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) =
         if isNull resizeArray1 then nullExn "zip first"
@@ -3598,7 +3598,7 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <param name="resizeArray3">The third input ResizeArray.</param>
-    /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+    /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of tupled elements.</returns>
     let zip3 (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) (resizeArray3: ResizeArray<'V>) =
         if isNull resizeArray1 then nullExn "zip3 first"

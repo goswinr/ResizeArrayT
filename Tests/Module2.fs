@@ -23,6 +23,16 @@ module Module2 =
   testList ("Module2.fs Tests", [
 
 
+    test ("ResizeArrayT exception types retain their .NET base types", fun _ ->
+        CheckThrowsExn<ArgumentException> (fun () -> ResizeArray.failIfEmpty "empty" (ResizeArray<int>()) |> ignore)
+        CheckThrowsExn<ArgumentNullException> (fun () -> ResizeArray.get 0 (null: ResizeArray<int>) |> ignore)
+        CheckThrowsExn<IndexOutOfRangeException> (fun () -> ResizeArray.get 0 (ResizeArray<int>()) |> ignore)
+        CheckThrowsExn<KeyNotFoundException> (fun () -> ResizeArray.findIndexi (fun _ _ -> false) [|1|].asRarr |> ignore)
+        CheckThrowsExn<ResizeArrayTArgumentException> (fun () -> ResizeArray.failIfEmpty "empty" (ResizeArray<int>()) |> ignore)
+        CheckThrowsExn<ResizeArrayTArgumentNullException> (fun () -> ResizeArray.get 0 (null: ResizeArray<int>) |> ignore)
+        CheckThrowsExn<ResizeArrayTKeyNotFoundException> (fun () -> ResizeArray.findIndexi (fun _ _ -> false) [|1|].asRarr |> ignore)
+    )
+
     test ("ResizeArray.Length", fun _ ->
         // integer array
         let resultInt = ResizeArray.length [|1..8 |].asRarr
@@ -1367,13 +1377,13 @@ module Module2 =
          InputArray = null
          WindowSize = 2
          ExpectedArray = [|  |].asRarr
-         Exception = Some typeof<ArgumentNullException>
+         Exception = Some typeof<ResizeArrayTArgumentNullException>
         } |> testWindowed
         {
           InputArray = [|1..10 |].asRarr
           WindowSize = 0
           ExpectedArray =  [|  |].asRarr
-          Exception = Some typeof<ArgumentException>
+          Exception = Some typeof<ResizeArrayTArgumentException>
         } |> testWindowed
 
         // expectedArrays indexed by arraySize,windowSize

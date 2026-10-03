@@ -68,6 +68,7 @@
     <!--so that it can be used with Fable. Non-recursive so the generated obj files are not packed.-->
     <Content Include="*.fsproj; *.fs; *.fsi" PackagePath="fable/" />
 
+    <Compile Include="Exceptions.fs" />
     <Compile Include="Util.fs" />
     <Compile Include="Extensions.fs" />
     <Compile Include="ComputationalExpression.fs" />

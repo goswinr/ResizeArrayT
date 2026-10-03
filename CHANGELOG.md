@@ -10,13 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResizeArray.sortInt`, `sortFloat`, `sortInPlaceInt` and `sortInPlaceFloat` for sorting with comparisons specialized for integers and double-precision floats on .NET and Fable. Float sorting puts NaN first and treats signed zeros as equal, like F# comparison.
 - `ResizeArray.minNumber` and `maxNumber` skip NaN and treat -0.0 as smaller than +0.0, as the IEEE 754:2019 'minimumNumber' and 'maximumNumber' operations. See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
 ### Changed
+- ResizeArrayT now raises specific `ResizeArrayT...Exception` types for argument, null, and missing-key errors. Each inherits from its corresponding .NET exception type, so existing handlers continue to work. Index errors remain `IndexOutOfRangeException` because that .NET type is sealed.
 - `ResizeArray.sort` and `sortInPlace` use `FastGenericComparer` on .NET to reduce comparison overhead and allocations, while retaining the existing comparison in Fable.
 - **Breaking:** `ResizeArray.groupByDict` now requires `'Key : equality` and uses F# structural equality for grouping and dictionary lookups on both .NET and Fable, matching ArrayT. Structurally equal array keys now form one group on .NET too.
 - **Breaking:** `ResizeArray.min` and `max` (and `ResizeArray.Parallel.min` and `max`) propagate NaN: if any element is NaN, NaN is returned, as the IEEE 754:2019 'minimum' and 'maximum' operations. Before, the result depended on where NaN was. Use `minNumber` and `maxNumber` to skip NaN.
 - `ResizeArray.min`, `max` and `ResizeArray.Parallel.min`, `max` treat -0.0 as smaller than +0.0 for float and float32. Before, the first of them was returned.
 - **Breaking:** `ResizeArray.Parallel` is now in its own file, inside the AutoOpen module `ResizeArrayParallel`. After `open ResizeArrayT`, `ResizeArray.Parallel.min` works as before, but the fully qualified `ResizeArrayT.ResizeArray.Parallel.min` does not, and code compiled against an older version needs to be recompiled.
 ### Fixed
-- `ResizeArray.groupByDict` explicitly rejects null and `None` keys with an `ArgumentNullException` on .NET and an error in Fable, matching its documented restriction.
+- `ResizeArray.groupByDict` explicitly rejects null and `None` keys with a `ResizeArrayTArgumentNullException`, matching its documented restriction.
 - `ResizeArray.minBy`, `maxBy`, `minIndexBy`, `maxIndexBy`, `min2By`, `max2By`, `min2IndicesBy`, `max2IndicesBy`, `min3By`, `max3By`, `min3IndicesBy`, `max3IndicesBy`, `Parallel.minBy` and `Parallel.maxBy` ignore NaN keys at any position, NaN keys are ranked after all other keys. Before, a NaN key at the start was returned.
 - `ResizeArray.min2`, `max2`, `min3` and `max3` rank NaN after all other values. Before, the result depended on where NaN was.
 - `ResizeArray.minIndexBy` and `maxIndexBy` throw an `ArgumentException` with a descriptive message on empty input, also in Fable.

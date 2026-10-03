@@ -91,11 +91,11 @@ module Exceptions =
         #endif
 
 
-    let throwsArg   f = CheckThrowsExn<ArgumentException>    f
+    let throwsArg   f = CheckThrowsExn<ResizeArrayTArgumentException>    f
     let throwsIdx  f = CheckThrowsExn<IndexOutOfRangeException>    f
 
-    let throwsNull f = CheckThrowsExn<ArgumentNullException>    f
-    let throwsKey f = CheckThrowsExn<KeyNotFoundException>    f
+    let throwsNull f = CheckThrowsExn<ResizeArrayTArgumentNullException>    f
+    let throwsKey f = CheckThrowsExn<ResizeArrayTKeyNotFoundException>    f
 
     /// Check that the lambda throws and that the exception message contains all the given parts.
     /// Works the same on .NET and in Fable.

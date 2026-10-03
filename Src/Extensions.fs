@@ -212,7 +212,7 @@ module AutoOpenResizeArrayExtensions =
         /// <summary>Removes and returns the last element of the ResizeArray.</summary>
         /// <remarks>In Fable, this emits <c>.pop()</c>. In .NET, it removes the element at Count - 1.</remarks>
         /// <returns>The removed element.</returns>
-        /// <exception cref="T:System.ArgumentException">Thrown when the ResizeArray is empty.</exception>
+        /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.Pop() : 'T =
                 if xs.Count = 0 then fail xs "Pop() failed on empty."
             #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
@@ -237,7 +237,7 @@ module AutoOpenResizeArrayExtensions =
 
         /// <summary>Removes the last element of the ResizeArray without returning it.</summary>
         /// <remarks>In Fable, this emits <c>.pop()</c>. In .NET, it removes the element at Count - 1.</remarks>
-        /// <exception cref="T:System.ArgumentException">Thrown when the ResizeArray is empty.</exception>
+        /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.PopOff() : unit =
                 if xs.Count = 0 then fail xs "PopOff() failed on empty."
             #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT

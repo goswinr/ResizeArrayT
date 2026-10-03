@@ -393,7 +393,7 @@ module ResizeArrayParallel =
             /// <param name="projection">The function to project from elements of the input ResizeArray.</param>
             /// <param name="reduction">The function to reduce a pair of projected elements to a single element.</param>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The final result of the reductions.</returns>
             let reduceBy (projection: 'T -> 'U) (reduction: 'U -> 'U -> 'U) (resizeArray: ResizeArray<'T>) : 'U =
                 if isNull resizeArray then nullExn "Parallel.reduceBy"
@@ -428,7 +428,7 @@ module ResizeArrayParallel =
             /// Compared to the non-parallel ResizeArray.reduce, the 'reduction' function is invoked a few more times to combine the results of the chunks.</summary>
             /// <param name="reduction">The function to reduce a pair of elements to a single element.</param>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The final result of the reductions.</returns>
             let reduce (reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) : 'T =
                 if isNull resizeArray then nullExn "Parallel.reduce"
@@ -444,7 +444,7 @@ module ResizeArrayParallel =
             /// <remarks>This is the 'maximum' operation of IEEE 754:2019: NaN propagates and +0.0 is bigger than -0.0.
             /// See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950</remarks>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The maximum element, or NaN.</returns>
             let inline max (resizeArray: ResizeArray<'T>) : 'T =
                 if isNull resizeArray then nullExn "Parallel.max"
@@ -461,7 +461,7 @@ module ResizeArrayParallel =
             /// Performs the operation in parallel using <see cref="M:System.Threading.Tasks.Parallel.For" />.</summary>
             /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The maximum element.</returns>
             let inline maxBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : 'T =
                 if isNull resizeArray then nullExn "Parallel.maxBy"
@@ -477,7 +477,7 @@ module ResizeArrayParallel =
             /// <remarks>This is the 'minimum' operation of IEEE 754:2019: NaN propagates and -0.0 is smaller than +0.0.
             /// See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950</remarks>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The minimum element, or NaN.</returns>
             let inline min (resizeArray: ResizeArray<'T>) : 'T =
                 if isNull resizeArray then nullExn "Parallel.min"
@@ -494,7 +494,7 @@ module ResizeArrayParallel =
             /// Performs the operation in parallel using <see cref="M:System.Threading.Tasks.Parallel.For" />.</summary>
             /// <param name="projection">The function to transform the elements into a type supporting comparison.</param>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The minimum element.</returns>
             let inline minBy (projection: 'T -> 'Key) (resizeArray: ResizeArray<'T>) : 'T =
                 if isNull resizeArray then nullExn "Parallel.minBy"
@@ -535,7 +535,7 @@ module ResizeArrayParallel =
             /// Performs the operation in parallel using <see cref="M:System.Threading.Tasks.Parallel.For" />.
             /// For floating point numbers the result may differ slightly from ResizeArray.average, because the elements are added in a different order.</summary>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The average of the elements in the ResizeArray.</returns>
             let inline average (resizeArray: ^T ResizeArray) : ^T =
                 if isNull resizeArray then nullExn "Parallel.average"
@@ -550,7 +550,7 @@ module ResizeArrayParallel =
             /// For floating point numbers the result may differ slightly from ResizeArray.averageBy, because the elements are added in a different order.</summary>
             /// <param name="projection">The function to transform the ResizeArray elements before averaging.</param>
             /// <param name="resizeArray">The input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArray is empty.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
             /// <returns>The computed average.</returns>
             let inline averageBy (projection: 'T -> ^Key) (resizeArray: ResizeArray<'T>) : ^Key =
                 if isNull resizeArray then nullExn "Parallel.averageBy"
@@ -564,7 +564,7 @@ module ResizeArrayParallel =
             /// Performs the operation in parallel using <see cref="M:System.Threading.Tasks.Parallel.For" />.</summary>
             /// <param name="resizeArray1">The first input ResizeArray.</param>
             /// <param name="resizeArray2">The second input ResizeArray.</param>
-            /// <exception cref="T:System.ArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
+            /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
             /// <returns>The ResizeArray of tupled elements.</returns>
             let zip (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : ResizeArray<'T * 'U> =
                 if isNull resizeArray1 then nullExn "Parallel.zip first"

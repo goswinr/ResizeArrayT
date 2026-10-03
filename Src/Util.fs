@@ -40,7 +40,7 @@ module UtilResizeArray =
         ii
 
 
-    let zeroLen() = raise <| ArgumentException $"ResizeArray.negIdxLooped: failed on zero Length."
+    let zeroLen() = raise <| ResizeArrayTArgumentException $"ResizeArray.negIdxLooped: failed on zero Length."
 
     /// Any int will give a valid index for given collection size.
     /// Converts negative indices to positive ones and loops to start after last index is reached.
@@ -203,9 +203,9 @@ module UtilResizeArray =
             ""
 
 
-    /// Throws an ArgumentNullException with a message that includes the function name.
+    /// Throws a ResizeArrayTArgumentNullException with a message that includes the function name.
     let nullExn (funcName:string) =
-        raise (ArgumentNullException("ResizeArray." + funcName + ": input is null!"))
+        raise (ResizeArrayTArgumentNullException(null, "ResizeArray." + funcName + ": input is null!"))
 
     /// Throws an IndexOutOfRangeException for getting a bad index with a message that includes the content of the ResizeArray.
     let badGetExn (i:int) (arr:ResizeArray<'T>) (funcName:string) =
@@ -224,23 +224,23 @@ module UtilResizeArray =
         let t = typeOfName<'T>()
         raise (IndexOutOfRangeException $"ResizeArray.{funcName}: Expected {expected} in:\n{toStringCore t arr}{contentAsString 5 arr}")
 
-    /// Throws an ArgumentException with a message that includes the content of the ResizeArray.
+    /// Throws a ResizeArrayTArgumentException with a message that includes the content of the ResizeArray.
     let fail (arr:ResizeArray<'T>) (funcAndReason:string)  =
         let t = typeOfName<'T>()
-        raise (ArgumentException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
+        raise (ResizeArrayTArgumentException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
 
-    /// Throws an ArgumentException with a message containing the function name and reason.
+    /// Throws a ResizeArrayTArgumentException with a message containing the function name and reason.
     let failSimple (funcAndReason:string) =
-        raise (ArgumentException $"ResizeArray.{funcAndReason}")
+        raise (ResizeArrayTArgumentException $"ResizeArray.{funcAndReason}")
 
     [<Obsolete("Use failSimple instead.")>]
     let failSimpel (funcAndReason:string) =
         failSimple funcAndReason
 
-    /// Throws a KeyNotFoundException with a message that includes the content of the ResizeArray.
+    /// Throws a ResizeArrayTKeyNotFoundException with a message that includes the content of the ResizeArray.
     let failKey (arr:ResizeArray<'T>) (funcAndReason:string)  =
         let t = typeOfName<'T>()
-        raise (KeyNotFoundException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
+        raise (ResizeArrayTKeyNotFoundException $"ResizeArray.{funcAndReason}:\n{toStringCore t arr}{contentAsString 5 arr}")
 
     /// Throws an IndexOutOfRangeException with a message that includes the content of the ResizeArray.
     let failIdx (arr:ResizeArray<'T>) (funcAndReason:string)  =

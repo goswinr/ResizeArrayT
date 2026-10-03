@@ -17,7 +17,8 @@ It also works in Javascript and Typescript with [Fable](https://fable.io/).
 
 This library was designed for use with F# scripting.<br>
 Functions and methods never return null.<br>
-When a function fails on invalid input it will throw a descriptive exception.<br>
+When ResizeArrayT rejects invalid input, it throws a descriptive exception such as `ResizeArrayTArgumentException`, `ResizeArrayTArgumentNullException`, or `ResizeArrayTKeyNotFoundException`.<br>
+Each type inherits from its corresponding .NET exception type, so existing .NET exception handlers still work. Index errors use `IndexOutOfRangeException` directly because that type is sealed.<br>
 Functions starting with `try...` will return an F# option.
 
 I was always annoyed that an `IndexOutOfRangeException` does not include the actual bad index nor the actual size of the array.<br>
@@ -40,7 +41,7 @@ In fact FSharp.Core uses [a very similar module internally](https://github.com/d
 (Indexing from the end with `^` still needs `<LangVersion>preview</LangVersion>` in your project, or `dotnet fsi --langversion:preview`.)
 
 - Extension members on `ResizeArray` like `.Get` `.Set` `.First` `.Last` `.SecondLast` and more.<br>
-With nicer IndexOutOfRangeExceptions that include the bad index and the actual size.
+With nicer `IndexOutOfRangeException` messages that include the bad index and the actual size.
 
 - All Tests from `FSharp.Core`'s `Array` module ported and adapted to run in both javascript and dotnet.
 
