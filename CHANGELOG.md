@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ResizeArray.sortInt`, `sortFloat`, `sortInPlaceInt` and `sortInPlaceFloat` for sorting with comparisons specialized for integers and double-precision floats on .NET and Fable. Float sorting puts NaN first and treats signed zeros as equal, like F# comparison.
 - `ResizeArray.minNumber` and `maxNumber` skip NaN and treat -0.0 as smaller than +0.0, as the IEEE 754:2019 'minimumNumber' and 'maximumNumber' operations. See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
 ### Changed
+- ResizeArrayT now targets netstandard2.0 instead of net8.0 and net472. It can be referenced from .NET Framework, .NET Core and modern .NET projects. The tests now run on net8.0.
 - ResizeArrayT now raises specific `ResizeArrayT...Exception` types for argument, null, and missing-key errors. Each inherits from its corresponding .NET exception type, so existing handlers continue to work. Index errors remain `IndexOutOfRangeException` because that .NET type is sealed.
 - `ResizeArray.sort` and `sortInPlace` use `FastGenericComparer` on .NET to reduce comparison overhead and allocations, while retaining the existing comparison in Fable.
 - **Breaking:** `ResizeArray.groupByDict` now requires `'Key : equality` and uses F# structural equality for grouping and dictionary lookups on both .NET and Fable, matching ArrayT. Structurally equal array keys now form one group on .NET too.

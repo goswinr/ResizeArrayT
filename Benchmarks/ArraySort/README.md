@@ -22,7 +22,6 @@ From the repository root:
 ```powershell
 dotnet build Benchmarks/ArraySort/ArraySort.fsproj -c Release
 dotnet Benchmarks/ArraySort/bin/Release/net8.0/ArraySort.dll
-dotnet Benchmarks/ArraySort/bin/Release/net10.0/ArraySort.dll
 dotnet fable Benchmarks/ArraySort/ArraySort.fsproj --outDir Benchmarks/ArraySort/_js --noCache
 node Benchmarks/ArraySort/_js/Program.js
 ```

@@ -20,7 +20,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v6.0.0
       with:
-        dotnet-version: '10.x'
+        # 10.x SDK to build, 8.x runtime to run the net8.0 tests
+        dotnet-version: |
+          8.x
+          10.x
 
     # the tag may point to any commit, so don't rely on the test runs on main:
 

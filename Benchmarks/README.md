@@ -197,5 +197,5 @@ Checks covered ordering, copying versus mutation, empty inputs, null rejection,
 integer extremes, NaNs, infinities, signed zeros, structural values and ordinal
 string ordering as appropriate to each experiment/API. After the API changes,
 402 .NET tests and 380 Fable tests passed, along with TypeScript compilation
-and both library target builds (`net8.0` and `net472`). The .NET Framework target
-was built but not separately benchmarked.
+and the library build (`netstandard2.0`). These checks and the benchmarks ran on
+the target frameworks the library had at the time (`net8.0`, `net10.0` and `net472`).

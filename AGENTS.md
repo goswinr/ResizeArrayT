@@ -27,7 +27,7 @@ Opening the `ResizeArrayT` namespace exposes the `ResizeArray` module, `ResizeAr
 
 ## Build and test
 
-Run builds from the repository root with the .NET 10 SDK. The library targets `net8.0`, `net10.0` and `net472`; tests target `net8.0` and `net10.0`. Install the .NET 8 runtime too. FsDocs uses the first library target, `net8.0`. Building the library also creates the NuGet package.
+Run builds from the repository root with the .NET 10 SDK. The library targets `netstandard2.0` (a single `TargetFramework`, because the plural `TargetFrameworks` fails with FsDocs); tests and benchmarks target `net8.0`, so the .NET 8 runtime must be installed too. Building the library also creates the NuGet package.
 
 ```bash
 dotnet build ResizeArray.sln
@@ -37,8 +37,7 @@ dotnet build Src/ResizeArrayT.fsproj --configuration Release
 Run tests from `Tests/`:
 
 ```bash
-dotnet run --framework net8.0   # .NET 8 tests
-dotnet run --framework net10.0  # .NET 10 tests
+dotnet run                     # .NET 8 tests
 npm test                        # JavaScript tests via Fable and Node.js, then TypeScript compilation of the library
 npm run buildTS                 # TypeScript compilation of the library only
 npm run watchTS                 # Watch mode for TypeScript development
@@ -49,8 +48,8 @@ For a first JavaScript test run or a clean environment, run `dotnet tool restore
 To build the docs as CI does:
 
 ```bash
-dotnet build Src/ResizeArrayT.fsproj -c Release --framework net8.0 -p:GeneratePackageOnBuild=false
-dotnet fsdocs build --clean --strict --properties Configuration=Release TargetFramework=net8.0 --input Docs --output DocsGenerated
+dotnet build Src/ResizeArrayT.fsproj -c Release -p:GeneratePackageOnBuild=false
+dotnet fsdocs build --clean --strict --properties Configuration=Release --input Docs --output DocsGenerated
 ```
 
 ## Test conventions

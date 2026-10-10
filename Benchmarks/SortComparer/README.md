@@ -12,7 +12,6 @@ Run from the repository root:
 ```powershell
 dotnet build Benchmarks/SortComparer/SortComparer.fsproj -c Release
 dotnet Benchmarks/SortComparer/bin/Release/net8.0/SortComparer.dll
-dotnet Benchmarks/SortComparer/bin/Release/net10.0/SortComparer.dll
 dotnet fable Benchmarks/SortComparer/SortComparer.fsproj --outDir Benchmarks/SortComparer/_js --noCache
 node Benchmarks/SortComparer/_js/Program.js
 ```
@@ -130,7 +129,6 @@ Run after building/compiling as above:
 
 ```powershell
 dotnet Benchmarks/SortComparer/bin/Release/net8.0/SortComparer.dll --typed
-dotnet Benchmarks/SortComparer/bin/Release/net10.0/SortComparer.dll --typed
 node Benchmarks/SortComparer/_js/Program.js --typed
 ```
 
