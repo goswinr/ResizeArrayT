@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.30.0] - 2026-10-10
 ### Added
 - `ResizeArray.sortInt`, `sortFloat`, `sortInPlaceInt` and `sortInPlaceFloat` for sorting with comparisons specialized for integers and double-precision floats on .NET and Fable. Float sorting puts NaN first and treats signed zeros as equal, like F# comparison.
 - `ResizeArray.minNumber` and `maxNumber` skip NaN and treat -0.0 as smaller than +0.0, as the IEEE 754:2019 'minimumNumber' and 'maximumNumber' operations. See https://github.com/dotnet/fsharp/issues/13207#issuecomment-1194411950
@@ -157,7 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
-[Unreleased]: https://github.com/goswinr/ResizeArrayT/compare/0.29.0...HEAD
+[0.30.0]: https://github.com/goswinr/ResizeArrayT/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/goswinr/ResizeArrayT/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/goswinr/ResizeArrayT/compare/0.27.0...0.28.0
 [0.27.0]: https://github.com/goswinr/ResizeArrayT/compare/0.26.1...0.27.0
