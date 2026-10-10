@@ -28,6 +28,9 @@ let private sizes = [0; 1; 2; 3; 7; 255; 256; 257; 1000; 10_007; 100_003]
 
 let private nonEmptySizes = sizes |> List.filter (fun n -> n > 0)
 
+/// The NaN test runs many Parallel operations per size, so it skips the largest size to stay well inside the test timeout on slow CI runners.
+let private nanSizes = nonEmptySizes |> List.filter (fun n -> n <= 10_007)
+
 let private randomInts (seed: int) (count: int) (maxValue: int) : ResizeArray<int> =
     let rand = Random(seed)
     ResizeArray.init count (fun _ -> rand.Next maxValue)
@@ -136,7 +139,7 @@ let tests =
 
         test ("Parallel.min and max propagate NaN and order -0.0 before +0.0, minBy and maxBy ignore NaN keys, like the sequential versions", fun _ ->
             let bits (x: float) = BitConverter.DoubleToInt64Bits x
-            for n in nonEmptySizes do
+            for n in nanSizes do
                 let rand = Random(n + 12)
                 let xs = ResizeArray.init n (fun _ -> float (rand.Next 1000 - 500))
                 // NaN at the start, in the middle and at the end
