@@ -1,6 +1,7 @@
 ﻿namespace ResizeArrayT
 
 open System
+open System.ComponentModel
 
 
 
@@ -8,7 +9,7 @@ open System
 /// It provides a computational expression builder for ResizeArray<'T>.
 /// <c>resizeArray { ... }</c>
 /// This builder allows you to create a ResizeArray just like you would create an IEnumerable with seq expressions <c>seq { ... }</c>.
-[<AutoOpen>]
+[<AutoOpen; EditorBrowsable(EditorBrowsableState.Never)>]
 module AutoOpenComputationalExpression  =
 
     // Optimized with [<InlineIfLambda>] (needs F# 6.0) as in:

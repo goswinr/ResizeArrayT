@@ -1,6 +1,7 @@
 namespace ResizeArrayT
 
 open System
+open System.ComponentModel
 open System.Collections.Generic
 
 
@@ -12,7 +13,7 @@ open UtilResizeArray
 
 /// Extension methods for ResizeArray<'T>.
 /// This module is automatically opened when the namespace ResizeArrayT is opened.
-[<AutoOpen>]
+[<AutoOpen; EditorBrowsable(EditorBrowsableState.Never)>]
 module AutoOpenResizeArrayExtensions =
 
     type List<'T> with
