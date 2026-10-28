@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+### Fixed
+- `xs.Pop()` returns `T` instead of `T | undefined` in the TypeScript output of Fable, so it type-checks under `strictNullChecks`.
+
 ## [0.30.0] - 2026-10-10
 ### Added
 - `ResizeArray.sortInt`, `sortFloat`, `sortInPlaceInt` and `sortInPlaceFloat` for sorting with comparisons specialized for integers and double-precision floats on .NET and Fable. Float sorting puts NaN first and treats signed zeros as equal, like F# comparison.

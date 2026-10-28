@@ -216,13 +216,17 @@ module AutoOpenResizeArrayExtensions =
         /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the ResizeArray is empty.</exception>
         member inline xs.Pop() : 'T =
                 if xs.Count = 0 then fail xs "Pop() failed on empty."
-            #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
+            #if FABLE_COMPILER_TYPESCRIPT
+                Fable.Core.JsInterop.emitJsExpr xs "$0.pop()!" // TypeScript types pop() as 'T | undefined', the check above rules that out
+            #else
+            #if FABLE_COMPILER_JAVASCRIPT
                 Fable.Core.JsInterop.emitJsExpr xs "$0.pop()"
             #else
                 let lastIndex = xs.Count - 1
                 let value = xs.[lastIndex]
                 xs.RemoveAt(lastIndex)
                 value
+            #endif
             #endif
 
         /// <summary>Removes and returns the element at the specified index.</summary>
