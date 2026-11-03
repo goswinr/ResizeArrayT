@@ -5,6 +5,7 @@
 
 open System
 open System.Collections.Generic
+open System.ComponentModel
 
 #nowarn "44" //for opening the hidden but not Obsolete UtilResizeArray module
 #nowarn "10001"
@@ -16,7 +17,7 @@ open UtilResizeArray
 /// It is AutoOpen, so that ResizeArray.Parallel is available after 'open ResizeArrayT',
 /// next to the functions of the main ResizeArray module in Module.fs.
 /// (F# can't split one module over several files.)
-[<AutoOpen>]
+[<AutoOpen; EditorBrowsable(EditorBrowsableState.Never)>]
 module ResizeArrayParallel =
 
     module ResizeArray =
