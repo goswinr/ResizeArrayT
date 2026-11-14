@@ -20,7 +20,7 @@ jobs:
         uses: actions/checkout@v7.0.1
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v6.0.0
+        uses: actions/setup-dotnet@v6.1.0
         with:
           # 10.x SDK to build, 8.x runtime to run the net8.0 tests
           dotnet-version: |
