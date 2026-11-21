@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.31.0-fsharp11] - 2026-11-21
 ### Changed
 - **Breaking:** ResizeArrayT now needs FSharp.Core 11.0.101 or later, the first version with `OptimizeClosureIfNotInlinedAttribute`, instead of 6.0.7. Building it needs the .NET 11 SDK (F# 11).
 - `ResizeArray.fold`, `fold2`, `foldBack`, `foldBack2`, `reduce`, `reduceBack`, `scan`, `scanBack`, `iter2`, `iteri`, `iteri2`, `exists2`, `forall2`, `map2`, `map3`, `mapi`, `mapi2`, `mapFold`, `mapFoldBack`, `filteri`, `findIndexi` and `tryFindIndexi` are `inline` with `[<InlineIfLambda; OptimizeClosureIfNotInlined>]`, as in FSharp.Core 11. A lambda argument is inlined into the loop, any other function is adapted once with `OptimizedClosures`. For lambdas `fold` was measured 2.2 to 5 times faster, `mapi` and `map2` 1.1 to 1.4 times, see `Benchmarks/InlineIfLambda`.
@@ -166,6 +166,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
+[0.31.0-fsharp11]: https://github.com/goswinr/ResizeArrayT/compare/0.30.0...0.31.0-fsharp11
 [0.30.0]: https://github.com/goswinr/ResizeArrayT/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/goswinr/ResizeArrayT/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/goswinr/ResizeArrayT/compare/0.27.0...0.28.0
