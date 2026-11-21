@@ -4,6 +4,9 @@ Results collected on 2026-09-29 for ResizeArrayT on .NET and Fable. This overvie
 records the comparer investigation, native JavaScript comparison, typed numeric
 sorts, and comparison with FSharp.Core's `Array.sort`.
 
+Whether `inline` with `[<InlineIfLambda>]` and `[<OptimizeClosureIfNotInlined>]`
+makes ResizeArray functions faster is measured separately in [InlineIfLambda](InlineIfLambda/README.md).
+
 ## Implementation decisions
 
 | API | .NET implementation | Fable implementation |

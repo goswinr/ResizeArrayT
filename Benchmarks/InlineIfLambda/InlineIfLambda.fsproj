@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>net8.0;net10.0</TargetFrameworks>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- FSharp.Core 11 defines OptimizeClosureIfNotInlinedAttribute. -->
+    <PackageReference Update="FSharp.Core" Version="11.0.101" />
+    <PackageReference Include="Fable.Core" Version="4.5.0" Condition="$(DefineConstants.Contains('FABLE_COMPILER'))" />
+    <ProjectReference Include="../../Src/ResizeArrayT.fsproj" />
+    <Compile Include="Prototypes.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+  <!-- An older F# compiler ignores OptimizeClosureIfNotInlined, so the results would be misleading. -->
+  <Target Name="RequireFSharp11" BeforeTargets="CoreCompile" Condition="!$(DefineConstants.Contains('FABLE_COMPILER'))">
+    <Error Condition="$([MSBuild]::VersionLessThan('$(NETCoreSdkVersion)', '11.0.100'))" Text="This benchmark needs the .NET 11 SDK (F# 11), found $(NETCoreSdkVersion)." />
+  </Target>
+</Project>
