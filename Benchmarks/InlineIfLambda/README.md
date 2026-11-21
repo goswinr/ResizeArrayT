@@ -16,7 +16,7 @@ marked with `[<OptimizeClosureIfNotInlined>]`, which is new in F# 11
 
 ## What is compared
 
-- `current`: the ResizeArrayT library as it is now.
+- `current`: the ResizeArrayT library as it was when measured, see the table below.
 - `inlineIfLambda`: `inline` with `[<InlineIfLambda>]`, a plain F# loop, see [Prototypes.fs](Prototypes.fs).
 - `optimizeClosure`: as `inlineIfLambda`, plus `[<OptimizeClosureIfNotInlined>]`. Only for the
   functions with two-argument callbacks: `fold`, `iteri`, `mapi` and `map2`.
@@ -184,11 +184,11 @@ Full results: [.NET 8](results-net8.csv), [.NET 10](results-net10.csv),
 
 ## Recommendation
 
-Not implemented yet; the library is unchanged by this benchmark.
-
-1. **Without a dependency change:** make the .NET implementations of the functions with
-   one-argument callbacks that use delegates `inline` loops with `[<InlineIfLambda>]`: `exists`,
-   `filter` and `map`. Keep their Fable implementations with native JS array methods.
+1. **Without a dependency change (done, see the changelog):** make the .NET implementations of the
+   functions with one-argument callbacks that use delegates `inline` loops with `[<InlineIfLambda>]`:
+   `exists`, `filter` (and its alias `where`) and `map`. Keep their Fable implementations with
+   native JS array methods. The results above were measured before this change; `current` for
+   these functions now runs the same code as `inlineIfLambda`.
    `forall`, `find`, `findIndex` and `tryFind` follow the same pattern and likely gain the same
    way, but were not measured.
 2. **When FSharp.Core 11 can be the minimum:** make the functions with two-argument callbacks

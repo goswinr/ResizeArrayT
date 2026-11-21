@@ -1798,9 +1798,20 @@ module ResizeArray =
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns><c>true</c> if any result from <c>predicate</c> is <c>true</c>.</returns>
-    let exists (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : bool =
-        if isNull resizeArray then nullExn "exists"
-        resizeArray.Exists(System.Predicate predicate)
+    let inline exists ([<InlineIfLambda>] predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : bool =
+        #if FABLE_COMPILER
+            if isNull resizeArray then nullExn "exists"
+            resizeArray.Exists(System.Predicate predicate) // native JS findIndex, faster in Fable than a loop
+        #else
+            if isNull resizeArray then nullExn "exists"
+            // A loop instead of a delegate, see Benchmarks/InlineIfLambda
+            let mutable state = false
+            let mutable i = 0
+            while not state && i < resizeArray.Count do
+                state <- predicate resizeArray.[i]
+                i <- i + 1
+            state
+        #endif
 
 
     /// <summary>Tests if any pair of corresponding elements of the ResizeArrays satisfies the given predicate.
@@ -1858,10 +1869,19 @@ module ResizeArray =
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray containing the elements for which the given predicate returns true.</returns>
-    let inline filter (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
-        if isNull resizeArray then nullExn "filter"
-        // TODO replace with F# implementation using [<InlineIfLambda>] for performance?? Test on non Lambdas too.
-        resizeArray.FindAll(System.Predicate predicate)
+    let inline filter ([<InlineIfLambda>] predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+        #if FABLE_COMPILER
+            if isNull resizeArray then nullExn "filter"
+            resizeArray.FindAll(System.Predicate predicate) // native JS filter, faster in Fable than a loop
+        #else
+            if isNull resizeArray then nullExn "filter"
+            // A loop instead of a delegate, see Benchmarks/InlineIfLambda
+            let res = ResizeArray<'T>()
+            for i = 0 to resizeArray.Count - 1 do
+                let x = resizeArray.[i]
+                if predicate x then res.Add x
+            res
+        #endif
 
 
     /// <summary>Returns the first element for which the given function returns <c>true</c>.
@@ -2321,14 +2341,23 @@ module ResizeArray =
     /// <param name="mapping">The function to transform elements of the ResizeArray.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray of transformed elements.</returns>
-    let inline map (mapping: 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'U> =
+    let inline map ([<InlineIfLambda>] mapping: 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'U> =
         #if FABLE_COMPILER_JAVASCRIPT || FABLE_COMPILER_TYPESCRIPT
             if isNull resizeArray then nullExn "map"
             // https://fable.io/docs/javascript/features.html#emitjsexpr
             Fable.Core.JsInterop.emitJsExpr (resizeArray, mapping) "$0.map($1)" // this works only because a ResizeArray is never a TypedArray in JS
         #else
+        #if FABLE_COMPILER // other Fable targets, Fable does not support #elif
             if isNull resizeArray then nullExn "map"
-            resizeArray.ConvertAll (System.Converter mapping) // would work in Fable too
+            resizeArray.ConvertAll (System.Converter mapping)
+        #else
+            if isNull resizeArray then nullExn "map"
+            // A loop instead of a delegate, see Benchmarks/InlineIfLambda
+            let res = ResizeArray<'U>(resizeArray.Count)
+            for i = 0 to resizeArray.Count - 1 do
+                res.Add(mapping resizeArray.[i])
+            res
+        #endif
         #endif
 
     /// <summary>Builds a new Array whose elements are the results of applying the given function
@@ -3553,7 +3582,7 @@ module ResizeArray =
     /// <param name="predicate">The function to test the input elements.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>a ResizeArray containing the elements for which the given predicate returns true.</returns>
-    let where (predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) =
+    let inline where ([<InlineIfLambda>] predicate: 'T -> bool) (resizeArray: ResizeArray<'T>) =
         if isNull resizeArray then nullExn "where"
         filter predicate resizeArray
 
