@@ -191,10 +191,13 @@ Full results: [.NET 8](results-net8.csv), [.NET 10](results-net10.csv),
    these functions now runs the same code as `inlineIfLambda`.
    `forall`, `find`, `findIndex` and `tryFind` follow the same pattern and likely gain the same
    way, but were not measured.
-2. **When FSharp.Core 11 can be the minimum:** make the functions with two-argument callbacks
-   (`fold`, `iteri`, `mapi`, `map2` and similar) `inline` with both
+2. **When FSharp.Core 11 can be the minimum (done, see the changelog):** make the functions with
+   two-argument callbacks (`fold`, `iteri`, `mapi`, `map2` and similar) `inline` with both
    `[<InlineIfLambda; OptimizeClosureIfNotInlined>]`, as FSharp.Core 11 does. Until then keep them
    as they are: `[<InlineIfLambda>]` alone makes opaque callbacks 1.5× to 4.6× slower.
+   `current` for these functions now runs the same code as `optimizeClosure`. `zipDefault` and
+   `mapPrevNext` stay not inline, because they call their callbacks at several places, which
+   would copy the lambda body several times into every call site.
 
 These are local microbenchmarks with integers, not performance guarantees. Node.js results are not
 browser measurements.

@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Scriptorium.Quill" Version="0.7.1" />
     <PackageReference Include="Scriptorium.Nib" Version="0.4.1" />
-    <PackageReference Include="FSharp.Core" Version="10.0.101" /><!-- `Include` syntax for dependabot -->
+    <PackageReference Include="FSharp.Core" Version="11.0.101" /><!-- `Include` syntax for dependabot -->
     <ProjectReference Include="../Src/ResizeArrayT.fsproj" />
 
     <Compile Include="Module.fs" />

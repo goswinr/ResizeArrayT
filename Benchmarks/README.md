@@ -189,6 +189,8 @@ Environment: Windows 11 x64, Intel Core i5-14600, .NET SDK 10.0.401, .NET 8.0.31
 and 10.0.12, Fable 5.15.0, Node.js 26.7.0. SortComparer uses FSharp.Core 6.0.7,
 matching the library's minimum dependency; ArraySort uses 10.0.101, matching the
 test project. In Fable, calls are compiled to the Fable runtime implementation.
+Both projects now reference FSharp.Core 11.0.101, the library's new minimum, so a
+rerun does not use the FSharp.Core versions of these results.
 
 Compare methods **within each experiment**, not absolute timings across the
 tables: FSharp.Core versions, JIT context and machine conditions differ.

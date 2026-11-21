@@ -1179,7 +1179,7 @@ module ResizeArray =
     /// <param name="predicate">The function to test the index and the element.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>A ResizeArray containing the elements for which the given predicate returns true.</returns>
-    let inline filteri (predicate: int -> 'T-> bool) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
+    let inline filteri ([<InlineIfLambda; OptimizeClosureIfNotInlined>] predicate: int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : ResizeArray<'T> =
         if isNull resizeArray then nullExn "filteri"
         let res = ResizeArray()
         for i = 0 to resizeArray.Count - 1 do
@@ -1192,7 +1192,7 @@ module ResizeArray =
     /// <param name="predicate">The function to test each indexed element against.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The index of the first element that satisfies the predicate, or None if not found.</returns>
-    let inline tryFindIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : option<int> =
+    let inline tryFindIndexi ([<InlineIfLambda; OptimizeClosureIfNotInlined>] predicate: int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : option<int> =
         if isNull resizeArray then nullExn "tryFindIndexi" // TODO or return None ?
         let mutable i = 0
         let mutable result = None
@@ -1210,7 +1210,7 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The index of the first element that satisfies the predicate, or an exception.</returns>
     /// <exception cref="ResizeArrayT.ResizeArrayTKeyNotFoundException">Thrown when no element satisfies the predicate.</exception>
-    let findIndexi (predicate:int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : int=
+    let inline findIndexi ([<InlineIfLambda; OptimizeClosureIfNotInlined>] predicate: int -> 'T -> bool) (resizeArray: ResizeArray<'T>) : int=
         if isNull resizeArray then nullExn "findIndexi"
         match tryFindIndexi predicate resizeArray with
         | Some i -> i
@@ -1825,20 +1825,19 @@ module ResizeArray =
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <returns><c>true</c> if any result from <c>predicate</c> is <c>true</c>.</returns>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
-    let exists2 (predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
+    let inline exists2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
         if isNull resizeArray1 then nullExn "exists2 first" // TODO Or return false?
         if isNull resizeArray2 then nullExn "exists2 second"
         let len1 = resizeArray1.Count
         if len1 <> resizeArray2.Count then
             fail resizeArray1 $"exists2: count of resizeArray1 {len1} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_,_,_>.Adapt predicate
         let mutable i = 0
         let mutable found = false
         while i < len1  do
             let e1 = resizeArray1.[i]
             let e2 = resizeArray2.[i]
             i <- i + 1
-            if f.Invoke(e1, e2) then
+            if predicate e1 e2 then
                 found <- true
                 i <- len1 // break out of the loop
         found
@@ -1963,12 +1962,11 @@ module ResizeArray =
     /// <param name="state">The initial state.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The final state.</returns>
-    let fold<'T, 'State> (folder: 'State -> 'T -> 'State) (state: 'State) (resizeArray: ResizeArray<'T>) : 'State =
+    let inline fold<'T, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'State -> 'T -> 'State) (state: 'State) (resizeArray: ResizeArray<'T>) : 'State =
         if isNull resizeArray then nullExn "fold"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(folder)
         let mutable state = state
         for i = 0 to resizeArray.Count - 1 do
-            state <- f.Invoke(state, resizeArray.[i])
+            state <- folder state resizeArray.[i]
         state
 
 
@@ -1983,15 +1981,14 @@ module ResizeArray =
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The final state.</returns>
-    let fold2<'T1, 'T2, 'State> folder (state: 'State) (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) : 'State =
+    let inline fold2<'T1, 'T2, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'State -> 'T1 -> 'T2 -> 'State) (state: 'State) (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) : 'State =
         if isNull resizeArray1 then nullExn "fold2 first"
         if isNull resizeArray2 then nullExn "fold2 second"
         if resizeArray1.Count <> resizeArray2.Count then
             fail resizeArray1  $"fold2: count of resizeArray1 {resizeArray1.Count} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _, _>.Adapt(folder)
         let mutable state = state
         for i = 0 to resizeArray1.Count - 1 do
-            state <- f.Invoke(state, resizeArray1.[i], resizeArray2.[i])
+            state <- folder state resizeArray1.[i] resizeArray2.[i]
         state
 
 
@@ -2002,12 +1999,11 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <param name="state">The initial state.</param>
     /// <returns>The state object after the folding function is applied to each element of the ResizeArray.</returns>
-    let foldBack<'T, 'State> (folder: 'T -> 'State -> 'State) (resizeArray: ResizeArray<'T>) (state: 'State) : 'State =
+    let inline foldBack<'T, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'T -> 'State -> 'State) (resizeArray: ResizeArray<'T>) (state: 'State) : 'State =
         if isNull resizeArray then nullExn "foldBack"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(folder)
         let mutable res = state
         for i = resizeArray.Count - 1 downto 0 do
-            res <- f.Invoke(resizeArray.[i], res)
+            res <- folder resizeArray.[i] res
         res
 
 
@@ -2021,16 +2017,15 @@ module ResizeArray =
     /// <param name="state">The initial state.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The final state.</returns>
-    let foldBack2<'T1, 'T2, 'State> folder (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) (state: 'State) : 'State =
+    let inline foldBack2<'T1, 'T2, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'T1 -> 'T2 -> 'State -> 'State) (resizeArray1: 'T1 ResizeArray) (resizeArray2: 'T2 ResizeArray) (state: 'State) : 'State =
         if isNull resizeArray1 then nullExn "foldBack2 first"
         if isNull resizeArray2 then nullExn "foldBack2 second"
         let len = resizeArray1.Count
         if len <> resizeArray2.Count then
             fail resizeArray1 $"foldBack2: count of resizeArray1 {len} does not match resizeArray2 {resizeArray2.Count}."
         let mutable res = state
-        let f = OptimizedClosures.FSharpFunc<_, _, _, _>.Adapt(folder)
         for i = len - 1 downto 0 do
-            res <- f.Invoke(resizeArray1.[i], resizeArray2.[i], res)
+            res <- folder resizeArray1.[i] resizeArray2.[i] res
         res
 
 
@@ -2069,17 +2064,16 @@ module ResizeArray =
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns><c>true</c> if all of the ResizeArray elements satisfy the predicate.</returns>
-    let forall2 (predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
+    let inline forall2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] predicate: 'T -> 'U -> bool) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : bool =
         if isNull resizeArray1 then nullExn "forall2 first"
         if isNull resizeArray2 then nullExn "forall2 second"
         let len1 = resizeArray1.Count
         if len1 <> resizeArray2.Count then
             fail resizeArray1 $"forall2: count of resizeArray1 {len1} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(predicate)
         let mutable i = 0
         let mutable result = true
         while i < len1 && result do
-            if not (f.Invoke(resizeArray1.[i], resizeArray2.[i])) then
+            if not (predicate resizeArray1.[i] resizeArray2.[i]) then
                 result <- false
             i <- i + 1
         result
@@ -2280,25 +2274,23 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
-    let inline iter2 (action: 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
+    let inline iter2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] action: 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
         if isNull resizeArray1 then nullExn "iter2 first"
         if isNull resizeArray2 then nullExn "iter2 second"
         if resizeArray1.Count <> resizeArray2.Count then
             fail resizeArray1  $"iter2: count of resizeArray1 {resizeArray1.Count} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(action)
         for i = 0 to resizeArray1.Count - 1 do
-            f.Invoke(resizeArray1.[i], resizeArray2.[i])
+            action resizeArray1.[i] resizeArray2.[i]
 
 
     /// <summary>Applies the given function to each element of the ResizeArray. The integer passed to the
     /// function indicates the index of element.</summary>
     /// <param name="action">The function to apply to each index and element.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
-    let inline iteri (action: int -> 'T -> unit) (resizeArray: ResizeArray<'T>) : unit =
+    let inline iteri ([<InlineIfLambda; OptimizeClosureIfNotInlined>] action: int -> 'T -> unit) (resizeArray: ResizeArray<'T>) : unit =
         if isNull resizeArray then nullExn "iteri"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(action)
         for i = 0 to resizeArray.Count - 1 do
-            f.Invoke(i, resizeArray.[i])
+            action i resizeArray.[i]
 
 
     /// <summary>Applies the given function to pair of elements drawn from matching indices in two ResizeArrays,
@@ -2308,14 +2300,13 @@ module ResizeArray =
     /// <param name="resizeArray1">The first input ResizeArray.</param>
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
-    let inline iteri2 (action: int -> 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
+    let inline iteri2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] action: int -> 'T -> 'U -> unit) (resizeArray1: ResizeArray<'T>) (resizeArray2: ResizeArray<'U>) : unit =
         if isNull resizeArray1 then nullExn "iteri2 first"
         if isNull resizeArray2 then nullExn "iteri2 second"
         if resizeArray1.Count <> resizeArray2.Count then
             fail resizeArray1 $"iteri2: count of resizeArray1 {resizeArray1.Count} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _, _>.Adapt(action)
         for i = 0 to resizeArray1.Count - 1 do
-            f.Invoke(i, resizeArray1.[i], resizeArray2.[i])
+            action i resizeArray1.[i] resizeArray2.[i]
 
 
     /// <summary>Gets the last element of the ResizeArray.</summary>
@@ -2418,15 +2409,14 @@ module ResizeArray =
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
-    let map2 (mapping: 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
+    let inline map2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "map2 first"
         if isNull resizeArray2 then nullExn "map2 second"
         if resizeArray1.Count <> resizeArray2.Count then
             fail resizeArray1 $"map2: count of resizeArray1 {resizeArray1.Count} does not match resizeArray2 {resizeArray2.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(mapping)
         let res = ResizeArray<'U>(resizeArray1.Count)
         for i = 0 to resizeArray1.Count - 1 do
-            res.Add(f.Invoke(resizeArray1.[i], resizeArray2.[i]))
+            res.Add(mapping resizeArray1.[i] resizeArray2.[i])
         res
 
     /// <summary>Builds a new collection whose elements are the results of applying the given function
@@ -2439,17 +2429,16 @@ module ResizeArray =
     /// <param name="resizeArray3">The third input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
-    let map3 (mapping: 'T1 -> 'T2 -> 'T3 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) (resizeArray3: ResizeArray<'T3>) : ResizeArray<'U> =
+    let inline map3 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: 'T1 -> 'T2 -> 'T3 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) (resizeArray3: ResizeArray<'T3>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "map3 first"
         if isNull resizeArray2 then nullExn "map3 second"
         if isNull resizeArray3 then nullExn "map3 third"
         let len1 = resizeArray1.Count
         if len1 <> resizeArray2.Count || len1 <> resizeArray3.Count then
             fail resizeArray1 $"map3: count of resizeArray1 {len1} does not match resizeArray2 {resizeArray2.Count} or resizeArray3 {resizeArray3.Count}."
-        let f = OptimizedClosures.FSharpFunc<_, _, _, _>.Adapt(mapping)
-        let res = ResizeArray(len1)
+        let res = ResizeArray<'U>(len1)
         for i = 0 to resizeArray1.Count - 1 do
-            res.Add <| f.Invoke(resizeArray1.[i], resizeArray2.[i], resizeArray3.[i])
+            res.Add(mapping resizeArray1.[i] resizeArray2.[i] resizeArray3.[i])
         res
 
 
@@ -2459,16 +2448,15 @@ module ResizeArray =
     /// <param name="state">The initial state.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray of transformed elements, and the final accumulated value.</returns>
-    let mapFold<'T, 'State, 'Result> (mapping: 'State -> 'T -> 'Result * 'State) state (resizeArray: ResizeArray<'T>) : ResizeArray<'Result> * 'State =
+    let inline mapFold<'T, 'State, 'Result> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: 'State -> 'T -> 'Result * 'State) state (resizeArray: ResizeArray<'T>) : ResizeArray<'Result> * 'State =
         if isNull resizeArray then nullExn "mapFold"
         match resizeArray.Count with
         | 0 -> ResizeArray(0), state
         | len ->
-            let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(mapping)
             let mutable acc = state
-            let res = ResizeArray(len)
+            let res = ResizeArray<'Result>(len)
             for i = 0 to len - 1 do
-                let h, s = f.Invoke(acc, resizeArray.[i])
+                let h, s = mapping acc resizeArray.[i]
                 res.Add h
                 acc <- s
             res, acc
@@ -2479,18 +2467,17 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <param name="state">The initial state.</param>
     /// <returns>The ResizeArray of transformed elements, and the final accumulated value.</returns>
-    let mapFoldBack<'T, 'State, 'Result> (mapping: 'T -> 'State -> 'Result * 'State) (resizeArray: ResizeArray<'T>) state : ResizeArray<'Result> * 'State =
+    let inline mapFoldBack<'T, 'State, 'Result> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: 'T -> 'State -> 'Result * 'State) (resizeArray: ResizeArray<'T>) state : ResizeArray<'Result> * 'State =
         if isNull resizeArray then nullExn "mapFoldBack"
         match resizeArray.Count with
         | 0 -> ResizeArray(0), state
         | len ->
-            let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(mapping)
             let mutable acc = state
-            let res = ResizeArray(len)
+            let res = ResizeArray<'Result>(len)
             for i = 0 to len - 1 do
                 res.Add Unchecked.defaultof<'Result> // needs to be filled already because of 'downto' loop
             for i = len - 1 downto 0 do
-                let h, s = f.Invoke(resizeArray.[i], acc)
+                let h, s = mapping resizeArray.[i] acc
                 res.[i] <- h
                 acc <- s
             res, acc
@@ -2501,12 +2488,11 @@ module ResizeArray =
     /// <param name="mapping">The function to transform elements and their indices.</param>
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray of transformed elements.</returns>
-    let mapi (mapping: int -> 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'U> =
+    let inline mapi ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: int -> 'T -> 'U) (resizeArray: ResizeArray<'T>) : ResizeArray<'U> =
         if isNull resizeArray then nullExn "mapi"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(mapping)
-        let res = ResizeArray(resizeArray.Count)
+        let res = ResizeArray<'U>(resizeArray.Count)
         for i = 0 to resizeArray.Count - 1 do
-            res.Add <| f.Invoke(i, resizeArray.[i])
+            res.Add(mapping i resizeArray.[i])
         res
 
     /// <summary>Builds a new collection whose elements are the results of applying the given function
@@ -2518,15 +2504,14 @@ module ResizeArray =
     /// <param name="resizeArray2">The second input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArrays differ in length.</exception>
     /// <returns>The ResizeArray of transformed elements.</returns>
-    let mapi2 (mapping: int -> 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
+    let inline mapi2 ([<InlineIfLambda; OptimizeClosureIfNotInlined>] mapping: int -> 'T1 -> 'T2 -> 'U) (resizeArray1: ResizeArray<'T1>) (resizeArray2: ResizeArray<'T2>) : ResizeArray<'U> =
         if isNull resizeArray1 then nullExn "mapi2 first"
         if isNull resizeArray2 then nullExn "mapi2 second"
-        let f = OptimizedClosures.FSharpFunc<_, _, _, _>.Adapt(mapping)
         if resizeArray1.Count <> resizeArray2.Count then
             fail resizeArray1 $"mapi2: count of resizeArray1 {resizeArray1.Count} does not match resizeArray2 {resizeArray2.Count}."
-        let res = ResizeArray(resizeArray1.Count)
+        let res = ResizeArray<'U>(resizeArray1.Count)
         for i = 0 to resizeArray1.Count - 1 do
-            res.Add <| f.Invoke(i, resizeArray1.[i], resizeArray2.[i])
+            res.Add(mapping i resizeArray1.[i] resizeArray2.[i])
         res
 
 
@@ -2867,14 +2852,13 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The final result of the reductions.</returns>
-    let reduce (reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) =
+    let inline reduce ([<InlineIfLambda; OptimizeClosureIfNotInlined>] reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "reduce"
         if resizeArray.Count = 0 then
             fail resizeArray "reduce: Count must be at least one"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(reduction)
         let mutable res = resizeArray.[0]
         for i = 1 to resizeArray.Count - 1 do
-            res <- f.Invoke(res, resizeArray.[i])
+            res <- reduction res resizeArray.[i]
         res
 
 
@@ -2886,14 +2870,13 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <exception cref="T:ResizeArrayT.ResizeArrayTArgumentException">Thrown when the input ResizeArray is empty.</exception>
     /// <returns>The final result of the reductions.</returns>
-    let reduceBack (reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) =
+    let inline reduceBack ([<InlineIfLambda; OptimizeClosureIfNotInlined>] reduction: 'T -> 'T -> 'T) (resizeArray: ResizeArray<'T>) : 'T =
         if isNull resizeArray then nullExn "reduceBack"
         if resizeArray.Count = 0 then
             fail resizeArray "reduceBack: Count must be at least one"
-        let f = OptimizedClosures.FSharpFunc<_, _, _>.Adapt(reduction)
         let mutable res = resizeArray.Last
         for i = resizeArray.Count - 2 downto 0 do
-            res <- f.Invoke(resizeArray.[i], res)
+            res <- reduction resizeArray.[i] res
         res
 
 
@@ -2964,16 +2947,15 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <returns>The ResizeArray of state values. This ResizeArray has the initial state and the state for all elements in the input ResizeArray,
     /// so one more item than the input.</returns>
-    let scan<'T, 'State> (folder: 'State -> 'T -> 'State) (stateInit: 'State) (resizeArray: ResizeArray<'T>) : ResizeArray<'State> =
+    let inline scan<'T, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'State -> 'T -> 'State) (stateInit: 'State) (resizeArray: ResizeArray<'T>) : ResizeArray<'State> =
         if isNull resizeArray then nullExn "scan"
-        let folder = OptimizedClosures.FSharpFunc<_, _, _>.Adapt folder
         // Holds the initial and intermediate state values.
-        let results = ResizeArray(resizeArray.Count + 1)
+        let results = ResizeArray<'State>(resizeArray.Count + 1)
         results.Add stateInit
         // Fold over the specified range of items.
         let mutable state = stateInit
         for i = 0 to resizeArray.Count - 1 do
-            state <- folder.Invoke(state, resizeArray.[i])
+            state <- folder state resizeArray.[i]
             results.Add state
         results
 
@@ -2982,16 +2964,15 @@ module ResizeArray =
     /// <param name="resizeArray">The input ResizeArray.</param>
     /// <param name="stateInit">The initial state.</param>
     /// <returns>The ResizeArray of state values. Count = input count + 1 </returns>
-    let scanBack<'T, 'State> (folder: 'T -> 'State -> 'State) (resizeArray: ResizeArray<'T>) (stateInit: 'State) : ResizeArray<'State> =
+    let inline scanBack<'T, 'State> ([<InlineIfLambda; OptimizeClosureIfNotInlined>] folder: 'T -> 'State -> 'State) (resizeArray: ResizeArray<'T>) (stateInit: 'State) : ResizeArray<'State> =
         if isNull resizeArray then nullExn "scanBack"
-        let folder = OptimizedClosures.FSharpFunc<_, _, _>.Adapt folder
-        let results = ResizeArray(resizeArray.Count + 1) // Holds the initial and intermediate state values.
+        let results = ResizeArray<'State>(resizeArray.Count + 1) // Holds the initial and intermediate state values.
         for _ = 0 to resizeArray.Count do // to fill up list +1 with default values
             results.Add stateInit
         // Fold over the specified range of items.
         let mutable state = stateInit
         for i = resizeArray.Count - 1 downto 0 do
-            state <- folder.Invoke(resizeArray.[i], state)
+            state <- folder resizeArray.[i] state
             results.[i] <- state
         results
 

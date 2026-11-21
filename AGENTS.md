@@ -27,7 +27,7 @@ Opening the `ResizeArrayT` namespace exposes the `ResizeArray` module, `ResizeAr
 
 ## Build and test
 
-Run builds from the repository root with the .NET 10 SDK. The library targets `netstandard2.0` (a single `TargetFramework`, because the plural `TargetFrameworks` fails with FsDocs); tests and benchmarks target `net8.0`, so the .NET 8 runtime must be installed too. Building the library also creates the NuGet package.
+Run builds from the repository root with the .NET 11 SDK (F# 11, needed for `[<OptimizeClosureIfNotInlined>]`). The library requires FSharp.Core 11.0.101 or later. The library targets `netstandard2.0` (a single `TargetFramework`, because the plural `TargetFrameworks` fails with FsDocs); tests and benchmarks target `net8.0`, so the .NET 8 runtime must be installed too. Building the library also creates the NuGet package.
 
 ```bash
 dotnet build ResizeArray.sln

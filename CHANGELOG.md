@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- **Breaking:** ResizeArrayT now needs FSharp.Core 11.0.101 or later, the first version with `OptimizeClosureIfNotInlinedAttribute`, instead of 6.0.7. Building it needs the .NET 11 SDK (F# 11).
+- `ResizeArray.fold`, `fold2`, `foldBack`, `foldBack2`, `reduce`, `reduceBack`, `scan`, `scanBack`, `iter2`, `iteri`, `iteri2`, `exists2`, `forall2`, `map2`, `map3`, `mapi`, `mapi2`, `mapFold`, `mapFoldBack`, `filteri`, `findIndexi` and `tryFindIndexi` are `inline` with `[<InlineIfLambda; OptimizeClosureIfNotInlined>]`, as in FSharp.Core 11. A lambda argument is inlined into the loop, any other function is adapted once with `OptimizedClosures`. For lambdas `fold` was measured 2.2 to 5 times faster, `mapi` and `map2` 1.1 to 1.4 times, see `Benchmarks/InlineIfLambda`.
+- Code that calls these functions and is compiled with an F# version older than 11 does not adapt a function argument that is not a lambda, it is called through `FSharpFunc.InvokeFast` for each element, measured 1.5 to 4.6 times slower than before.
 - `ResizeArray.exists`, `filter`, `where` and `map` are `inline` with `[<InlineIfLambda>]` and use a loop on .NET instead of `Exists`, `FindAll` and `ConvertAll` with a delegate. They are 1.1 to 3.4 times faster and allocate no delegate. In Fable they still use the native JS array methods. See `Benchmarks/InlineIfLambda`.
 ### Fixed
 - `xs.Pop()` returns `T` instead of `T | undefined` in the TypeScript output of Fable, so it type-checks under `strictNullChecks`.
