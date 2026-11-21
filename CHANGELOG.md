@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.31.0] - 2026-11-21
 ### Changed
 - `ResizeArray.exists`, `filter`, `where` and `map` are `inline` with `[<InlineIfLambda>]` and use a loop on .NET instead of `Exists`, `FindAll` and `ConvertAll` with a delegate. They are 1.1 to 3.4 times faster and allocate no delegate. In Fable they still use the native JS array methods. See `Benchmarks/InlineIfLambda`.
 ### Fixed
@@ -163,6 +163,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - implementation ported from `Rarr` type in https://github.com/goswinr/FsEx/blob/main/Src/RarrModule.fs
 
+[0.31.0]: https://github.com/goswinr/ResizeArrayT/compare/0.30.0...0.31.0
 [0.30.0]: https://github.com/goswinr/ResizeArrayT/compare/0.29.0...0.30.0
 [0.29.0]: https://github.com/goswinr/ResizeArrayT/compare/0.28.0...0.29.0
 [0.28.0]: https://github.com/goswinr/ResizeArrayT/compare/0.27.0...0.28.0
