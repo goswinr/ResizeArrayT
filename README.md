@@ -53,6 +53,12 @@ module inside of the same name. [Reference Issue](https://github.com/dotnet/fsha
 Older versions of the library will still work with the old namespace `ResizeArray`.<br>
 And can be found on nuget.org with the name [ResizeArray](https://www.nuget.org/packages/ResizeArray/).<br>
 
+## Versions ending in `-fsharp11`
+NuGet prereleases such as `0.31.0-fsharp11` need FSharp.Core 11.0.101 or later, while the regular versions need only FSharp.Core 6.0.7.<br>
+In them, functions with multi-argument callbacks such as `fold`, `iteri`, `mapi` and `map2` are `inline` with `[<InlineIfLambda; OptimizeClosureIfNotInlined>]`, like in FSharp.Core 11. This makes them faster when called with a lambda.<br>
+Use them only if your code is compiled with F# 11 (.NET 11 SDK) or later. With older compilers, callbacks that are not lambdas are called more slowly than in the regular versions.<br>
+They are built from the [fsharp11](https://github.com/goswinr/ResizeArrayT/tree/fsharp11) branch, see the [benchmarks](https://github.com/goswinr/ResizeArrayT/blob/main/Benchmarks/InlineIfLambda/README.md).
+
 
 ## Usage
 Just open the namespace
